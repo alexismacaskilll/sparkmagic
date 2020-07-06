@@ -7,6 +7,8 @@ from hdijupyterutils.utils import join_paths
 from hdijupyterutils.configuration import override as _override
 from hdijupyterutils.configuration import override_all as _override_all
 from hdijupyterutils.configuration import with_override
+from google_auth_oauthlib import flow
+
 
 from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PARAM, \
     LANG_SCALA, LANG_PYTHON, LANG_R, \
@@ -262,6 +264,25 @@ def kerberos_auth_configuration():
         "mutual_authentication": REQUIRED
     }
 
+def google_auth_credentials():
+    # TODO: Uncomment the line below to set the `launch_browser` variable.
+    launch_browser = False 
+    #
+    # The `launch_browser` boolean variable indicates if a local server is used
+    # as the callback URL in the auth flow. A value of `True` is recommended,
+    # but a local server does not work if accessing the application remotely,
+    # such as over SSH or from a remote Jupyter notebook.
+
+    appflow = flow.InstalledAppFlow.from_client_secrets_file(
+        'credentials.json',
+        scopes=['profile','email'])
+
+    if launch_browser:
+        appflow.run_local_server()
+    else:
+        appflow.run_console()
+    credentials = appflow.credentials
+    return credentials
 
 def _credentials_override(f):
     """Provides special handling for credentials. It still calls _override().

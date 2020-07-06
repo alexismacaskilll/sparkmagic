@@ -4,6 +4,11 @@ import json
 from time import sleep
 import requests
 from requests_kerberos import HTTPKerberosAuth
+from google_auth_oauthlib import flow
+from google.auth.transport.requests import AuthorizedSession
+
+
+
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -24,6 +29,9 @@ class ReliableHttpClient(object):
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
+        elif self._endpoint.auth == constants.GOOGLE_AUTH: 
+            authed_session = AuthorizedSession(conf.google_auth_credentials())
+            self._auth = authed_session.get('https://www.googleapis.com/storage/v1/b')
         elif self._endpoint.auth != constants.NO_AUTH:
             raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
         self._session = requests.Session()
