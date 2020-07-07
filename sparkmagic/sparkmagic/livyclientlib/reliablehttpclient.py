@@ -4,7 +4,7 @@ import json
 from time import sleep
 import requests
 from requests_kerberos import HTTPKerberosAuth
-from google_auth_oauthlib import flow
+from google_auth_oauthlib import Flow
 from google.auth.transport.requests import AuthorizedSession
 from google_auth_oauthlib.helpers import credentials_from_session
 
@@ -31,10 +31,13 @@ class ReliableHttpClient(object):
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth == constants.GOOGLE_AUTH: 
-            #google_credentials= credentials_from_session(conf.google_auth_credentials())
-            #self._auth = google_credentials
-            authed_session = AuthorizedSession(conf.google_auth_credentials())
-            self._auth = authed_session.get('https://www.googleapis.com/storage/v1/b')
+            credentials = (conf.google_auth_credentials())
+            self._auth = credentials
+            #Once we have credentials, we attach them to a transport. We use the transport to 
+            #make authenticated requests: how does self._session work? Do I not have to use 
+            #AuthorizedSession? Kerberos HTTPKerberosAuth attaches Kerberos Auth to Requests object
+            #so should self._auth = credentials or authed_session?
+            authed_session = AuthorizedSession(credentials)
         elif self._endpoint.auth != constants.NO_AUTH:
             raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
         self._session = requests.Session()

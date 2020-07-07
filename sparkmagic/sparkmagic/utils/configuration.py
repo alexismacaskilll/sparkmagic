@@ -7,7 +7,7 @@ from hdijupyterutils.utils import join_paths
 from hdijupyterutils.configuration import override as _override
 from hdijupyterutils.configuration import override_all as _override_all
 from hdijupyterutils.configuration import with_override
-from google_auth_oauthlib import flow
+from google_auth_oauthlib.flow import Flow
 
 
 from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PARAM, \
@@ -268,9 +268,9 @@ def google_auth_credentials():
 
     # Use the client_secret.json file to identify the application requesting
     # authorization. The client ID (from that file) and access scopes are required.
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+    flow = Flow.from_client_secrets_file(
         'credentials.json',
-        scopes = ['https://www.googleapis.com/auth/drive.metadata.readonly'])
+        scopes = ['https://www.googleapis.com/auth/cloud-platform'] )
 
     # Indicate where the API server will redirect the user after the user completes
     # the authorization flow. The redirect URI is required. The value must exactly
@@ -299,11 +299,11 @@ def google_auth_credentials():
 
     # You can use flow.credentials, or you can just get a requests session
     # using flow.authorized_session.
-    session = flow.authorized_session()
-    profile_info = (session.get('https://www.googleapis.com/userinfo/v2/me').json())
-    print(profile_info)
+    credentials = flow.credentials()
+    #profile_info = (session.get('https://www.googleapis.com/userinfo/v2/me').json())
+    #print(profile_info)
 
-    return session
+    return credentials
 
 def _credentials_override(f):
     """Provides special handling for credentials. It still calls _override().
