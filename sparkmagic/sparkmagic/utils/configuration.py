@@ -14,7 +14,7 @@ from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PAR
     LANG_SCALA, LANG_PYTHON, LANG_R, \
     SESSION_KIND_SPARKR, SESSION_KIND_SPARK, SESSION_KIND_PYSPARK, CONFIGURABLE_RETRY
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
-import sparkmagic.utils.constants as constants
+from sparkmagic.utils.constants import constants
 
 from requests_kerberos import REQUIRED
 
