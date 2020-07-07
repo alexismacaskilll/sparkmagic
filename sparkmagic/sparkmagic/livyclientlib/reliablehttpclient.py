@@ -11,6 +11,9 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
+from google.auth.transport.requests import AuthorizedSession
+from google_auth_oauthlib.helpers import credentials_from_session
+
 
 
 class ReliableHttpClient(object):
@@ -24,6 +27,14 @@ class ReliableHttpClient(object):
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
+        elif self._endpoint.auth == constants.GOOGLE_AUTH: 
+            credentials = (conf.google_auth_credentials())
+            self._auth = credentials
+            #Once we have credentials, we attach them to a transport. We use the transport to 
+            #make authenticated requests: how does self._session work? Do I not have to use 
+            #AuthorizedSession? Kerberos HTTPKerberosAuth attaches Kerberos Auth to Requests object
+            #so should self._auth = credentials or authed_session?
+            authed_session = AuthorizedSession(credentials)
         elif self._endpoint.auth != constants.NO_AUTH:
             raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
         self._session = requests.Session()

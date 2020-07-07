@@ -13,6 +13,7 @@ from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PAR
     SESSION_KIND_SPARKR, SESSION_KIND_SPARK, SESSION_KIND_PYSPARK, CONFIGURABLE_RETRY
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 import sparkmagic.utils.constants as constants
+from google_auth_oauthlib.flow import Flow
 
 from requests_kerberos import REQUIRED
 
@@ -262,6 +263,47 @@ def kerberos_auth_configuration():
         "mutual_authentication": REQUIRED
     }
 
+
+def google_auth_credentials():
+
+    # Use the client_secret.json file to identify the application requesting
+    # authorization. The client ID (from that file) and access scopes are required.
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes = ['https://www.googleapis.com/auth/cloud-platform'] )
+
+    # Indicate where the API server will redirect the user after the user completes
+    # the authorization flow. The redirect URI is required. The value must exactly
+    # match one of the authorized redirect URIs for the OAuth 2.0 client, which you
+    # configured in the API Console. If this value doesn't match an authorized URI,
+    # you will get a 'redirect_uri_mismatch' error.
+    flow.redirect_uri = 'http://localhost:8080'
+
+    # Generate URL for request to Google's OAuth 2.0 server.
+    # Use kwargs to set optional request parameters.
+    authorization_url, state = flow.authorization_url(
+        # Enable offline access so that you can refresh an access token without
+        # re-prompting the user for permission. Recommended for web server apps.
+        access_type='offline',
+        #Prompt the user for consent.
+        prompt = 'consent',
+        # Enable incremental authorization. Recommended as a best practice.
+        include_granted_scopes='true')
+
+    print('Please go to this URL: {}'.format(authorization_url))
+
+    # The user will get an authorization code. This code is used to get the
+    # access token.
+    code = input('Enter the authorization code: ')
+    flow.fetch_token(code=code)
+
+    # You can use flow.credentials, or you can just get a requests session
+    # using flow.authorized_session.
+    credentials = flow.credentials()
+    #profile_info = (session.get('https://www.googleapis.com/userinfo/v2/me').json())
+    #print(profile_info)
+
+    return credentials
 
 def _credentials_override(f):
     """Provides special handling for credentials. It still calls _override().
