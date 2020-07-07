@@ -4,7 +4,7 @@ import json
 from time import sleep
 import requests
 from requests_kerberos import HTTPKerberosAuth
-from google_auth_oauthlib import Flow
+from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import AuthorizedSession
 from google_auth_oauthlib.helpers import credentials_from_session
 
