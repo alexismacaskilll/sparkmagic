@@ -27,7 +27,7 @@ class ReliableHttpClient(object):
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
-        elif self._endpoint.auth == constants.GOOGLE_AUTH: 
+        elif self._endpoint.auth == constants.AUTH_GOOGLE: 
             credentials = (conf.google_auth_credentials())
             self._auth = credentials
             #Once we have credentials, we attach them to a transport. We use the transport to 
