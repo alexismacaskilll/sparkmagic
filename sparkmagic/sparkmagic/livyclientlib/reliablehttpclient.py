@@ -4,6 +4,10 @@ import json
 from time import sleep
 import requests
 from requests_kerberos import HTTPKerberosAuth
+from google.auth import compute_engine
+import google.auth  
+from google.auth.transport.requests import Request
+from google.auth.credentials import Credentials
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -11,6 +15,7 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
+from google.auth.exceptions import DefaultCredentialsError
 
 
 class ReliableHttpClient(object):
@@ -22,6 +27,33 @@ class ReliableHttpClient(object):
         self._retry_policy = retry_policy
         if self._endpoint.auth == constants.AUTH_KERBEROS:
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
+        elif self._endpoint.auth == constants.AUTH_ADC:
+            #if its run on GCP
+            #default() takes two parameters, scopes and request (google.auth.transport.Request) 
+            # – An object used to make HTTP requests. This is used to detect whether the application 
+            # is running on Compute Engine. HTTPKerberosAuth above attaches kerberos auth to given request object. 
+            # I don;t think I need scopes? 
+            #  https://github.com/googleapis/google-auth-library-python/blob/master/google/auth/_default.py
+            
+            #if notebook is running on GCE: 
+            try: 
+                credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+            except DefaultCredentialsError: 
+                import subprocess
+                #if notebook is running on GCE then we do this: 
+                bashCommand = "gcloud auth application-default login"
+                output = subprocess.check_output(['bash','-c', bashCommand])
+                #if notebook is running locally / on premise, then we do this: 
+                bashCommand = "gcloud auth login"
+                output = subprocess.check_output(['bash','-c', bashCommand])
+                credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+            #so now we have credentials, but we need to attach this to request header object (cause thats what HTTPKerberosAuth does)
+            #so first we get Requests request adapter (request object), then we can attach our credentials (token) to this request header
+            # https://google-auth.readthedocs.io/en/latest/reference/google.auth.transport.requests.html 
+            request = google.auth.transport.requests.Request()
+            Credentials.apply(credentials, request)
+            self._auth = credentials
+            #if user / running locally: https://google-auth.readthedocs.io/en/latest/user-guide.html#user-credentials
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:

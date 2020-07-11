@@ -34,7 +34,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             width=widget_width
         )
         self.auth = self.ipywidget_factory.get_dropdown(
-            options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_BASIC: constants.AUTH_BASIC,
+            options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_ADC: constants.AUTH_ADC, constants.AUTH_BASIC: constants.AUTH_BASIC,
                      constants.NO_AUTH: constants.NO_AUTH},
             description=u"Auth type:"
         )
@@ -65,7 +65,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.refresh_method()
 
     def _show_correct_endpoint_fields(self):
-        if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
+        if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS or self.auth.value == constants.AUTH_ADC:
             self.user_widget.layout.display = 'none'
             self.password_widget.layout.display = 'none'
         else:
