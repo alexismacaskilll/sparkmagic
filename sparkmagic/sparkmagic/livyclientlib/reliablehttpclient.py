@@ -45,10 +45,9 @@ class ReliableHttpClient(object):
             service account. 
             
             **How do I know, if credentials are not set up, whether it is run on GCE or not. I check this from 
-            within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying 
+            within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
             """
             
-            r = requests.get(url = 'http://metadata.google.internal/computeMetadata/v1/project-id', headers= METADATA_HEADERS )
           
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
