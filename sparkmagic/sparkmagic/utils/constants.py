@@ -100,7 +100,7 @@ LIVY_KIND_PARAM = u"kind"
 NO_AUTH = "None"
 AUTH_KERBEROS = "Kerberos"
 AUTH_BASIC = "Basic_Access"
-AUTH_ADC = "Application Default Credentials"
+AUTH_ADC = "ADC"
 AUTHS_SUPPORTED = [NO_AUTH, AUTH_KERBEROS, AUTH_BASIC, AUTH_ADC]
 
 CONFIGURABLE_RETRY = "configurable"
