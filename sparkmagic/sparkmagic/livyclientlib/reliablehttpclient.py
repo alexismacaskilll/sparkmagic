@@ -28,14 +28,25 @@ class ReliableHttpClient(object):
         if self._endpoint.auth == constants.AUTH_KERBEROS:
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
         elif self._endpoint.auth == constants.AUTH_ADC:
-            #if its run on GCP
-            #default() takes two parameters, scopes and request (google.auth.transport.Request) 
-            # – An object used to make HTTP requests. This is used to detect whether the application 
-            # is running on Compute Engine. HTTPKerberosAuth above attaches kerberos auth to given request object. 
-            # I don;t think I need scopes? 
-            #  https://github.com/googleapis/google-auth-library-python/blob/master/google/auth/_default.py
+            """
+            To use application default credentials we use default(), which takes two parameters, scopes and 
+            request (google.auth.transport.Request). Google Application Default Credentials abstracts 
+            authentication across the different Google Cloud Platform hosting environments. When running 
+            on any Google Cloud hosting environment or when running locally with the Google Cloud SDK installed, 
+            default() can automatically determine the credentials from the environment. More here: 
+            https://github.com/googleapis/google-auth-library-python/blob/master/google/auth/_default.py
             
-            #if notebook is running on GCE: 
+            But if credentials are not set up, then if the notebook is running on GCE, then run 'gcloud auth login'.
+            This authenticates with a user identity (via web flow) which then authorizes gcloud and other SDK tools 
+            to access Google Cloud Platform. If the notebook is running on GCE, then run 'gcloud auth application-default 
+            login'. This authenticates with a user identity (via a web flow) but uses the credentials as a proxy for a 
+            service account. 
+            
+            **How do I know, if credentials are not set up, whether it is run on GCE or not. How can I check this from 
+            within the code. 
+            """
+          
+            
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             except DefaultCredentialsError: 
@@ -53,7 +64,8 @@ class ReliableHttpClient(object):
             request = google.auth.transport.requests.Request()
             Credentials.apply(credentials, request)
             self._auth = credentials
-            #if user / running locally: https://google-auth.readthedocs.io/en/latest/user-guide.html#user-credentials
+            #Could also set self._auth = AuthorizedSession(credentials) but going to see if the other way works first. 
+            # https://google-auth.readthedocs.io/en/latest/user-guide.html#requests 
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:
