@@ -8,6 +8,8 @@ from google.auth import compute_engine
 import google.auth  
 from google.auth.transport.requests import Request
 from google.auth.credentials import Credentials
+from urllib.request import Request, urlopen, URLError
+import subprocess
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -42,21 +44,23 @@ class ReliableHttpClient(object):
             login'. This authenticates with a user identity (via a web flow) but uses the credentials as a proxy for a 
             service account. 
             
-            **How do I know, if credentials are not set up, whether it is run on GCE or not. How can I check this from 
-            within the code. 
+            **How do I know, if credentials are not set up, whether it is run on GCE or not. I check this from 
+            within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying 
             """
-          
             
+            r = requests.get(url = 'http://metadata.google.internal/computeMetadata/v1/project-id', headers= METADATA_HEADERS )
+          
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             except DefaultCredentialsError: 
-                import subprocess
-                #if notebook is running on GCE then we do this: 
-                bashCommand = "gcloud auth application-default login"
-                output = subprocess.check_output(['bash','-c', bashCommand])
-                #if notebook is running locally / on premise, then we do this: 
-                bashCommand = "gcloud auth login"
-                output = subprocess.check_output(['bash','-c', bashCommand])
+                #if notebook is running on GCE
+                if self.get_project_id()!= '': 
+                    bashCommand = "gcloud auth application-default login"
+                    output = subprocess.check_output(['bash','-c', bashCommand])
+                #if notebook is running locally / on premise
+                else:
+                    bashCommand = "gcloud auth login"
+                    output = subprocess.check_output(['bash','-c', bashCommand])
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             #so now we have credentials, but we need to attach this to request header object (cause thats what HTTPKerberosAuth does)
             #so first we get Requests request adapter (request object), then we can attach our credentials (token) to this request header
@@ -78,6 +82,18 @@ class ReliableHttpClient(object):
         if not self.verify_ssl:
             self.logger.debug(u"ATTENTION: Will ignore SSL errors. This might render you vulnerable to attacks.")
             requests.packages.urllib3.disable_warnings()
+
+    def get_project_id(self):
+                project_id_request = Request('http://metadata.google.internal/computeMetadata/v1/project/project-id')
+                project_id_request.add_header('Metadata-Flavor', 'Google')
+                try:
+                    with urlopen(project_id_request) as response:
+                        value = response.read().decode()
+                        print(value)
+                        return value
+                except Exception:
+                    print("not running on GCE VM")
+                return ''
 
     def get_headers(self):
         return self._headers
