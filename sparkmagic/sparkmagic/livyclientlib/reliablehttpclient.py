@@ -65,8 +65,8 @@ class ReliableHttpClient(object):
             #so first we get Requests request adapter (request object), then we can attach our credentials (token) to this request header
             # https://google-auth.readthedocs.io/en/latest/reference/google.auth.transport.requests.html 
             request = google.auth.transport.requests.Request()
-            Credentials.apply(credentials, request)
-            self._auth = credentials
+            #Credentials.apply(credentials, request)
+            self._auth = credentials.refresh(request)
             #Could also set self._auth = AuthorizedSession(credentials) but going to see if the other way works first. 
             # https://google-auth.readthedocs.io/en/latest/user-guide.html#requests 
         elif self._endpoint.auth == constants.AUTH_BASIC:
