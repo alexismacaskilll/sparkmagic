@@ -7,9 +7,11 @@ from requests_kerberos import HTTPKerberosAuth
 from google.auth import compute_engine
 import google.auth  
 from google.auth.transport.requests import Request
+from google.auth.transport.requests import AuthorizedSession
 from google.auth.credentials import Credentials
 from urllib.request import Request, urlopen, URLError
 import subprocess
+
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -38,6 +40,7 @@ class ReliableHttpClient(object):
         self._retry_policy = retry_policy
         if self._endpoint.auth == constants.AUTH_KERBEROS:
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
+           
         elif self._endpoint.auth == constants.AUTH_ADC:
             """
             To use application default credentials we use default(), which takes two parameters, scopes and 
@@ -59,12 +62,12 @@ class ReliableHttpClient(object):
             credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             logger.info(sdk.get_auth_access_token())
             Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
-            logger.info(credentials._cloud_sdk.get_application_default_credentials_path())
+            logger.info(sdk.get_application_default_credentials_path())
             request = google.auth.transport.requests.Request()
-            logger.info(Request.get_header(request))
-            logger.info(Request.add_header(request,'Content-Type', 'application/json'))
-            logger.info(Request.has_header(request, 'Content-Type'))
-            logger.info(Request.get_header(request,'Content-Type' ))
+            
+           
+            credentials.refresh(request)
+            #authed_session = AuthorizedSession(credentials)
             
 
             self._auth = credentials
