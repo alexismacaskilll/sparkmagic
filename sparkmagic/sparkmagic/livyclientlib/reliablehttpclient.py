@@ -133,20 +133,18 @@ class ReliableHttpClient(object):
             requests.packages.urllib3.disable_warnings()
 
     def get_project_id(self):
-                headers = {'Metadata-Flavor', 'Google'}
-                project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id',headers )
-                
-                try:
-                    with urlopen(project_id_request) as response:
-                        value = response.read().decode()
-                        print(value)
-                        return value
-                except Exception:
-                    
-                    logger = logging.getLogger('LOGGER_NAME')
-                    logger.basicConfig(stream=sys.stdout, level=logging.INFO)
-                    logger.info("not running on GCE")
-                return ''
+        headers = {'Metadata-Flavor': 'Google'}
+        project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id',headers )
+        logger = logging.getLogger('LOGGER_NAME')
+        logger.basicConfig(stream=sys.stdout, level=logging.INFO)
+        try:
+            with urlopen(project_id_request) as response:
+                value = response.read().decode()
+                logger.info(value)
+                return value
+        except Exception:       
+            logger.info("not running on GCE")
+        return ''
 
     def get_headers(self):
         return self._headers
