@@ -66,19 +66,32 @@ class ReliableHttpClient(object):
             **How do I know, if credentials are not set up, whether it is run on GCE or not. I check this from 
             within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
             """
+
             credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-            logger.info(sdk.get_auth_access_token())
+            
+            
             Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
             request = google.auth.transport.requests.Request()
-            
-            #r = requests.get('', auth= sdk.get_auth_access_token()) 
-
-
-           
             credentials.refresh(request)
-            
+            req =  HTTPGoogleAuth(sdk.get_auth_access_token())
+            logger.info(req)
             self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+            
+            if self.get_project_id()!= '': 
+                bashCommand = "gcloud auth application-default login"
+                output = subprocess.check_output(['bash','-c', bashCommand])
+                logger.info('GCE')
+                
+            else: 
+                bashCommand = "gcloud auth login"
+                output = subprocess.check_output(['bash','-c', bashCommand])
+                logger.info('local')
+
+            
+
+            #if notebook is running locally / on premise
+            
             #authed_session = AuthorizedSession(credentials)
             
 
@@ -87,7 +100,6 @@ class ReliableHttpClient(object):
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             except DefaultCredentialsError: 
-                raise BadUserConfigurationException(u"Unsupported auth sajnkdsnak %s" %self._endpoint.auth)
                
                 #if notebook is running on GCE
                 if self.get_project_id()!= '': 
@@ -129,8 +141,10 @@ class ReliableHttpClient(object):
                         print(value)
                         return value
                 except Exception:
-                    raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
-                    print("not running on GCE VM")
+                    
+                    logger = logging.getLogger('LOGGER_NAME')
+                    logger.basicConfig(stream=sys.stdout, level=logging.INFO)
+                    logger.info("not running on GCE")
                 return ''
 
     def get_headers(self):
