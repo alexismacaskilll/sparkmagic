@@ -78,12 +78,15 @@ class ReliableHttpClient(object):
             logger.info(req)
             self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
             
-            if self.get_project_id()!= '': 
+            if self.get_project_id() != '': 
                 bashCommand = "gcloud auth application-default login"
                 output = subprocess.check_output(['bash','-c', bashCommand])
                 logger.info('GCE')
                 
             else: 
+                
+                access_token = subprocess.check_output(command, stderr=subprocess.STDOUT)
+
                 bashCommand = "gcloud auth login"
                 output = subprocess.check_output(['bash','-c', bashCommand])
                 logger.info('local')
@@ -133,18 +136,15 @@ class ReliableHttpClient(object):
             requests.packages.urllib3.disable_warnings()
 
     def get_project_id(self):
-        headers = {'Metadata-Flavor': 'Google'}
-        project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id',headers )
+        response = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id', headers = {'Metadata-Flavor': 'Google'})
         logger = logging.getLogger('LOGGER_NAME')
         logger.basicConfig(stream=sys.stdout, level=logging.INFO)
-        try:
-            with urlopen(project_id_request) as response:
-                value = response.read().decode()
-                logger.info(value)
-                return value
-        except Exception:       
-            logger.info("not running on GCE")
-        return ''
+        if response.status_code != 200:
+            logger.info("server request faile")
+        project_id = response.text
+        if len(project_id) < 1:
+            logging.info('server request failed; project-id is missing')
+        return project_id
 
     def get_headers(self):
         return self._headers
