@@ -133,8 +133,9 @@ class ReliableHttpClient(object):
             requests.packages.urllib3.disable_warnings()
 
     def get_project_id(self):
-                project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id')
-                project_id_request.add_header('Metadata-Flavor', 'Google')
+                headers = {'Metadata-Flavor', 'Google'}
+                project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id',headers )
+                
                 try:
                     with urlopen(project_id_request) as response:
                         value = response.read().decode()
