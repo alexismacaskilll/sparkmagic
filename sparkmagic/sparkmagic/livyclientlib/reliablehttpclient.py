@@ -18,12 +18,21 @@ import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from google.auth.exceptions import DefaultCredentialsError
+import google.auth._cloud_sdk  as sdk
+import sys
+import logging 
+
+
 
 
 class ReliableHttpClient(object):
     """Http client that is reliable in its requests. Uses requests library."""
 
     def __init__(self, endpoint, headers, retry_policy):
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+        logger = logging.getLogger('LOGGER_NAME')
+        logger.info(headers)
+        
         self._endpoint = endpoint
         self._headers = headers
         self._retry_policy = retry_policy
@@ -47,11 +56,24 @@ class ReliableHttpClient(object):
             **How do I know, if credentials are not set up, whether it is run on GCE or not. I check this from 
             within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
             """
+            credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+            logger.info(sdk.get_auth_access_token())
+            Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
+            logger.info(credentials._cloud_sdk.get_application_default_credentials_path())
+            request = google.auth.transport.requests.Request()
+            logger.info(Request.get_header(request))
+            logger.info(Request.add_header(request,'Content-Type', 'application/json'))
+            logger.info(Request.has_header(request, 'Content-Type'))
+            logger.info(Request.get_header(request,'Content-Type' ))
             
-          
+
+            self._auth = credentials
+            """
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
             except DefaultCredentialsError: 
+                raise BadUserConfigurationException(u"Unsupported auth sajnkdsnak %s" %self._endpoint.auth)
+               
                 #if notebook is running on GCE
                 if self.get_project_id()!= '': 
                     bashCommand = "gcloud auth application-default login"
@@ -69,6 +91,7 @@ class ReliableHttpClient(object):
             self._auth = credentials.refresh(request)
             #Could also set self._auth = AuthorizedSession(credentials) but going to see if the other way works first. 
             # https://google-auth.readthedocs.io/en/latest/user-guide.html#requests 
+            """
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:
@@ -83,7 +106,7 @@ class ReliableHttpClient(object):
             requests.packages.urllib3.disable_warnings()
 
     def get_project_id(self):
-                project_id_request = Request('http://metadata.google.internal/computeMetadata/v1/project/project-id')
+                project_id_request = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id')
                 project_id_request.add_header('Metadata-Flavor', 'Google')
                 try:
                     with urlopen(project_id_request) as response:
@@ -91,6 +114,7 @@ class ReliableHttpClient(object):
                         print(value)
                         return value
                 except Exception:
+                    raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
                     print("not running on GCE VM")
                 return ''
 
