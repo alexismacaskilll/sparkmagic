@@ -7,10 +7,15 @@ from requests_kerberos import HTTPKerberosAuth
 from google.auth import compute_engine
 import google.auth  
 from google.auth.transport.requests import Request
+import google.auth.transport.urllib3 
+import urllib3 
 from google.auth.transport.requests import AuthorizedSession
 from google.auth.credentials import Credentials
 from urllib.request import Request, urlopen, URLError
+
 import subprocess
+import google.auth.transport 
+import google.auth.transport.requests
 
 
 import sparkmagic.utils.configuration as conf
@@ -23,6 +28,7 @@ from google.auth.exceptions import DefaultCredentialsError
 import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
+from google.auth.transport.urllib3 import AuthorizedHttp
 
 
 
@@ -64,13 +70,16 @@ class ReliableHttpClient(object):
             Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
             request = google.auth.transport.requests.Request()
-            
+           
+            r = requests.get('', auth= sdk.get_auth_access_token()) 
+
            
             credentials.refresh(request)
+            self._auth = r
             #authed_session = AuthorizedSession(credentials)
             
 
-            self._auth = credentials
+            #self._auth = credentials
             """
             try: 
                 credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
