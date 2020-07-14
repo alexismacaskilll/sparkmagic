@@ -6,6 +6,7 @@ import requests
 from requests_kerberos import HTTPKerberosAuth
 from google.auth import compute_engine
 import google.auth  
+
 from google.auth.transport.requests import Request
 import google.auth.transport.urllib3 
 import urllib3 
@@ -17,7 +18,7 @@ import subprocess
 import google.auth.transport 
 import google.auth.transport.requests
 
-
+from .googleauth import HTTPGoogleAuth
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
 from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
@@ -70,12 +71,14 @@ class ReliableHttpClient(object):
             Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
             request = google.auth.transport.requests.Request()
-           
+            
             r = requests.get('', auth= sdk.get_auth_access_token()) 
+
 
            
             credentials.refresh(request)
-            self._auth = r
+            
+            self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
             #authed_session = AuthorizedSession(credentials)
             
 
