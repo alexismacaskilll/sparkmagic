@@ -137,8 +137,8 @@ class ReliableHttpClient(object):
 
     def get_project_id(self):
         response = requests.get('http://metadata.google.internal/computeMetadata/v1/project/project-id', headers = {'Metadata-Flavor': 'Google'})
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
-        logger.basicConfig(stream=sys.stdout, level=logging.INFO)
         if response.status_code != 200:
             logger.info("server request faile")
         project_id = response.text
