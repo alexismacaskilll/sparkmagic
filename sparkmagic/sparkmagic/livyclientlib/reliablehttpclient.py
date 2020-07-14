@@ -72,7 +72,7 @@ class ReliableHttpClient(object):
             logger.info(sdk.get_application_default_credentials_path())
             request = google.auth.transport.requests.Request()
             
-            r = requests.get('', auth= sdk.get_auth_access_token()) 
+            #r = requests.get('', auth= sdk.get_auth_access_token()) 
 
 
            
