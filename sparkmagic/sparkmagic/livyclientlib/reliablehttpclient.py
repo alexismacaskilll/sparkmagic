@@ -77,22 +77,19 @@ class ReliableHttpClient(object):
             req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             logger.info(req)
             self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
-            
+            """
+            #correctly goes into get project id, but cannot run the subprocess command. 
             if self.get_project_id() != '': 
-                bashCommand = "gcloud auth application-default login"
-                output = subprocess.check_output(['bash','-c', bashCommand])
+                command = "gcloud auth application-default login"
                 logger.info('GCE')
+                subprocess.check_call(command)
                 
             else: 
-                
-                access_token = subprocess.check_output(command, stderr=subprocess.STDOUT)
-
-                bashCommand = "gcloud auth login"
-                output = subprocess.check_output(['bash','-c', bashCommand])
+                command = "gcloud auth login"
                 logger.info('local')
-
-            
-
+                subprocess.check_output(command)
+                #output = subprocess.check_output(['bash','-c', bashCommand])
+            """
             #if notebook is running locally / on premise
             
             #authed_session = AuthorizedSession(credentials)
