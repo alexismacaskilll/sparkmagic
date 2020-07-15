@@ -77,6 +77,7 @@ class ReliableHttpClient(object):
             req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             logger.info(req)
             self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+            
             """
             #correctly goes into get project id, but cannot run the subprocess command. 
             if self.get_project_id() != '': 
