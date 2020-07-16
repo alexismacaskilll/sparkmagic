@@ -234,7 +234,7 @@ def test_no_auth_check_auth():
 
 @with_setup(_setup, _teardown)
 def test_google_auth_check_auth():
-    endpoint = Endpoint("http://url.com", constants.AUTH_ADC, "username", "password")
+    endpoint = Endpoint("http://url.com", constants.AUTH_GOOGLE, "username", "password")
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert_is_not_none(client._auth)
     assert isinstance(client._auth, HTTPGoogleAuth)

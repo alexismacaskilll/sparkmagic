@@ -3,6 +3,7 @@
 from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
+from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
 
 
 class AddEndpointWidget(AbstractMenuWidget):
@@ -33,8 +34,15 @@ class AddEndpointWidget(AbstractMenuWidget):
             value='password',
             width=widget_width
         )
+
+        self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
+            options={HTTPGoogleAuth.list_accounts_pairs()},
+            description=u"Credentialed Accounts:",
+            value = HTTPGoogleAuth.active_account
+        )
+
         self.auth = self.ipywidget_factory.get_dropdown(
-            options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_ADC: constants.AUTH_ADC, constants.AUTH_BASIC: constants.AUTH_BASIC,
+            options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
                      constants.NO_AUTH: constants.NO_AUTH},
             description=u"Auth type:"
         )
@@ -56,7 +64,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self._show_correct_endpoint_fields()
 
     def run(self):
-        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
+        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value, self.google_credentials_widget.value)
         self.endpoints[self.address_widget.value] = endpoint
         self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
 
@@ -65,10 +73,16 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.refresh_method()
 
     def _show_correct_endpoint_fields(self):
-        if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS or self.auth.value == constants.AUTH_ADC:
+        if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
             self.user_widget.layout.display = 'none'
             self.password_widget.layout.display = 'none'
+            self.google_credentials_widget.display = 'none'
+        elif self.auth.value == constants.AUTH_GOOGLE:
+            self.user_widget.layout.display = 'none'
+            self.password_widget.layout.display = 'none'
+            self.google_credentials_widget.display = 'flex'
         else:
             self.user_widget.layout.display = 'flex'
             self.password_widget.layout.display = 'flex'
+            self.google_credentials_widget.display = 'none'
 

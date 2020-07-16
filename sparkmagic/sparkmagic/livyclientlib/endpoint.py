@@ -3,7 +3,7 @@ from sparkmagic.utils.constants import AUTHS_SUPPORTED
 
 
 class Endpoint(object):
-    def __init__(self, url, auth, username="", password="", implicitly_added=False):
+    def __init__(self, url, auth, username="", password="", google_active_credentialed_account="", implicitly_added=False):
         if not url:
             raise BadUserDataException(u"URL must not be empty")
         if auth not in AUTHS_SUPPORTED:
@@ -13,6 +13,7 @@ class Endpoint(object):
         self.username = username
         self.password = password
         self.auth = auth
+        self.google_active_credentialed_account = google_active_credentialed_account
         # implicitly_added is set to True only if the endpoint wasn't configured manually by the user through
         # a widget, but was instead implicitly defined as an endpoint to a wrapper kernel in the configuration
         # JSON file.
@@ -21,10 +22,10 @@ class Endpoint(object):
     def __eq__(self, other):
         if type(other) is not Endpoint:
             return False
-        return self.url == other.url and self.username == other.username and self.password == other.password and self.auth == other.auth
+        return self.url == other.url and self.username == other.username and self.password == other.password and self.auth == other.auth and self.google_active_credentialed_account == other.google_active_credentialed_account
 
     def __hash__(self):
-        return hash((self.url, self.username, self.password, self.auth))
+        return hash((self.url, self.username, self.password, self.auth, google_active_credentialed_account))
 
     def __ne__(self, other):
         return not self == other

@@ -41,7 +41,7 @@ class ReliableHttpClient(object):
         if self._endpoint.auth == constants.AUTH_KERBEROS:
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
            
-        elif self._endpoint.auth == constants.AUTH_ADC:
+        elif self._endpoint.auth == constants.AUTH_GOOGLE:
             """
             To use application default credentials we use default(), which takes two parameters, scopes and 
             request (google.auth.transport.Request). Google Application Default Credentials abstracts 
@@ -55,35 +55,20 @@ class ReliableHttpClient(object):
             to access Google Cloud Platform. If the notebook is running on GCE, then run 'gcloud auth application-default 
             login'. This authenticates with a user identity (via a web flow) but uses the credentials as a proxy for a 
             service account. 
-            
             """
-
-            #credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-            #Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
             #request = google.auth.transport.requests.Request()
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             #logger.info(req)
-            try: 
-                token = sdk.get_auth_access_token()
-            except UserAccessTokenError:
-                logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.')
-            self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
-
-            """
-            #correctly goes into get project id, but cannot run the subprocess command. 
-            if self.get_project_id() != '': 
-                command = "gcloud auth application-default login"
-                logger.info('GCE')
-                subprocess.check_call(command)
-                
-            else: 
-                command = "gcloud auth login"
-                logger.info('local')
-                subprocess.check_output(command)
-                #output = subprocess.check_output(['bash','-c', bashCommand])
-            """
+            logger.info(self._endpoint.google_active_credentialed_account) 
+            
+            if self._endpoint.google_active_credentialed_account == "":
+                try: 
+                    token = sdk.get_auth_access_token()
+                except UserAccessTokenError:
+                    logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
+            self._auth = token 
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:
