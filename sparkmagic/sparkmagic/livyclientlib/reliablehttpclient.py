@@ -6,19 +6,11 @@ import requests
 from requests_kerberos import HTTPKerberosAuth
 from google.auth import compute_engine
 import google.auth  
-
-from google.auth.transport.requests import Request
-import google.auth.transport.urllib3 
 import urllib3 
-from google.auth.transport.requests import AuthorizedSession
-from google.auth.credentials import Credentials
 from urllib.request import Request, urlopen, URLError
 
-import subprocess
-import google.auth.transport 
-import google.auth.transport.requests
 
-from .googleauth import HTTPGoogleAuth
+from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
 from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
@@ -29,7 +21,6 @@ from google.auth.exceptions import DefaultCredentialsError
 import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
-from google.auth.transport.urllib3 import AuthorizedHttp
 from google.auth.exceptions import UserAccessTokenError
 
 
@@ -65,16 +56,11 @@ class ReliableHttpClient(object):
             login'. This authenticates with a user identity (via a web flow) but uses the credentials as a proxy for a 
             service account. 
             
-            **How do I know, if credentials are not set up, whether it is run on GCE or not. I check this from 
-            within the code: https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
             """
 
-            credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-            
-            
-            Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
+            #credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+            #Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
-        
             #request = google.auth.transport.requests.Request()
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
@@ -83,10 +69,6 @@ class ReliableHttpClient(object):
                 token = sdk.get_auth_access_token()
             except UserAccessTokenError:
                 logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.')
-            
-
-
-
             self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
 
             """
@@ -101,35 +83,6 @@ class ReliableHttpClient(object):
                 logger.info('local')
                 subprocess.check_output(command)
                 #output = subprocess.check_output(['bash','-c', bashCommand])
-            """
-            #if notebook is running locally / on premise
-            
-            #authed_session = AuthorizedSession(credentials)
-            
-
-            #self._auth = credentials
-            """
-            try: 
-                credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-            except DefaultCredentialsError: 
-               
-                #if notebook is running on GCE
-                if self.get_project_id()!= '': 
-                    bashCommand = "gcloud auth application-default login"
-                    output = subprocess.check_output(['bash','-c', bashCommand])
-                #if notebook is running locally / on premise
-                else:
-                    bashCommand = "gcloud auth login"
-                    output = subprocess.check_output(['bash','-c', bashCommand])
-                credentials, project_id = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-            #so now we have credentials, but we need to attach this to request header object (cause thats what HTTPKerberosAuth does)
-            #so first we get Requests request adapter (request object), then we can attach our credentials (token) to this request header
-            # https://google-auth.readthedocs.io/en/latest/reference/google.auth.transport.requests.html 
-            request = google.auth.transport.requests.Request()
-            #Credentials.apply(credentials, request)
-            self._auth = credentials.refresh(request)
-            #Could also set self._auth = AuthorizedSession(credentials) but going to see if the other way works first. 
-            # https://google-auth.readthedocs.io/en/latest/user-guide.html#requests 
             """
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
@@ -149,7 +102,7 @@ class ReliableHttpClient(object):
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
         if response.status_code != 200:
-            logger.info("server request faile")
+            logger.info("server request failed")
         project_id = response.text
         if len(project_id) < 1:
             logging.info('server request failed; project-id is missing')

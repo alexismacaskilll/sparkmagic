@@ -11,8 +11,13 @@ from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from sparkmagic.livyclientlib.linearretrypolicy import LinearRetryPolicy
 from sparkmagic.livyclientlib.reliablehttpclient import ReliableHttpClient
+from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
+
+
+
 import sparkmagic.utils.configuration as conf
 import sparkmagic.utils.constants as constants
+
 
 retry_policy = None
 sequential_values = []
@@ -226,6 +231,15 @@ def test_no_auth_check_auth():
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert_false(hasattr(client, '_auth'))
 
+
+@with_setup(_setup, _teardown)
+def test_google_auth_check_auth():
+    endpoint = Endpoint("http://url.com", constants.AUTH_ADC, "username", "password")
+    client = ReliableHttpClient(endpoint, {}, retry_policy)
+    assert_is_not_none(client._auth)
+    assert isinstance(client._auth, HTTPGoogleAuth)
+    assert hasattr(client._auth, 'token')
+    
 
 @with_setup(_setup, _teardown)
 def test_kerberos_auth_check_auth():
