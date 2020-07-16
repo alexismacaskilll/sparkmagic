@@ -30,6 +30,8 @@ import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
 from google.auth.transport.urllib3 import AuthorizedHttp
+from google.auth.exceptions import UserAccessTokenError
+
 
 
 
@@ -72,12 +74,21 @@ class ReliableHttpClient(object):
             
             Credentials.apply(credentials, headers, token=sdk.get_auth_access_token())
             logger.info(sdk.get_application_default_credentials_path())
-            request = google.auth.transport.requests.Request()
-            credentials.refresh(request)
-            req =  HTTPGoogleAuth(sdk.get_auth_access_token())
-            logger.info(req)
-            self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+        
+            #request = google.auth.transport.requests.Request()
+            #credentials.refresh(request)
+            #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
+            #logger.info(req)
+            try: 
+                token = sdk.get_auth_access_token()
+            except UserAccessTokenError:
+                logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.')
             
+
+
+
+            self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+
             """
             #correctly goes into get project id, but cannot run the subprocess command. 
             if self.get_project_id() != '': 
