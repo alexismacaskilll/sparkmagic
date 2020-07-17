@@ -5,6 +5,7 @@ from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
 from sparkmagic.livyclientlib.exceptions import UserAccessTokenError, GcloudNotInstalledException
+from google.auth import exceptions
 
 
 class AddEndpointWidget(AbstractMenuWidget):
