@@ -17,11 +17,10 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
-from google.auth.exceptions import DefaultCredentialsError
+from google.auth.exceptions import DefaultCredentialsError, UserAccessTokenError
 import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
-from google.auth.exceptions import UserAccessTokenError
 
 
 
@@ -61,6 +60,7 @@ class ReliableHttpClient(object):
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             #logger.info(req)
             #logger.info(sparkmagic.livyclientlib.googleauth.list_active_account())
+           
             try: 
                 self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
                 """if sparkmagic.livyclientlib.googleauth.list_active_account() != None:
@@ -69,7 +69,7 @@ class ReliableHttpClient(object):
                     raise BadUserConfigurationException()
                     logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
                 """
-            except BadUserConfigurationException: 
+            except UserAccessTokenError: 
                 raise BadUserConfigurationException("Failed to obtain access token. Run gcloud auth login to authenticate.")
             except GcloudNotInstalledException: 
                 raise GcloudNotInstalledException("gcloud not installed")
