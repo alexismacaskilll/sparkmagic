@@ -9,6 +9,7 @@ import six
 
 from google.auth import environment_vars
 from google.auth import exceptions
+from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
 
 
 # The ~/.config subdirectory containing gcloud credentials.
@@ -83,13 +84,13 @@ def list_credentialed_accounts():
         return load_json_input(accounts_json)
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = exceptions.UserAccessTokenError(
-            "Failed to obtain access token", caught_exc
+            "Failed to obtain access token"
         )
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
     except (OSError) as caught_exc:
         new_exc = exceptions.GcloudNotInstalledException(
-            "Gcloud is not installed", caught_exc
+            "Gcloud is not installed" 
         )
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
