@@ -29,17 +29,26 @@ class AddEndpointWidget(AbstractMenuWidget):
             value='username',
             width=widget_width
         )
+       
         self.password_widget = self.ipywidget_factory.get_text(
             description='Password:',
             value='password',
             width=widget_width
         )
 
+        self.google_credentials_widget = self.ipywidget_factory.get_text(
+            description='Account:',
+            value=GoogleAuth.list_active_account(),
+            width=widget_width,
+            disabled=True
+        )
+        """
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
-            options={GoogleAuth.list_accounts_pairs()},
+            options=GoogleAuth.list_accounts_pairs(),
             description=u"Credentialed Accounts:",
             value = GoogleAuth.list_active_account()
         )
+        """
 
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
@@ -55,7 +64,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.auth.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                         self.address_widget, self.auth, self.user_widget, self.password_widget,
+                         self.address_widget, self.auth, self.user_widget, self.password_widget, self.google_credentials_widget,
                          self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
         for child in self.children:
@@ -64,7 +73,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self._show_correct_endpoint_fields()
 
     def run(self):
-        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value, self.google_credentials_widget.value)
+        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
         self.endpoints[self.address_widget.value] = endpoint
         self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
 

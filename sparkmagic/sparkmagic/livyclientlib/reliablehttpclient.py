@@ -9,7 +9,7 @@ import google.auth
 import urllib3 
 from urllib.request import Request, urlopen, URLError
 
-
+import sparkmagic.livyclientlib.googleauth
 from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -34,7 +34,6 @@ class ReliableHttpClient(object):
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
         logger.info(headers)
-        
         self._endpoint = endpoint
         self._headers = headers
         self._retry_policy = retry_policy
@@ -61,9 +60,10 @@ class ReliableHttpClient(object):
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             #logger.info(req)
-            logger.info(self._endpoint.google_active_credentialed_account) 
+
+            logger.info(sparkmagic.livyclientlib.googleauth.list_active_account())
             
-            if self._endpoint.google_active_credentialed_account == "":
+            if sparkmagic.livyclientlib.googleauth.list_active_account() == "":
                 try: 
                     token = sdk.get_auth_access_token()
                 except UserAccessTokenError:
