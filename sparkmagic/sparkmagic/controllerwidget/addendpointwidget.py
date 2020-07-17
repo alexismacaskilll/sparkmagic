@@ -9,6 +9,7 @@ from google.auth.exceptions import UserAccessTokenError
 from sparkmagic.livyclientlib.livysession import LivySession
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 
+
 ipython_display_new = IpythonDisplay()
         
 class AddEndpointWidget(AbstractMenuWidget):
