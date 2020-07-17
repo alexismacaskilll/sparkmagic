@@ -3,7 +3,7 @@
 from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
-from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
+import sparkmagic.livyclientlib.googleauth as GoogleAuth
 
 
 class AddEndpointWidget(AbstractMenuWidget):
@@ -36,9 +36,9 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
 
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
-            options={HTTPGoogleAuth.list_accounts_pairs()},
+            options={GoogleAuth.list_accounts_pairs()},
             description=u"Credentialed Accounts:",
-            value = HTTPGoogleAuth.active_account
+            value = GoogleAuth.list_active_account()
         )
 
         self.auth = self.ipywidget_factory.get_dropdown(

@@ -41,7 +41,7 @@ def load_json_input(result):
         pass
     return jsondata
 
-def list_active_account(accounts): 
+def list_active_account(): 
     accounts = list_credentialed_accounts()
     for account in accounts:
         if account['status'] == "ACTIVE": 
