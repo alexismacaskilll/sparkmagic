@@ -45,7 +45,17 @@ class AddEndpointWidget(AbstractMenuWidget):
             active_account = "no account found"
         except GcloudNotInstalledException: 
             active_account = "no account found"
+        
+        accounts_list = {}
+        try: 
+            account_list=GoogleAuth.list_accounts_pairs()
+        except BadUserConfigurationException: 
+            accounts_list = {}
+        except GcloudNotInstalledException: 
+            accounts_list = {} 
 
+
+        """
         self.google_credentials_widget = self.ipywidget_factory.get_text(
             description='Account:',
             value=active_account,
@@ -56,9 +66,11 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
             options=GoogleAuth.list_accounts_pairs(),
             description=u"Credentialed Accounts:",
-            value = GoogleAuth.list_active_account()
+            value = accounts_list,
+            width = widget_width
+            
         )
-        """
+        
 
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
