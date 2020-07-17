@@ -114,4 +114,3 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.user_widget.layout.display = 'flex'
             self.password_widget.layout.display = 'flex'
             self.google_credentials_widget.layout.display = 'none'
-
