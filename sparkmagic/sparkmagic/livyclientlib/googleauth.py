@@ -82,20 +82,21 @@ def list_credentialed_accounts():
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
         return load_json_input(accounts_json)
-    except (subprocess.CalledProcessError, IOError) as caught_exc:
-        new_exc = exceptions.BadUserConfigurationException(
-            "Failed to obtain access token"
-        )
-        raise new_exc
-        #six.raise_from(new_exc, caught_exc)
     except (OSError) as caught_exc:
-        new_exc = exceptions.GcloudNotInstalledException(
+        new_exc = GcloudNotInstalledException(
             "Gcloud is not installed" 
         )
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
     #finally: 
     #    return load_json_input(accounts_json)
+    except (subprocess.CalledProcessError, IOError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Failed to obtain access token"
+        )
+        raise new_exc
+        #six.raise_from(new_exc, caught_exc)
+
 
 
     
