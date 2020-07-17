@@ -9,7 +9,7 @@ from google.auth.exceptions import UserAccessTokenError
 from sparkmagic.livyclientlib.livysession import LivySession
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 
-ipython_display = IpythonDisplay()
+ipython_display_new = IpythonDisplay()
         
 class AddEndpointWidget(AbstractMenuWidget):
 
@@ -107,7 +107,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             # value otherwise.
             self.refresh_method()
         except (BadUserDataException, BadUserConfigurationException) as error:
-            ipython_display.writeln(u"endpoint url is wrong")
+            ipython_display_new.writeln(u"endpoint url is wrong")
             raise error
 
 

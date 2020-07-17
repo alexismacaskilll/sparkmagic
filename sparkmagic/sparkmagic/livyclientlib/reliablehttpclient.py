@@ -17,10 +17,13 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
+
 from google.auth.exceptions import DefaultCredentialsError, UserAccessTokenError
 import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
+from sparkmagic.utils.sparklogger import SparkLog
+
 
 
 
@@ -35,6 +38,8 @@ class ReliableHttpClient(object):
         logger.info(headers)
         self._endpoint = endpoint
         self._headers = headers
+
+        
         self._retry_policy = retry_policy
         if self._endpoint.auth == constants.AUTH_KERBEROS:
             self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
@@ -160,6 +165,6 @@ class ReliableHttpClient(object):
                 if error:
                     raise HttpClientException(u"Error sending http request and maximum retry encountered.")
                 else:
-                    raise HttpClientException(u"Invalid status code '{}' from {} with error payload: {}"
-                                              .format(status, url, text))
+                    raise HttpClientException(u"Invalid status code '{}' from {}"
+                                              .format(status, url))
             return r
