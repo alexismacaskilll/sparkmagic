@@ -83,7 +83,7 @@ def list_credentialed_accounts():
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
         return load_json_input(accounts_json)
     except (subprocess.CalledProcessError, IOError) as caught_exc:
-        new_exc = exceptions.UserAccessTokenError(
+        new_exc = exceptions.BadUserConfigurationException(
             "Failed to obtain access token"
         )
         raise new_exc

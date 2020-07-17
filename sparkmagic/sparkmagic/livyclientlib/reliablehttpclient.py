@@ -69,10 +69,10 @@ class ReliableHttpClient(object):
                     raise BadUserConfigurationException()
                     logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
                 """
-            except UserAccessTokenError: 
-                raise UserAccessTokenError()
+            except BadUserConfigurationException: 
+                raise BadUserConfigurationException("Failed to obtain access token. Run gcloud auth login to authenticate.")
             except GcloudNotInstalledException: 
-                raise GcloudNotInstalledException()
+                raise GcloudNotInstalledException("gcloud not installed")
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:

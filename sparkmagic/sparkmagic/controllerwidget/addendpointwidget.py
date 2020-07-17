@@ -4,7 +4,7 @@ from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
-from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException
+from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException
 from google.auth.exceptions import UserAccessTokenError
 
 
@@ -41,7 +41,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         active_account = "None"
         try: 
             active_account=GoogleAuth.list_active_account()
-        except UserAccessTokenError: 
+        except BadUserConfigurationException: 
             active_account = "no token"
         except GcloudNotInstalledException: 
             active_account = "no gcloud"
