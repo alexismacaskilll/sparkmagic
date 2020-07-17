@@ -4,8 +4,9 @@ from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
-from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException
+from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException, BadUserDataException
 from google.auth.exceptions import UserAccessTokenError
+from sparkmagic.livyclientlib.livysession import LivySession
 
 
 class AddEndpointWidget(AbstractMenuWidget):
@@ -17,6 +18,7 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         widget_width = "800px"
 
+        self.ipython_display = ipython_display
         self.endpoints = endpoints
         self.endpoints_dropdown_widget = endpoints_dropdown_widget
         self.refresh_method = refresh_method
@@ -93,13 +95,19 @@ class AddEndpointWidget(AbstractMenuWidget):
         self._show_correct_endpoint_fields()
 
     def run(self):
-        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
-        self.endpoints[self.address_widget.value] = endpoint
-        self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
+        try: 
+            endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
+            self.endpoints[self.address_widget.value] = endpoint
+            self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
 
-        # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
-        # value otherwise.
-        self.refresh_method()
+            # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
+            # value otherwise.
+            self.refresh_method()
+        except (BadUserDataException, BadUserConfigurationException) as error:
+            LivySession.ipython_display.writeln(u"endpoint url is wrong")
+            raise error
+
+
 
     def _show_correct_endpoint_fields(self):
         if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
