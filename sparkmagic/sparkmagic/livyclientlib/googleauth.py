@@ -130,6 +130,9 @@ class HTTPGoogleAuth(AuthBase):
             )
             six.raise_from(new_exc, caught_exc)
             """
+            #is there a way to tell the called process error was because of no credentials or no gcloud????
+            #
+
             accounts_json = {}
         finally: 
             return load_json_input(accounts_json)
