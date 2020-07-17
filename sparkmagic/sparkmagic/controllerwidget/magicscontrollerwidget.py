@@ -32,7 +32,6 @@ class MagicsControllerWidget(AbstractMenuWidget):
             if all([p in endpoint_config for p in ["url", "password", "username"]]) and endpoint_config["url"] != "":
                 user = endpoint_config["username"]
                 passwd = endpoint_config["password"]
-                googleAuth = endpoint_config[""]
                 
                 authentication = endpoint_config.get("auth", None)
                 if authentication is None:
