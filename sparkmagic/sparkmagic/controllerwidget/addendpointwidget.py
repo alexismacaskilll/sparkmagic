@@ -42,9 +42,9 @@ class AddEndpointWidget(AbstractMenuWidget):
         try: 
             active_account=GoogleAuth.list_active_account()
         except BadUserConfigurationException: 
-            active_account = "no token"
+            active_account = "no account found"
         except GcloudNotInstalledException: 
-            active_account = "no gcloud"
+            active_account = "no account found"
 
         self.google_credentials_widget = self.ipywidget_factory.get_text(
             description='Account:',
@@ -74,7 +74,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.auth.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                         self.google_credentials_widget, self.address_widget, self.auth, self.user_widget, self.password_widget, 
+                        self.address_widget, self.auth, self.user_widget, self.password_widget, self.google_credentials_widget,
                          self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
         for child in self.children:
