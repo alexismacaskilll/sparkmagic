@@ -48,7 +48,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         accounts_list = {}
         try: 
-            account_list=GoogleAuth.list_accounts_pairs()
+            accounts_list.update(GoogleAuth.list_accounts_pairs())
         except BadUserConfigurationException: 
             accounts_list = {}
         except GcloudNotInstalledException: 
