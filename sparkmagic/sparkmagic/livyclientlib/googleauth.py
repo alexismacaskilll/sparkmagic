@@ -50,9 +50,9 @@ def list_active_account():
 
 def list_accounts_pairs(): 
     accounts = list_credentialed_accounts()
-    accounts_list = []
+    accounts_list = {}
     for account in accounts:
-        accounts_list.append((account['account'], account['account']))
+        accounts_list[account['account']] = account['account']
     return accounts_list
     
 def list_credentialed_accounts():
