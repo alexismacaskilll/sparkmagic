@@ -42,50 +42,62 @@ def load_json_input(result):
     return jsondata
 
 def list_active_account(): 
-    accounts = list_credentialed_accounts()
-    for account in accounts:
-        if account['status'] == "ACTIVE": 
-            return account['account']
-    return ""
+    try: 
+        accounts = list_credentialed_accounts()
+        for account in accounts:
+            if account['status'] == "ACTIVE": 
+                return account['account']
+        return ""
+    except: 
+        raise
 
 def list_accounts_pairs(): 
-    accounts = list_credentialed_accounts()
-    accounts_list = {}
-    for account in accounts:
-        accounts_list[account['account']] = account['account']
-    return accounts_list
+    try: 
+        accounts = list_credentialed_accounts()
+        accounts_list = {}
+        for account in accounts:
+            accounts_list[account['account']] = account['account']
+        return accounts_list
+    except: 
+        raise
     
 def list_credentialed_accounts():
-        """Load all of user's credentialed accounts with ``gcloud auth list`` command.
+    """Load all of user's credentialed accounts with ``gcloud auth list`` command.
 
-        Returns:
-            list: the users credentialed accounts 
+    Returns:
+        list: the users credentialed accounts 
 
-        Raises:
-            Maybe if gcloud isnt installed
-            google.auth.exceptions.UserAccessTokenError: if failed to get access
-                token from gcloud...
-        """
-        if os.name == "nt":
-            command = _CLOUD_SDK_WINDOWS_COMMAND
-        else:
-            command = _CLOUD_SDK_POSIX_COMMAND
+    Raises:
+        Maybe if gcloud isnt installed
+        google.auth.exceptions.UserAccessTokenError: if failed to get access
+            token from gcloud...
+    """
+    accounts_json = ""
+    if os.name == "nt":
+        command = _CLOUD_SDK_WINDOWS_COMMAND
+    else:
+        command = _CLOUD_SDK_POSIX_COMMAND
+    try:
+        command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
+        accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        return load_json_input(accounts_json)
+    except (subprocess.CalledProcessError, IOError) as caught_exc:
+        new_exc = exceptions.UserAccessTokenError(
+            "Failed to obtain access token", caught_exc
+        )
+        raise new_exc
+        #six.raise_from(new_exc, caught_exc)
+    except (OSError) as caught_exc:
+        new_exc = exceptions.GcloudNotInstalledException(
+            "Gcloud is not installed", caught_exc
+        )
+        raise new_exc
+        #six.raise_from(new_exc, caught_exc)
+    #finally: 
+    #    return load_json_input(accounts_json)
 
-        try:
-            command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
 
-            accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            
-        except (subprocess.CalledProcessError, OSError, IOError) as caught_exc:
-            """
-            new_exc = exceptions.UserAccessTokenError(
-                "Failed to obtain access token", caught_exc
-            )
-            six.raise_from(new_exc, caught_exc)
-            """
-            accounts_json = {}
-        finally: 
-            return load_json_input(accounts_json)
+    
 
 class HTTPGoogleAuth(AuthBase):
     """Attaches HTTP Google Auth Authentication to the given Request
@@ -102,40 +114,3 @@ class HTTPGoogleAuth(AuthBase):
         return request
 
    
-    def list_credentialed_accounts(self):
-        """Load all of user's credentialed accounts with ``gcloud auth list`` command.
-
-        Returns:
-            list: the users credentialed accounts 
-
-        Raises:
-            Maybe if gcloud isnt installed
-            google.auth.exceptions.UserAccessTokenError: if failed to get access
-                token from gcloud...
-        """
-        if os.name == "nt":
-            command = _CLOUD_SDK_WINDOWS_COMMAND
-        else:
-            command = _CLOUD_SDK_POSIX_COMMAND
-
-        try:
-            command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
-
-            accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            
-        except (subprocess.CalledProcessError, OSError, IOError) as caught_exc:
-            """
-            new_exc = exceptions.UserAccessTokenError(
-                "Failed to obtain access token", caught_exc
-            )
-            six.raise_from(new_exc, caught_exc)
-            """
-            #is there a way to tell the called process error was because of no credentials or no gcloud????
-            #
-
-            accounts_json = {}
-        finally: 
-            return load_json_input(accounts_json)
-
-
-    

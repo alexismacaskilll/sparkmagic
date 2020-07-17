@@ -60,12 +60,17 @@ class ReliableHttpClient(object):
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
             #logger.info(req)
-            logger.info(sparkmagic.livyclientlib.googleauth.list_active_account())
-            if sparkmagic.livyclientlib.googleauth.list_active_account() != None:
-                self._auth = sdk.get_auth_access_token()
-            else: 
-                raise BadUserConfigurationException()
-                logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
+            #logger.info(sparkmagic.livyclientlib.googleauth.list_active_account())
+            try: 
+                self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+                """if sparkmagic.livyclientlib.googleauth.list_active_account() != None:
+                    self._auth = sdk.get_auth_access_token()
+                else: 
+                    raise BadUserConfigurationException()
+                    logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
+                """
+            except: 
+                raise
         elif self._endpoint.auth == constants.AUTH_BASIC:
             self._auth = (self._endpoint.username, self._endpoint.password)
         elif self._endpoint.auth != constants.NO_AUTH:
