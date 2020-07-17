@@ -41,6 +41,52 @@ def load_json_input(result):
         pass
     return jsondata
 
+def list_active_account(accounts): 
+    accounts = list_credentialed_accounts()
+    for account in accounts:
+        if account['status'] == "ACTIVE": 
+            return account['account']
+    return ""
+
+def list_accounts_pairs(): 
+    accounts = list_credentialed_accounts()
+    accounts_list = []
+    for account in accounts:
+        accounts_list.append(account['account'], account['account'])
+    return accounts_list
+    
+def list_credentialed_accounts():
+        """Load all of user's credentialed accounts with ``gcloud auth list`` command.
+
+        Returns:
+            list: the users credentialed accounts 
+
+        Raises:
+            Maybe if gcloud isnt installed
+            google.auth.exceptions.UserAccessTokenError: if failed to get access
+                token from gcloud...
+        """
+        if os.name == "nt":
+            command = _CLOUD_SDK_WINDOWS_COMMAND
+        else:
+            command = _CLOUD_SDK_POSIX_COMMAND
+
+        try:
+            command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
+
+            accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            
+        except (subprocess.CalledProcessError, OSError, IOError) as caught_exc:
+            """
+            new_exc = exceptions.UserAccessTokenError(
+                "Failed to obtain access token", caught_exc
+            )
+            six.raise_from(new_exc, caught_exc)
+            """
+            accounts_json = {}
+        finally: 
+            return load_json_input(accounts_json)
+
 class HTTPGoogleAuth(AuthBase):
     """Attaches HTTP Google Auth Authentication to the given Request
     object."""
@@ -88,16 +134,5 @@ class HTTPGoogleAuth(AuthBase):
         finally: 
             return load_json_input(accounts_json)
 
-    def list_active_account(self, accounts): 
-        for account in accounts:
-            if account['status'] == "ACTIVE": 
-                return account['account']
-        return ""
 
-    def list_accounts_pairs(self, accounts): 
-        accounts_list = []
-        for account in accounts:
-            accounts_list.append(account['account'], account['account'])
-        return accounts_list
-    
     
