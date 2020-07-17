@@ -43,12 +43,12 @@ class AddEndpointWidget(AbstractMenuWidget):
             active_account=GoogleAuth.list_active_account()
         except UserAccessTokenError: 
             active_account = "no token"
-        except GcloudNotInstalledError: 
+        except GcloudNotInstalledException: 
             active_account = "no gcloud"
 
         self.google_credentials_widget = self.ipywidget_factory.get_text(
             description='Account:',
-            value=GoogleAuth.list_active_account(),
+            value=active_account,
             width=widget_width,
             disabled=True
         )
