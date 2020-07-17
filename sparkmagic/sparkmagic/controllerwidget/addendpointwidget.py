@@ -7,8 +7,10 @@ import sparkmagic.livyclientlib.googleauth as GoogleAuth
 from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException, BadUserDataException
 from google.auth.exceptions import UserAccessTokenError
 from sparkmagic.livyclientlib.livysession import LivySession
+from hdijupyterutils.ipythondisplay import IpythonDisplay
 
-
+ipython_display = IpythonDisplay()
+        
 class AddEndpointWidget(AbstractMenuWidget):
 
     def __init__(self, spark_controller, ipywidget_factory, ipython_display, endpoints, endpoints_dropdown_widget,
@@ -17,8 +19,10 @@ class AddEndpointWidget(AbstractMenuWidget):
         super(AddEndpointWidget, self).__init__(spark_controller, ipywidget_factory, ipython_display, True)
 
         widget_width = "800px"
+        
+        
 
-        self.ipython_display = ipython_display
+  
         self.endpoints = endpoints
         self.endpoints_dropdown_widget = endpoints_dropdown_widget
         self.refresh_method = refresh_method
@@ -99,12 +103,11 @@ class AddEndpointWidget(AbstractMenuWidget):
             endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
             self.endpoints[self.address_widget.value] = endpoint
             self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
-
             # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
             # value otherwise.
             self.refresh_method()
         except (BadUserDataException, BadUserConfigurationException) as error:
-            LivySession.ipython_display.writeln(u"endpoint url is wrong")
+            ipython_display.writeln(u"endpoint url is wrong")
             raise error
 
 
