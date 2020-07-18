@@ -9,7 +9,7 @@ class Endpoint(object):
         if auth not in AUTHS_SUPPORTED:
             raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
         
-        self.url = url.rstrip(u"/")
+        self.url = url.rstrip(u"/") 
         self.username = username
         self.password = password
         self.auth = auth
