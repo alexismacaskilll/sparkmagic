@@ -63,9 +63,11 @@ class ReliableHttpClient(object):
             try: 
                 active_account = sparkmagic.livyclientlib.googleauth.list_active_account()
             except GcloudNotInstalledException: 
-                raise GcloudNotInstalledException("gcloud not installed")
+                raise GcloudNotInstalledException("Failed because gcloud is not installed. Install the Google Cloud SDK.")
             except BadUserConfigurationException: 
-                raise BadUserConfigurationException("Failed to obtain access token. Run gcloud auth login to authenticate.")
+                raise BadUserConfigurationException("Failed to obtain access token. Run `gcloud auth login` in your command line \
+                    to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+                        application-default login` cquire new user credentials to use for Application Default Credentials.")
             
             try: 
                 self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
@@ -76,7 +78,8 @@ class ReliableHttpClient(object):
                     logger.info('Failed to obtain access token. Run gcloud auth login to authenticate.') 
                 """
             except UserAccessTokenError: 
-                raise BadUserConfigurationException("Failed to obtain access token. Run gcloud auth login to authenticate.")
+                raise BadUserConfigurationException("Failed to obtain access token. Run gcloud auth login to authenticate \
+                    ")
             #except GcloudNotInstalledException: 
             #    raise GcloudNotInstalledException("gcloud not installed")
         elif self._endpoint.auth == constants.AUTH_BASIC:
