@@ -65,7 +65,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         """
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
             options= accounts_list,
-            description=u"Credentialed Accounts:"
+            description=u"Account:"
             
         )
         
