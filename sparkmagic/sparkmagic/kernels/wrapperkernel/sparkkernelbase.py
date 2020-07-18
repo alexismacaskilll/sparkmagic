@@ -13,6 +13,7 @@ from hdijupyterutils.ipythondisplay import IpythonDisplay
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
 from sparkmagic.livyclientlib.exceptions import wrap_unexpected_exceptions
+from sparkmagic.livyclientlib.exceptions import handle_expected_exceptions
 from sparkmagic.kernels.wrapperkernel.usercodeparser import UserCodeParser
 
 
@@ -55,7 +56,7 @@ class SparkKernelBase(IPythonKernel):
                 return self._repeat_fatal_error()
 
             return self._do_execute(code, silent, store_history, user_expressions, allow_stdin)
-        return wrap_unexpected_exceptions(f, self._complete_cell)(self)
+        return handle_expected_exceptions(f, self._complete_cell)(self)
 
     def do_shutdown(self, restart):
         # Cleanup
