@@ -160,6 +160,6 @@ class ReliableHttpClient(object):
                 if error:
                     raise HttpClientException(u"Error sending http request and maximum retry encountered.")
                 else:
-                    raise HttpClientException(u"Invalid status code '{}' from {} with error payload: {}"
-                                              .format(status, url, text))
+                    raise HttpClientException(u"Invalid status code '{}' from {}"
+                                              .format(status, url))
             return r
