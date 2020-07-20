@@ -55,6 +55,9 @@ class ReliableHttpClient(object):
             service account. 
             """
             logger.info(sdk.get_application_default_credentials_path())
+
+
+            logger.info(sparkmagic.livyclientlib.googleauth.get_component_gateway_url())
             #request = google.auth.transport.requests.Request()
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())

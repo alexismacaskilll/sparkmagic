@@ -5,11 +5,14 @@ import json
 import os
 import subprocess
 
+
 import six
 
 from google.auth import environment_vars
 from google.auth import exceptions
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
+from google.cloud import dataproc_v1beta2
+
 
 
 # The ~/.config subdirectory containing gcloud credentials.
@@ -97,6 +100,17 @@ def list_credentialed_accounts():
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
 
+
+def get_component_gateway_url(): 
+    project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
+    region = 'us-central1'
+    client = dataproc_v1beta2.ClusterControllerClient(
+                       client_options={
+                            'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
+                        }
+                    )
+    response = client.get_cluster(project_id, region, cluster_name)
+    return (response.config.endpoint_config)
 
 
     
