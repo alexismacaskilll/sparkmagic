@@ -66,7 +66,8 @@ class ReliableHttpClient(object):
             #logger.info(req)
             #logger.info(sparkmagic.livyclientlib.googleauth.list_active_account())
             try: 
-                active_account = sparkmagic.livyclientlib.googleauth.list_active_account()
+                active_account = GoogleAuth.list_active_account()
+                
             except GcloudNotInstalledException: 
                 raise GcloudNotInstalledException("Failed because gcloud is not installed. Install the Google Cloud SDK.")
             except BadUserConfigurationException: 

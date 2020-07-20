@@ -45,6 +45,17 @@ def load_json_input(result):
         pass
     return jsondata
 
+def get_component_gateway_url(): 
+    try: 
+        http_ports = get_endpoint_config()
+        for port in http_ports:
+            url = port['value']
+            index = url.find('.com/')
+            index = index + 4
+            return url[0: index]
+    except: 
+        raise
+
 def list_active_account(): 
     try: 
         accounts = list_credentialed_accounts()
@@ -101,7 +112,7 @@ def list_credentialed_accounts():
         #six.raise_from(new_exc, caught_exc)
 
 
-def get_component_gateway_url(): 
+def get_endpoint_config(): 
     project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
     region = 'us-central1'
     client = dataproc_v1beta2.ClusterControllerClient(
@@ -110,7 +121,9 @@ def get_component_gateway_url():
                         }
                     )
     response = client.get_cluster(project_id, region, cluster_name)
-    return (response.config.endpoint_config)
+
+
+    return load_json_input(response.config.endpoint_config)
 
 
     
