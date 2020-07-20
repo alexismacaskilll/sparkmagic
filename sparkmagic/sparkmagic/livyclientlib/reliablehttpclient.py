@@ -9,7 +9,9 @@ import google.auth
 import urllib3 
 from urllib.request import Request, urlopen, URLError
 
-import sparkmagic.livyclientlib.googleauth
+
+import sparkmagic.livyclientlib.googleauth as GoogleAuth
+
 from sparkmagic.livyclientlib.googleauth import HTTPGoogleAuth
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
@@ -57,7 +59,7 @@ class ReliableHttpClient(object):
             logger.info(sdk.get_application_default_credentials_path())
 
 
-            logger.info(sparkmagic.livyclientlib.googleauth.get_component_gateway_url())
+            logger.info(GoogleAuth.get_component_gateway_url())
             #request = google.auth.transport.requests.Request()
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
