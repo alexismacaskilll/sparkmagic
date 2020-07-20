@@ -62,7 +62,7 @@ class ReliableHttpClient(object):
             logger.info(sdk.get_application_default_credentials_path())
 
 
-            logger.info(GoogleAuth.get_component_gateway_url() +'/gateway/default/livy/v1')
+            #logger.info(GoogleAuth.get_component_gateway_url() +'/gateway/default/livy/v1')
             #request = google.auth.transport.requests.Request()
             #credentials.refresh(request)
             #req =  HTTPGoogleAuth(sdk.get_auth_access_token())
