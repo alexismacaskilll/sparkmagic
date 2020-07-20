@@ -130,7 +130,7 @@ def get_endpoint_config():
     response = client.get_cluster(project_id, region, cluster_name)
 
 
-    return response.config.endpoint_config
+    return load_json_input(response.config.endpoint_config)
 
 
     
