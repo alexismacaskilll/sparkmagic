@@ -50,19 +50,18 @@ def load_json_input(result):
 
 def get_component_gateway_url(): 
     try: 
-        json_endpoint_config = get_endpoint_config()
-        url = json_endpoint_config['httpPorts'][0]['value']
-        index = url.find('.com/')
-        index = index + 4
-        return url[0: index]
-        """
-        url = http_ports
-        for port in http_ports:
-            url = port['value']
+        httpPorts = get_endpoint_config().http_ports
+        #url = json_endpoint_config.http_ports[0]['value']
+        #index = url.find('.com/')
+        #index = index + 4
+        #return url[0: index]
+       
+        for port in httpPorts:
+            url = port['HDFS NameNode']
             index = url.find('.com/')
             index = index + 4
             return url[0: index]
-        """
+        
     except: 
         raise
 
