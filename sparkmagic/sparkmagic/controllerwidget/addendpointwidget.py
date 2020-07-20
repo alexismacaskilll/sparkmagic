@@ -28,16 +28,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             value='http://example.com/livy',
             width=widget_width
         )
-        component_gateway_url = "None"
-        try: 
-            component_gateway_url=GoogleAuth.get_component_gateway_url(self.project_widget.value, self.region_widget.value)
-        except BadUserConfigurationException: 
-            component_gateway_url = "None"
-        except GcloudNotInstalledException: 
-            component_gateway_url = "None"
 
-        if component_gateway_url != "None": 
-            self.address_widget.value = component_gateway_url
         
         self.user_widget = self.ipywidget_factory.get_text(
             description='Username:',
@@ -96,7 +87,16 @@ class AddEndpointWidget(AbstractMenuWidget):
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
 
+        component_gateway_url = "None"
+        try: 
+            component_gateway_url=GoogleAuth.get_component_gateway_url(self.project_widget.value, self.region_widget.value)
+        except BadUserConfigurationException: 
+            component_gateway_url = "None"
+        except GcloudNotInstalledException: 
+            component_gateway_url = "None"
 
+        if component_gateway_url != "None": 
+            self.address_widget.value = component_gateway_url
 
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
