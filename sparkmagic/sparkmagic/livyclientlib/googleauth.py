@@ -134,7 +134,8 @@ def set_credentialed_account(acconut):
     else:
         command = _CLOUD_SDK_POSIX_COMMAND
     try:
-        command = (command,) + _CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND + acconut
+        set_account_command =   ("config", "set", "account", acconut)
+        command = (command,) + set_account_command 
         account = subprocess.check_output(command, stderr=subprocess.STDOUT)
         
     except (OSError) as caught_exc:
