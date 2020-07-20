@@ -32,6 +32,8 @@ _CLOUD_SDK_CONFIG_COMMAND = ("config", "config-helper", "--format", "json")
 _CLOUD_SDK_USER_ACCESS_TOKEN_COMMAND = ("auth", "print-access-token")
 # The command to get all credentialed accounts 
 _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND = ("auth", "list", "--format", "json")
+# The command to set all credentialed accounts 
+_CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND = ("config", "set", "account ")
 # Cloud SDK's application-default client ID
 CLOUD_SDK_CLIENT_ID = (
     "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com"
@@ -119,6 +121,36 @@ def list_credentialed_accounts():
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
 
+def set_credentialed_account(acconut):
+    """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
+
+    
+    Raises:
+        fill in 
+    """
+    accounts_json = ""
+    if os.name == "nt":
+        command = _CLOUD_SDK_WINDOWS_COMMAND
+    else:
+        command = _CLOUD_SDK_POSIX_COMMAND
+    try:
+        command = (command,) + _CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND + acconut
+        account = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        
+    except (OSError) as caught_exc:
+        new_exc = GcloudNotInstalledException(
+            "Gcloud is not installed" 
+        )
+        raise new_exc
+        #six.raise_from(new_exc, caught_exc)
+    #finally: 
+    #    return load_json_input(accounts_json)
+    except (subprocess.CalledProcessError, IOError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Failed to obtain access token"
+        )
+        raise new_exc
+        #six.raise_from(new_exc, caught_exc)
 
 def get_endpoint_config(): 
     project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
