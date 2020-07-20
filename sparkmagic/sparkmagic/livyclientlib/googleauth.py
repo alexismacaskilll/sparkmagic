@@ -48,22 +48,16 @@ def load_json_input(result):
         pass
     return jsondata
 
+"""
 def get_component_gateway_url(): 
     try: 
-        httpPorts = get_endpoint_config().http_ports
-        #url = json_endpoint_config.http_ports[0]['value']
-        #index = url.find('.com/')
-        #index = index + 4
-        #return url[0: index]
-       
-        for port in httpPorts:
-            url = port['HDFS NameNode']
-            index = url.find('.com/')
-            index = index + 4
-            return url[0: index]
-        
+        url = (get_endpoint_config().http_ports)['HDFS NameNode']
+        index = url.find('.com/')
+        index = index + 4
+        endpointAddress = url[0: index] + '/gateway/default/livy/v1'
     except: 
         raise
+"""
 
 def list_active_account(): 
     try: 
@@ -152,9 +146,10 @@ def set_credentialed_account(acconut):
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
 
-def get_endpoint_config(): 
-    project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
-    region = 'us-central1'
+def get_component_gateway_url(project_id, region): 
+    #project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
+    #region = 'us-central1'
+    cluster_name ='amacaskill-livy'
     client = dataproc_v1beta2.ClusterControllerClient(
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
@@ -162,8 +157,11 @@ def get_endpoint_config():
                     )
     response = client.get_cluster(project_id, region, cluster_name)
 
-
-    return response.config.endpoint_config
+    url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
+    index = url.find('.com/')
+    index = index + 4
+    endpointAddress = url[0: index] + '/gateway/default/livy/v1'
+    return endpointAddress
 
 
 
