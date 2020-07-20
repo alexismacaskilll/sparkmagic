@@ -15,6 +15,7 @@ from google.cloud import dataproc_v1beta2
 
 
 
+
 # The ~/.config subdirectory containing gcloud credentials.
 _CONFIG_DIRECTORY = "gcloud"
 # Windows systems store config at %APPDATA%\gcloud
@@ -130,10 +131,10 @@ def get_endpoint_config():
     response = client.get_cluster(project_id, region, cluster_name)
 
 
-    return load_json_input(response.config.endpoint_config)
+    return response.config.endpoint_config
 
 
-    
+
 
 class HTTPGoogleAuth(AuthBase):
     """Attaches HTTP Google Auth Authentication to the given Request
@@ -143,6 +144,8 @@ class HTTPGoogleAuth(AuthBase):
         self.token = token
         self.accounts = list_credentialed_accounts()
         self.active_account = list_active_account()
+
+        
 
     
     def __call__(self, request):
