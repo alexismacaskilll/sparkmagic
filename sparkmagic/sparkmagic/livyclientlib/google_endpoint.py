@@ -1,6 +1,6 @@
 from .exceptions import BadUserDataException, BadUserConfigurationException
 from sparkmagic.utils.constants import AUTHS_SUPPORTED
-
+from sparkmagic.livyclientlib.endpoint import Endpoint
 
 class GoogleEndpoint(Endpoint):
     def __init__(self, url, auth, username="", password="", implicitly_added=False, project_id="", region= "", credentialed_account= "None" ):
