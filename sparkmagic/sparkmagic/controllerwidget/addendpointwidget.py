@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
+from sparkmagic.livyclientlib.google_endpoint import GoogleEndpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
 from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException
@@ -46,8 +47,6 @@ class AddEndpointWidget(AbstractMenuWidget):
         except GcloudNotInstalledException: 
             active_account = "None"
         
-
-        
         accounts_list = {}
         try: 
             accounts_list.update(GoogleAuth.list_accounts_pairs())
@@ -55,8 +54,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             accounts_list = {}
         except GcloudNotInstalledException: 
             accounts_list = {} 
-
-
 
         """
         self.google_credentials_widget = self.ipywidget_factory.get_text(
@@ -66,8 +63,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             disabled=True
         )
         """
-
-
 
         self.project_widget = self.ipywidget_factory.get_text(
             description='Project:',
@@ -89,7 +84,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
 
-            
+
 
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
@@ -113,13 +108,20 @@ class AddEndpointWidget(AbstractMenuWidget):
         self._show_correct_endpoint_fields()
 
     def run(self):
-        endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
-        self.endpoints[self.address_widget.value] = endpoint
-        self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
+        if self.auth.value == constants.AUTH_GOOGLE: 
+            endpoint = GoogleEndpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value, False, self.project_widget.value, self.region_widget.value, self.google_credentials_widget.value)
+            self.endpoints[self.address_widget.value] = endpoint
+            self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
+            self.refresh_method()
+        else: 
+            endpoint = Endpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value)
+            self.endpoints[self.address_widget.value] = endpoint
+            self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
+            self.refresh_method()
 
         # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
         # value otherwise.
-        self.refresh_method()
+        #self.refresh_method()
 
     def _show_correct_endpoint_fields(self):
         if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:

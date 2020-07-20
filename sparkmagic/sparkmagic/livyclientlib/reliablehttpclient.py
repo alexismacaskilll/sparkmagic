@@ -56,6 +56,9 @@ class ReliableHttpClient(object):
             login'. This authenticates with a user identity (via a web flow) but uses the credentials as a proxy for a 
             service account. 
             """
+            logger.info(self._endpoint.project_id)
+            logger.info(self._endpoint.region)
+            logger.info(self._endpoint.credentialed_account)
             logger.info(sdk.get_application_default_credentials_path())
 
 
