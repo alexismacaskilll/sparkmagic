@@ -114,7 +114,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
 
         #self.auth.on_trait_change(self._set_active_account)
-        self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
+        #self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
                         self.address_widget, self.auth, self.user_widget, self.password_widget, self.cluster_name_widget, self.project_widget, self.region_widget, self.google_credentials_widget,
@@ -140,8 +140,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         # value otherwise.
         #self.refresh_method()
 
-    def _set_active_account(self):
-        GoogleAuth.set_credentialed_account(self.google_credentials_widget.value)
+    #def _set_active_account(self):
+    #    GoogleAuth.set_credentialed_account(self.google_credentials_widget.value)
 
     def _show_correct_endpoint_fields(self):
         if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
