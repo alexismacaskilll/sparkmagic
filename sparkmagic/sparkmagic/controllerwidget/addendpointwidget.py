@@ -78,6 +78,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             width=widget_width
         )
 
+        
     
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
             options= accounts_list,
@@ -87,13 +88,13 @@ class AddEndpointWidget(AbstractMenuWidget):
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
         
-        component_gateway_url = "None"
+        self.component_gateway_url = "None"
         try: 
-            component_gateway_url=GoogleAuth.get_component_gateway_url(self.project_widget.value, self.region_widget.value)
+            self.component_gateway_url=GoogleAuth.get_component_gateway_url(self.project_widget.value, self.region_widget.value)
         except BadUserConfigurationException: 
-            component_gateway_url = "None"
+            self.component_gateway_url = "None"
         except GcloudNotInstalledException: 
-            component_gateway_url = "None"
+            self.component_gateway_url = "None"
 
         
 
@@ -147,8 +148,8 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.google_credentials_widget.layout.display = 'flex'
             self.project_widget.layout.display = 'flex'
             self.region_widget.layout.display = 'flex'
-            if component_gateway_url != "None": 
-                self.address_widget.value = component_gateway_url
+            if self.component_gateway_url != "None": 
+                self.address_widget.value = self.component_gateway_url
         else:
             self.user_widget.layout.display = 'flex'
             self.password_widget.layout.display = 'flex'
