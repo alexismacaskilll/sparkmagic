@@ -113,7 +113,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             description='Add endpoint'
         )
 
-        #self.auth.on_trait_change(self._set_active_account)
+        self.auth.on_trait_change(self._show_correct_endpoint_fields)
         #self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
@@ -149,7 +149,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.password_widget.layout.display = 'none'
             self.google_credentials_widget.layout.display = 'none'
             self.cluster_name_widget.layout.display = 'none'
-            self.address_widget.layout.display = 'none'
             self.project_widget.layout.display = 'none'
             self.region_widget.layout.display = 'none'
         elif self.auth.value == constants.AUTH_GOOGLE:
@@ -157,7 +156,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.password_widget.layout.display = 'none'
             self.google_credentials_widget.layout.display = 'flex'
             self.cluster_name_widget.layout.display = 'flex'
-            self.address_widget.layout.display = 'flex'
             self.project_widget.layout.display = 'flex'
             self.region_widget.layout.display = 'flex'
             if self.component_gateway_url != "None": 
@@ -167,7 +165,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.password_widget.layout.display = 'flex'
             self.google_credentials_widget.layout.display = 'none'
             self.cluster_name_widget.layout.display = 'none'
-            self.address_widget.layout.display = 'none'
             self.project_widget.layout.display = 'none'
             self.region_widget.layout.display = 'none'
 
