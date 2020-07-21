@@ -33,7 +33,7 @@ _CLOUD_SDK_USER_ACCESS_TOKEN_COMMAND = ("auth", "print-access-token")
 # The command to get all credentialed accounts 
 _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND = ("auth", "list", "--format", "json")
 # The command to set all credentialed accounts 
-_CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND = ("config", "set", "account ")
+_CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND = ("config", "set", "account")
 # Cloud SDK's application-default client ID
 CLOUD_SDK_CLIENT_ID = (
     "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com"
@@ -146,10 +146,11 @@ def set_credentialed_account(acconut):
         raise new_exc
         #six.raise_from(new_exc, caught_exc)
 
-def get_component_gateway_url(project_id, region): 
+def get_component_gateway_url(cluster_name, project_id, region): 
     #project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
     #region = 'us-central1'
-    cluster_name ='amacaskill-livy'
+    
+    #cluster_name ='amacaskill-livy'
     client = dataproc_v1beta2.ClusterControllerClient(
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)

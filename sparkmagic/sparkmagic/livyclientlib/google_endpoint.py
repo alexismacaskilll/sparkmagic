@@ -3,7 +3,7 @@ from sparkmagic.utils.constants import AUTHS_SUPPORTED
 from sparkmagic.livyclientlib.endpoint import Endpoint
 
 class GoogleEndpoint(Endpoint):
-    def __init__(self, url, auth, username="", password="", implicitly_added=False, project_id="", region= "", credentialed_account= "None" ):
+    def __init__(self, url, auth, username="", password="", implicitly_added=False, cluster_name = "", project_id="", region= "", credentialed_account= "None" ):
         super(GoogleEndpoint, self).__init__(url, auth, username, password, implicitly_added)
         """
         if not url:
@@ -11,6 +11,7 @@ class GoogleEndpoint(Endpoint):
         if auth not in AUTHS_SUPPORTED:
             raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
         """
+        self.cluste_name = cluster_name
         self.region = region
         self.project_id = project_id
         self.credentialed_account = credentialed_account

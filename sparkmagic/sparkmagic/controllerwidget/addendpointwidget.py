@@ -67,6 +67,12 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
         """
 
+        self.cluster_name_widget = self.ipywidget_factory.get_text(
+            description='Cluster:',
+            value='amacaskill-livy',
+            width=widget_width
+        )
+
         self.project_widget = self.ipywidget_factory.get_text(
             description='Project:',
             value='google.com:hadoop-cloud-dev',
@@ -79,7 +85,6 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
 
         
-    
         self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
             options= accounts_list,
             description=u"Account:"
@@ -90,14 +95,13 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         self.component_gateway_url = "None"
         try: 
-            self.component_gateway_url=GoogleAuth.get_component_gateway_url(self.project_widget.value, self.region_widget.value)
+            self.component_gateway_url = GoogleAuth.get_component_gateway_url(self.cluster_name_widget, self.project_widget.value, self.region_widget.value)
         except BadUserConfigurationException: 
             self.component_gateway_url = "None"
         except GcloudNotInstalledException: 
             self.component_gateway_url = "None"
 
         
-
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
                      constants.NO_AUTH: constants.NO_AUTH},
@@ -109,10 +113,11 @@ class AddEndpointWidget(AbstractMenuWidget):
             description='Add endpoint'
         )
 
-        self.auth.on_trait_change(self._show_correct_endpoint_fields)
+        self.auth.on_trait_change(self._set_active_account)
+        self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.address_widget, self.auth, self.user_widget, self.password_widget,self.project_widget, self.region_widget, self.google_credentials_widget,
+                        self.address_widget, self.auth, self.user_widget, self.password_widget, self.cluster_name_widget, self.project_widget, self.region_widget, self.google_credentials_widget,
                          self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
         for child in self.children:
@@ -121,7 +126,7 @@ class AddEndpointWidget(AbstractMenuWidget):
 
     def run(self):
         if self.auth.value == constants.AUTH_GOOGLE: 
-            endpoint = GoogleEndpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value, False, self.project_widget.value, self.region_widget.value, self.google_credentials_widget.value)
+            endpoint = GoogleEndpoint(self.address_widget.value, self.auth.value, self.user_widget.value, self.password_widget.value, False, self.cluster_name_widget.value, self.project_widget.value, self.region_widget.value, self.google_credentials_widget.value)
             self.endpoints[self.address_widget.value] = endpoint
             self.ipython_display.writeln("Added endpoint {}".format(self.address_widget.value))
             self.refresh_method()
@@ -135,17 +140,22 @@ class AddEndpointWidget(AbstractMenuWidget):
         # value otherwise.
         #self.refresh_method()
 
+    def _set_active_account(self):
+        GoogleAuth.set_credentialed_account(self.google_credentials_widget.value)
+
     def _show_correct_endpoint_fields(self):
         if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
             self.user_widget.layout.display = 'none'
             self.password_widget.layout.display = 'none'
             self.google_credentials_widget.layout.display = 'none'
+            self.address_widget.layout.display = 'none'
             self.project_widget.layout.display = 'none'
             self.region_widget.layout.display = 'none'
         elif self.auth.value == constants.AUTH_GOOGLE:
             self.user_widget.layout.display = 'none'
             self.password_widget.layout.display = 'none'
             self.google_credentials_widget.layout.display = 'flex'
+            self.address_widget.layout.display = 'flex'
             self.project_widget.layout.display = 'flex'
             self.region_widget.layout.display = 'flex'
             if self.component_gateway_url != "None": 
@@ -154,6 +164,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.user_widget.layout.display = 'flex'
             self.password_widget.layout.display = 'flex'
             self.google_credentials_widget.layout.display = 'none'
+            self.address_widget.layout.display = 'none'
             self.project_widget.layout.display = 'none'
             self.region_widget.layout.display = 'none'
 

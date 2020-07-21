@@ -58,11 +58,14 @@ class ReliableHttpClient(object):
             """
             logger.info(self._endpoint.project_id)
             logger.info(self._endpoint.region)
+            logger.info(self._endpoint.cluster_name)
             logger.info(self._endpoint.credentialed_account)
 
             logger.info(sdk.get_application_default_credentials_path())
             GoogleAuth.set_credentialed_account(self._endpoint.credentialed_account)
             logger.info(self._endpoint.credentialed_account)
+         
+
 
             #logger.info(GoogleAuth.get_component_gateway_url() + '/gateway/default/livy/v1')
 
