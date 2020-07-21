@@ -113,7 +113,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             description='Add endpoint'
         )
 
-        self.auth.on_trait_change(self._set_active_account)
+        #self.auth.on_trait_change(self._set_active_account)
         self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
