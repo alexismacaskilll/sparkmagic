@@ -119,8 +119,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         #self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
 
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.address_widget, self.auth, self.user_widget, self.password_widget, self.cluster_name_widget, self.project_widget, self.region_widget, self.google_credentials_widget,
-                         self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
+                        self.address_widget, self.auth, self.user_widget, self.password_widget, self.google_credentials_widget,self.project_widget, self.cluster_name_widget, self.region_widget,
+                        self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
         for child in self.children:
             child.parent_widget = self
