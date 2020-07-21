@@ -11,7 +11,7 @@ class GoogleEndpoint(Endpoint):
         if auth not in AUTHS_SUPPORTED:
             raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
         """
-        self.cluste_name = cluster_name
+        self.cluster_name = cluster_name
         self.region = region
         self.project_id = project_id
         self.credentialed_account = credentialed_account
