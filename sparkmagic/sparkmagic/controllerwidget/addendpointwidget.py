@@ -95,7 +95,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         self.component_gateway_url = "None"
         try: 
-            self.component_gateway_url = GoogleAuth.get_component_gateway_url(self.cluster_name_widget, self.project_widget.value, self.region_widget.value)
+            self.component_gateway_url = GoogleAuth.get_component_gateway_url(self.cluster_name_widget.value, self.project_widget.value, self.region_widget.value)
         except BadUserConfigurationException: 
             self.component_gateway_url = "None"
         except GcloudNotInstalledException: 
