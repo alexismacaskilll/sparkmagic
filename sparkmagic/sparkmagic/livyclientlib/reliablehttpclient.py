@@ -7,6 +7,7 @@ from requests_kerberos import HTTPKerberosAuth
 from google.auth import compute_engine
 import google.auth  
 import urllib3 
+import google.oauth2.credentials
 from urllib.request import Request, urlopen, URLError
 
 
@@ -66,6 +67,19 @@ class ReliableHttpClient(object):
             logger.info(self._endpoint.credentialed_account)
          
 
+            credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            logger.info(credentials.expiry)
+            logger.info(credentials.token)
+            logger.info(project)
+            
+
+            creds, project_id = google.auth.load_credentials_from_file(sdk.get_application_default_credentials_path(),scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            logger.info(creds.token)
+            logger.info(creds.refresh_token)
+            logger.info(creds.expiry)
+            
+
+            #credentials = google.oauth2.credentials.Credentials('access_token')
 
             #logger.info(GoogleAuth.get_component_gateway_url() + '/gateway/default/livy/v1')
 
