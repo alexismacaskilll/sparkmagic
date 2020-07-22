@@ -176,11 +176,11 @@ class HTTPGoogleAuth(AuthBase):
     
     def __call__(self, request):
 
-        #request = google.auth.transport.requests.Request()
+        callable_request = google.auth.transport.requests.Request()
         #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
 
         if self.credentials.valid == False:
-            self.credentials.refresh(request)
+            self.credentials.refresh(callable_request)
             #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
 
         logger.info(self.credentials.refresh_token)
