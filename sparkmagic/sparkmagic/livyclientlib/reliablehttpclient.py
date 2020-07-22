@@ -74,8 +74,9 @@ class ReliableHttpClient(object):
             
             credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             request = google.auth.transport.requests.Request()
-            #checks if they are none or not
-            if credentials.valid:
+            #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
+            
+            if credentials.valid == False:
                 credentials.refresh(request)
                 #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
 
@@ -84,9 +85,6 @@ class ReliableHttpClient(object):
             logger.info(credentials.quota_project_id)
             logger.info(credentials.token)
             logger.info(credentials.expiry)
-
-
-
 
             logger.info(project)
             
