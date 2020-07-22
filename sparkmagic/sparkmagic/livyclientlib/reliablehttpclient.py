@@ -76,7 +76,8 @@ class ReliableHttpClient(object):
             request = google.auth.transport.requests.Request()
             #checks if they are none or not
             if credentials.valid:
-                access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
+                credentials.refresh(request)
+                #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
 
             logger.info(credentials.refresh_token)
             logger.info(credentials.expired)
