@@ -48,16 +48,7 @@ def load_json_input(result):
         pass
     return jsondata
 
-"""
-def get_component_gateway_url(): 
-    try: 
-        url = (get_endpoint_config().http_ports)['HDFS NameNode']
-        index = url.find('.com/')
-        index = index + 4
-        endpointAddress = url[0: index] + '/gateway/default/livy/v1'
-    except: 
-        raise
-"""
+ 
 
 def list_active_account(): 
     try: 
@@ -176,10 +167,12 @@ class HTTPGoogleAuth(AuthBase):
         self.accounts = list_credentialed_accounts()
         self.active_account = list_active_account()
 
+
         
 
     
     def __call__(self, request):
+        
         request.headers['Authorization'] = 'Bearer {}'.format(self.token)
         return request
 
