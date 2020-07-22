@@ -12,7 +12,9 @@ from google.auth import environment_vars
 from google.auth import exceptions
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
 from google.cloud import dataproc_v1beta2
-
+import google.auth.transport.requests 
+import google.oauth2._client
+import google.oauth2.credentials
 
 
 
@@ -162,18 +164,32 @@ class HTTPGoogleAuth(AuthBase):
     """Attaches HTTP Google Auth Authentication to the given Request
     object."""
 
-    def __init__(self, token = None, accounts = {}, active_account = ""):
+    def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
         self.token = token
         self.accounts = list_credentialed_accounts()
         self.active_account = list_active_account()
+        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
 
 
         
 
     
     def __call__(self, request):
+
+        #request = google.auth.transport.requests.Request()
+        #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
+
+        if self.credentials.valid == False:
+            self.credentials.refresh(request)
+            #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
+
+        logger.info(self.credentials.refresh_token)
+        logger.info(self.credentials.expired)
+        logger.info(self.credentials.quota_project_id)
+        logger.info(self.credentials.token)
+        logger.info(self.credentials.expiry)
         
-        request.headers['Authorization'] = 'Bearer {}'.format(self.token)
+        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
    
