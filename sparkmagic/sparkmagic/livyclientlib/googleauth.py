@@ -4,7 +4,7 @@ import requests
 import json
 import os
 import subprocess
-
+import logging 
 
 import six
 
@@ -175,6 +175,8 @@ class HTTPGoogleAuth(AuthBase):
 
     
     def __call__(self, request):
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+        logger = logging.getLogger('LOGGER_NAME')
 
         callable_request = google.auth.transport.requests.Request()
         #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
