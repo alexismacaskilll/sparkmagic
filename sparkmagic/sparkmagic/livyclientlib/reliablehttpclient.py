@@ -9,6 +9,8 @@ import google.auth
 import urllib3 
 import google.oauth2.credentials
 from urllib.request import Request, urlopen, URLError
+import google.auth.transport.requests 
+import google.oauth2._client
 
 
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
@@ -24,6 +26,7 @@ from google.auth.exceptions import DefaultCredentialsError, UserAccessTokenError
 import google.auth._cloud_sdk  as sdk
 import sys
 import logging 
+import google.oauth2.credentials
 
 
 
@@ -66,22 +69,32 @@ class ReliableHttpClient(object):
             GoogleAuth.set_credentialed_account(self._endpoint.credentialed_account)
             logger.info(self._endpoint.credentialed_account)
          
-
-
+            #we will want to move this logic to googleauth.py
+            
+            
             credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            logger.info(credentials.expiry)
-            logger.info(credentials.token)
+            request = google.auth.transport.requests.Request()
+            #checks if they are none or not
+            if credentials.expired:
+                access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
 
             logger.info(credentials.refresh_token)
+            logger.info(credentials.expired)
             logger.info(credentials.quota_project_id)
+
+
 
             logger.info(project)
             
 
             creds, project_id = google.auth.load_credentials_from_file(sdk.get_application_default_credentials_path(),scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             logger.info(creds.token)
+            logger.info(creds.expiry)
             logger.info(creds.refresh_token)
             logger.info(creds.quota_project_id)
+            creds.before_request
+            
+            
             
 
             #credentials = google.oauth2.credentials.Credentials('access_token')
@@ -104,7 +117,8 @@ class ReliableHttpClient(object):
                         application-default login` cquire new user credentials to use for Application Default Credentials.")
             
             try: 
-                self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+                #self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
+                self._auth = HTTPGoogleAuth(access_token)
                 """if sparkmagic.livyclientlib.googleauth.list_active_account() != None:
                     self._auth = sdk.get_auth_access_token()
                 else: 

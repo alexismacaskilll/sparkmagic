@@ -58,29 +58,20 @@ class AddEndpointWidget(AbstractMenuWidget):
         except GcloudNotInstalledException: 
             accounts_list = {} 
 
-        """
-        self.google_credentials_widget = self.ipywidget_factory.get_text(
-            description='Account:',
-            value=active_account,
-            width=widget_width,
-            disabled=True
-        )
-        """
-
         self.cluster_name_widget = self.ipywidget_factory.get_text(
             description='Cluster:',
-            value='',
+            value='amacaskill-livy',
             width=widget_width
         )
 
         self.project_widget = self.ipywidget_factory.get_text(
             description='Project:',
-            value='',
+            value='google.com:hadoop-cloud-dev',
             width=widget_width
         )
         self.region_widget = self.ipywidget_factory.get_text(
             description='Region:',
-            value='',
+            value='us-central1',
             width=widget_width
         )
 
