@@ -4,8 +4,6 @@ import requests
 import json
 import os
 import subprocess
-import logging 
-import sys
 
 import six
 
@@ -80,9 +78,8 @@ def list_credentialed_accounts():
         list: the users credentialed accounts 
 
     Raises:
-        Maybe if gcloud isnt installed
-        google.auth.exceptions.UserAccessTokenError: if failed to get access
-            token from gcloud...
+        sparkmagic.livyclientlib.GcloudNotInstalledException: if gcloud is not installed
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
     """
     accounts_json = ""
     if os.name == "nt":
@@ -98,20 +95,15 @@ def list_credentialed_accounts():
             "Gcloud is not installed" 
         )
         raise new_exc
-        #six.raise_from(new_exc, caught_exc)
-    #finally: 
-    #    return load_json_input(accounts_json)
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Failed to obtain access token"
+            #add gcloud auth login / set account message.  
+            "Failed to obtain access token. "
         )
         raise new_exc
-        #six.raise_from(new_exc, caught_exc)
 
 def set_credentialed_account(acconut):
     """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
-
-    
     Raises:
         fill in 
     """
@@ -130,35 +122,42 @@ def set_credentialed_account(acconut):
             "Gcloud is not installed" 
         )
         raise new_exc
-        #six.raise_from(new_exc, caught_exc)
-    #finally: 
-    #    return load_json_input(accounts_json)
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Failed to obtain access token"
         )
         raise new_exc
-        #six.raise_from(new_exc, caught_exc)
 
 def get_component_gateway_url(cluster_name, project_id, region): 
-    #project_id, cluster_name = 'google.com:hadoop-cloud-dev', 'amacaskill-livy'
-    #region = 'us-central1'
-    
-    #cluster_name ='amacaskill-livy'
+    """Gets the component gateway url for a cluster name, project id, and region
+
+    Args:
+        cluster_name (str): The cluster name to use for the url
+        project_id (str): The project id to use for the url
+        region (str): The project id to use for the url
+       
+    Returns:
+        str: the component gateway url
+
+    Raises:
+        google.api_core.exceptions.GoogleAPICallError: If the request failed for any reason.
+        google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
+        ValueError: If the parameters are invalid.
+    """
     client = dataproc_v1beta2.ClusterControllerClient(
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
                         }
                     )
-    response = client.get_cluster(project_id, region, cluster_name)
-
-    url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
-    index = url.find('.com/')
-    index = index + 4
-    endpointAddress = url[0: index] + '/gateway/default/livy/v1'
-    return endpointAddress
-
-
+    try:
+        response = client.get_cluster(project_id, region, cluster_name)
+        url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
+        index = url.find('.com/')
+        index = index + 4
+        endpointAddress = url[0: index] + '/gateway/default/livy/v1'
+        return endpointAddress
+    except: 
+        raise
 
 
 class HTTPGoogleAuth(AuthBase):
@@ -169,29 +168,31 @@ class HTTPGoogleAuth(AuthBase):
         self.token = token
         self.accounts = list_credentialed_accounts()
         self.active_account = list_active_account()
+
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
 
 
-        
+    """
+    def list_active_account(self): 
+        if self.active_account is None: 
+            self.credentials(refresh) 
+        active_account = self.credentials.id_token
 
+        try: 
+            accounts = list_credentialed_accounts()
+            for account in accounts:
+                if account['status'] == "ACTIVE": 
+                    return account['account']
+            return ""
+        except: 
+            raise
+    """
     
     def __call__(self, request):
-        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-        logger = logging.getLogger('LOGGER_NAME')
-
         callable_request = google.auth.transport.requests.Request()
-        #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
-
+        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         if self.credentials.valid == False:
             self.credentials.refresh(callable_request)
-            #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
-
-        logger.info(self.credentials.refresh_token)
-        logger.info(self.credentials.expired)
-        logger.info(self.credentials.quota_project_id)
-        logger.info(self.credentials.token)
-        logger.info(self.credentials.expiry)
-        
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 

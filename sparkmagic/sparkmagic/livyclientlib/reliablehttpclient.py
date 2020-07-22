@@ -69,37 +69,7 @@ class ReliableHttpClient(object):
             GoogleAuth.set_credentialed_account(self._endpoint.credentialed_account)
             logger.info(self._endpoint.credentialed_account)
          
-            #we will want to move this logic to googleauth.py
             
-            """
-            credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            request = google.auth.transport.requests.Request()
-            #checks if the credentials are valid. If they are not that means that either the token = None or it is expired, either way, we refresh. 
-
-            if credentials.valid == False:
-                credentials.refresh(request)
-                #access_token, refresh_token, expiry, grant_response = google.oauth2._client.refresh_grant(request, credentials.token_uri, credentials.refresh_token, credentials.client_id, credentials.client_secret)
-
-            logger.info(credentials.refresh_token)
-            logger.info(credentials.expired)
-            logger.info(credentials.quota_project_id)
-            logger.info(credentials.token)
-            logger.info(credentials.expiry)
-
-            logger.info(project)
-            """
-            
-            """
-            creds, project_id = google.auth.load_credentials_from_file(sdk.get_application_default_credentials_path(),scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            logger.info(creds.token)
-            logger.info(creds.expiry)
-            logger.info(creds.refresh_token)
-            logger.info(creds.quota_project_id)
-            creds.before_request
-            """
-            
-            
-
             #credentials = google.oauth2.credentials.Credentials('access_token')
 
             #logger.info(GoogleAuth.get_component_gateway_url() + '/gateway/default/livy/v1')
