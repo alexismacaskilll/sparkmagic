@@ -81,19 +81,22 @@ class ReliableHttpClient(object):
             logger.info(credentials.refresh_token)
             logger.info(credentials.expired)
             logger.info(credentials.quota_project_id)
+            logger.info(credentials.token)
+            logger.info(credentials.expiry)
+
 
 
 
             logger.info(project)
             
-
+            """
             creds, project_id = google.auth.load_credentials_from_file(sdk.get_application_default_credentials_path(),scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             logger.info(creds.token)
             logger.info(creds.expiry)
             logger.info(creds.refresh_token)
             logger.info(creds.quota_project_id)
             creds.before_request
-            
+            """
             
             
 
@@ -118,7 +121,7 @@ class ReliableHttpClient(object):
             
             try: 
                 #self._auth = HTTPGoogleAuth(sdk.get_auth_access_token())
-                self._auth = HTTPGoogleAuth(access_token)
+                self._auth = HTTPGoogleAuth(credentials.token)
                 """if sparkmagic.livyclientlib.googleauth.list_active_account() != None:
                     self._auth = sdk.get_auth_access_token()
                 else: 
