@@ -3,6 +3,7 @@
 from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.livyclientlib.google_endpoint import GoogleEndpoint
+#maybe import 
 import sparkmagic.utils.constants as constants
 import sparkmagic.livyclientlib.googleauth as GoogleAuth
 from sparkmagic.livyclientlib.exceptions import GcloudNotInstalledException, BadUserConfigurationException
@@ -42,6 +43,8 @@ class AddEndpointWidget(AbstractMenuWidget):
             width=widget_width
         )
 
+        # we need to make this widget pluggable just incase there is a custom thing.  
+        #all of this should be in custom widget
         active_account = "None"
         try: 
             active_account=GoogleAuth.list_active_account()
@@ -83,17 +86,12 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
-        """
-        self.component_gateway_url = "None"
-        try: 
-            self.component_gateway_url = GoogleAuth.get_component_gateway_url(self.cluster_name_widget.value, self.project_widget.value, self.region_widget.value)
-        except BadUserConfigurationException: 
-            self.component_gateway_url = "None"
-        except GcloudNotInstalledException: 
-            self.component_gateway_url = "None"
-        """
 
-        
+
+
+        #change to having custom auth and we will have the value be an instance of the GoogleAuth Authenticator instead of string. 
+        #but we will have to explicitly add thiis. 
+        # 
         self.auth = self.ipywidget_factory.get_dropdown(
             options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_GOOGLE: constants.AUTH_GOOGLE, constants.AUTH_BASIC: constants.AUTH_BASIC,
                      constants.NO_AUTH: constants.NO_AUTH},
@@ -105,10 +103,11 @@ class AddEndpointWidget(AbstractMenuWidget):
             description='Add endpoint'
         )
 
+        #here we need to check if isinstance(self.auth, Authenticator) -> then we want to do self.auth._show_correct_endpoint_fields 
+        # so this is another method we want to have in Authenticator class 
         self.auth.on_trait_change(self._show_correct_endpoint_fields)
      
-        #self.google_credentials_widget.on_trait_change(self._show_correct_endpoint_fields)
-
+        #also will have to add to children?
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
                         self.address_widget, self.auth, self.user_widget, self.password_widget, self.google_credentials_widget,self.project_widget, self.cluster_name_widget, self.region_widget,
                         self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
@@ -117,9 +116,12 @@ class AddEndpointWidget(AbstractMenuWidget):
             child.parent_widget = self
         self._show_correct_endpoint_fields()
 
+
     def run(self):
+        #if isinstance(self.auth.value, Authenticator) -> then we need to get all the fields. Because run has to stay in this
         if self.auth.value == constants.AUTH_GOOGLE: 
             component_gateway_url = GoogleAuth.get_component_gateway_url(self.cluster_name_widget.value, self.project_widget.value, self.region_widget.value)
+            #endpoint = the custom endpoint type. We will pass in values like custom widget.auth.value
             endpoint = GoogleEndpoint(component_gateway_url, self.auth.value, self.user_widget.value, self.password_widget.value, False, self.cluster_name_widget.value, self.project_widget.value, self.region_widget.value, self.google_credentials_widget.value)
             self.endpoints[component_gateway_url] = endpoint
             self.ipython_display.writeln("Added endpoint {}".format(component_gateway_url))
@@ -134,9 +136,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         # value otherwise.
         #self.refresh_method()
 
-    #def _set_active_account(self):
-    #    GoogleAuth.set_credentialed_account(self.google_credentials_widget.value)
 
+    #will also need this is custom widget
     def _show_correct_endpoint_fields(self):
         if self.auth.value == constants.NO_AUTH or self.auth.value == constants.AUTH_KERBEROS:
             self.user_widget.layout.display = 'none'
@@ -145,6 +146,9 @@ class AddEndpointWidget(AbstractMenuWidget):
             self.cluster_name_widget.layout.display = 'none'
             self.project_widget.layout.display = 'none'
             self.region_widget.layout.display = 'none'
+        
+        #if isinstance(self.auth.value, Authenticator) -> then we need to display right widgets. These widgets
+        # should be created in a different class that extends this one.
         elif self.auth.value == constants.AUTH_GOOGLE:
             self.user_widget.layout.display = 'none'
             self.password_widget.layout.display = 'none'
