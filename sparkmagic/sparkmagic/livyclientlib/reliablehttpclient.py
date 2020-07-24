@@ -11,6 +11,11 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
+from sparkmagic.sparkmagic.auth.customauth import Authenticator
+
+
+
+
 
 
 class ReliableHttpClient(object):
@@ -20,12 +25,20 @@ class ReliableHttpClient(object):
         self._endpoint = endpoint
         self._headers = headers
         self._retry_policy = retry_policy
-        if self._endpoint.auth == constants.AUTH_KERBEROS:
-            self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
-        elif self._endpoint.auth == constants.AUTH_BASIC:
-            self._auth = (self._endpoint.username, self._endpoint.password)
+        #self.auth needs to be set to an HTTP Authentication type
+
+        # we want to pass configuration if necessary, like Kerberos:
+        # self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
+        # but we want to load this authomatically not hardcode. See
+        # _get_default_endpoints() to see how to do it
+        self._auth = self._endpoint.auth.HTTP_Auth()
+
+        #need to implement for Kerberos, and auth basic later. 
+        # Also removing this check because auth is a dropdown, an auth type will always be set.     
+        """
         elif self._endpoint.auth != constants.NO_AUTH:
             raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
+        """
         self._session = requests.Session()
 
         self.logger = SparkLog(u"ReliableHttpClient")

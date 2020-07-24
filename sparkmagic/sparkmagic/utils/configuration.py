@@ -14,6 +14,7 @@ from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PAR
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 import sparkmagic.utils.constants as constants
 
+
 from requests_kerberos import REQUIRED
 
 
@@ -48,10 +49,29 @@ def get_livy_kind(language):
 def get_auth_value(username, password):
     if username == '' and password == '':
         return constants.NO_AUTH
-    
     return constants.AUTH_BASIC
 
 
+def auth_config():
+    return  {
+        u"auth_type": {
+            u"login_service": u"Google",
+            u"class": u"sparkmagic.auth.google.GoogleAuth"
+        }, 
+        u"auth_type": {
+            u"login_service": u"None",
+            u"class": u"sparkmagic.auth.customauth.Authenticator"
+        }
+    }
+
+
+def auths_supported():
+    return  {
+        u"Google": u"sparkmagic.auth.google.GoogleAuth", 
+        u"None": u"sparkmagic.auth.Authenticator"
+    }
+       
+    
 # Configs
 
  

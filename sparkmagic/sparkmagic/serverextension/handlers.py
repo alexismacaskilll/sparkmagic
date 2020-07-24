@@ -41,10 +41,13 @@ class ReconnectHandler(IPythonHandler):
             endpoint = self._get_argument_or_raise(data, 'endpoint')
             auth = self._get_argument_if_exists(data, 'auth')
             if auth is None:
+                auth = constants.NO_AUTH
+                """
                 if username == '' and password == '':
                     auth = constants.NO_AUTH
                 else:
                     auth = constants.AUTH_BASIC
+                """
         except MissingArgumentError as e:
             self.set_status(400)
             self.finish(str(e))
