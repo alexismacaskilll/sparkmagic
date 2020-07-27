@@ -203,6 +203,7 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
+        self.get_widgets()
 
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 

@@ -107,6 +107,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         logger.info(dir(events_handler_module))
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
+        logger.info(self.auth)
+        logger.info(dir(self.auth))
         self.auth.show_correct_endpoint_fields()
         
 
