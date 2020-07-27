@@ -88,7 +88,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         Create an instance of the chosen auth type maps to in the config file.
         """
         
-        self.auth.address_widget.layout.display = 'none'
+        #self.auth.address_widget.layout.display = 'none'
 
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
