@@ -6,6 +6,7 @@ from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 
 #class Authenticator(AuthBase):
+
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
@@ -15,6 +16,7 @@ class Authenticator(object):
         #self.login_service = u"None"
         #self.widgets
         self.login_service = u"None"
+        self.url = 'http://example.com/livy'
 
     # pretty sure don't need addresss to show, but would need additional fields like for basic user name and password to show. 
         
@@ -34,12 +36,12 @@ class Authenticator(object):
       
         self.widgets = [self.address_widget]
 
-        self.url = self.address_widget.value
+       
         return self.address_widget #self.widgets
 
     def url(self): 
-        self.url = self.address_widget.value
-        return self.address_widget.value
+       
+        return self.url
 
     def show_correct_endpoint_fields(self): 
         self.address.widget.layout.display = 'flex'

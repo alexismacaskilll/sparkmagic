@@ -202,6 +202,7 @@ class GoogleAuth(Authenticator):
 
     def __init__(self):
         self.login_service = u"Google"
+        self.url = 'http://example.com/livy'
 
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 
@@ -209,7 +210,7 @@ class GoogleAuth(Authenticator):
         #self.address_widget.layout.display = 'flex'
         #self.google_credentials_widget.layout.display = 'flex'
         #self.cluster_name_widget.layout.display = 'flex'
-        self.address_widget.layout.display = 'none'
+        self.address_widget.layout.display = 'flex'
         #self.project_widget.layout.display = 'flex'
         #self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
@@ -258,7 +259,7 @@ class GoogleAuth(Authenticator):
             width="800px"
         )
 
-        #self.url = self.address_widget.value
+        self.url = self.address_widget.value
 
       
         #self.widgets = [self.address_widget]
@@ -267,8 +268,8 @@ class GoogleAuth(Authenticator):
         return self.address_widget #self.widgets
 
     def url(self): 
-        self.url = self.address_widget.value
-        return self.address_widget.value
+        
+        return self.url
     """
 
     google_api_url = "https://www.googleapis.com/oauth2/v4/token"
