@@ -47,6 +47,9 @@ class Authenticator(object):
         self.address_widget.layout.display = 'flex'
     #def get_widgets(self): 
 
+    def hide_correct_endpoint_fields(self): 
+        self.address_widget.layout.display = 'none'
+    #def get_widgets(self): 
     def authenticate(self):
         
         """Authenticate a user with login form data

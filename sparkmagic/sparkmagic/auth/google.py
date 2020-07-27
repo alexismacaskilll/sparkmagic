@@ -216,6 +216,9 @@ class GoogleAuth(Authenticator):
         #self.project_widget.layout.display = 'flex'
         #self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
+    def hide_correct_endpoint_fields(self): 
+        self.address_widget.layout.display = 'none'
+        
 
     def get_component_gateway_url(self): 
         """Gets the component gateway url for a cluster name, project id, and region
