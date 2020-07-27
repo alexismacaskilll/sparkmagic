@@ -11,7 +11,8 @@ from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
-from sparkmagic.sparkmagic.auth.customauth import Authenticator
+from sparkmagic.auth.customauth import Authenticator
+import logging 
 
 
 
@@ -22,6 +23,8 @@ class ReliableHttpClient(object):
     """Http client that is reliable in its requests. Uses requests library."""
 
     def __init__(self, endpoint, headers, retry_policy):
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+        logger = logging.getLogger('LOGGER_NAME')
         self._endpoint = endpoint
         self._headers = headers
         self._retry_policy = retry_policy
@@ -31,7 +34,21 @@ class ReliableHttpClient(object):
         # self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
         # but we want to load this authomatically not hardcode. See
         # _get_default_endpoints() to see how to do it
-        self._auth = self._endpoint.auth.HTTP_Auth()
+        logger.info(self._endpoint.url)
+        logger.info(self._endpoint.auth)
+
+        result = self._endpoint.auth.get_authenticated_user()
+        logger.info(result)
+        json_formatted = json.loads(result)
+        logger.info(json_formatted)
+
+        login_service = str(json_formatted['login_service'])
+        logger.info(login_service)
+        auth_request = (json_formatted['login_service'])
+
+        logger.info(auth_request)
+
+        self._auth = auth_request
 
         #need to implement for Kerberos, and auth basic later. 
         # Also removing this check because auth is a dropdown, an auth type will always be set.     

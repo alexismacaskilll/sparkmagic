@@ -19,14 +19,6 @@ class Authenticator(object):
     # pretty sure don't need addresss to show, but would need additional fields like for basic user name and password to show. 
         
 
-        
-        self.cluster_name_widget = self.ipywidget_factory.get_text(
-            description='Cluster:',
-            value='amacaskill-livy',
-            width=widget_width
-        )
-
-
 
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
@@ -53,7 +45,7 @@ class Authenticator(object):
         self.address.widget.layout.display = 'flex'
     #def get_widgets(self): 
 
-    def authenticate(self, handler, data):
+    def authenticate(self):
         
         """Authenticate a user with login form data
         It must return dict on successful authentication,
@@ -73,7 +65,7 @@ class Authenticator(object):
         """
         
 
-    def get_authenticated_user(self, handler, data):
+    def get_authenticated_user(self):
         """Authenticate the user who is attempting to log in
         Returns user dict if successful, None otherwise.
         This calls `authenticate`, which should be overridden in subclasses.
@@ -89,36 +81,20 @@ class Authenticator(object):
         """
         if self.login_service == u"None": 
             return {
-                u"login_service": self.login_service
+                u"login_service": self.login_service, 
+                u"request": None
             }
         authenticated =  self.authenticate(handler, data)
+        """
         if authenticated is None:
             return None #maybe some error that auth failed. 
         if 'login_service' not in authenticated:
             raise ValueError("user missing a login service: %r" % authenticated)
+        """
         return authenticated
 
 
-    def HTTP_Auth(self, handler, data):
-
-        """
-        When an authentication handler is attached to a request, it is called during 
-        request setup. The __call__ method must therefore do whatever is required 
-        to make the authentication work. Some forms of authentication will 
-        additionally add hooks to provide further functionality.
-        """
-        return None
-
-        #if self.login_service == u"None": 
-
-        """Authenticate the user who is attempting to log in
-        Returns user dict if successful, None otherwise.
-        This calls `authenticate`, which should be overridden in subclasses.
-        This is the outer API for authenticating a user.
-        Subclasses should not override this method.
-        The various stages can be overridden separately:
-         - `authenticate` turns formdata into a username
-"""
+    
         
 
 

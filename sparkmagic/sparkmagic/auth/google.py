@@ -2,7 +2,6 @@
 from .customauth import Authenticator
 
 
-
 import requests
 
 import json
@@ -200,8 +199,7 @@ class GoogleAuth(Authenticator):
         self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
 
-
-
+    """
 
     google_api_url = "https://www.googleapis.com/oauth2/v4/token"
     
@@ -213,7 +211,7 @@ class GoogleAuth(Authenticator):
     def _scope_default(self):
         return ['openid', 'email']
 
-    """Google Auth authentication backend"""
+    
     name = "Google"
     REDIRECT_STATE = False
     AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
@@ -232,6 +230,44 @@ class GoogleAuth(Authenticator):
         ('expires_in', 'expires'),
         ('token_type', 'token_type', True)
     ]
+    """
+
+    def authenticate(self):
+        
+        """Authenticate a user with login form data
+        It must return dict on successful authentication,
+        and return None on failed authentication. self.login_service
+        is not none, must override this in subclass
+        
+        Args:
+            handler (tornado.web.RequestHandler): the current request handler
+            data (dict): The formdata of the login form.
+                        The default form has 'username' and 'password' fields.
+        Returns:
+            user (dict or None):
+                The Authenticator may return a dict instead, which MUST have a
+                key `login_service` holding the login_service, and other optional 
+                keys the auth_type requires like tokens for google auth, user names / 
+                passwords. 
+        """
+        callable_request = google.auth.transport.requests.Request()
+
+        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+        if self.credentials.valid == False:
+            self.credentials.refresh(callable_request)
+        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
+        
+        return {
+            u"login_service": self.login_service,
+            u"request": request
+        }
+        
+
+
+
+
+
+
 
     def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
         self.token = token
@@ -239,6 +275,7 @@ class GoogleAuth(Authenticator):
         self.active_account = list_active_account()
 
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+
 
 
     
@@ -266,4 +303,5 @@ class GoogleAuth(Authenticator):
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
+    
    
