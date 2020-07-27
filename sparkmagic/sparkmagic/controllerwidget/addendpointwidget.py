@@ -5,7 +5,7 @@ from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.utils.configuration as conf
 import importlib
-
+import logging 
 
 class AddEndpointWidget(AbstractMenuWidget):
 
@@ -13,7 +13,7 @@ class AddEndpointWidget(AbstractMenuWidget):
                  refresh_method):
         # This is nested
         super(AddEndpointWidget, self).__init__(spark_controller, ipywidget_factory, ipython_display, True)
-
+      
         widget_width = "800px"
 
         self.endpoints = endpoints
@@ -27,7 +27,9 @@ class AddEndpointWidget(AbstractMenuWidget):
             description=u"Auth type:"
         )
 
+
         module, class_name = (self.auth_type.value).rsplit('.', 1)
+        
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
@@ -91,8 +93,17 @@ class AddEndpointWidget(AbstractMenuWidget):
         """
         Create an instance of the chosen auth type maps to in the config file.
         """
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+        logger = logging.getLogger('LOGGER_NAME')
         module, class_name = (self.auth_type.value).rsplit('.', 1)
+        logger.info(dir(module))
+        logger.info(module)
+        logger.info(class_name)
+        
         events_handler_module = importlib.import_module(module)
+        logger.info(events_handler_module)
+
+        logger.info(dir(events_handler_module))
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
         
