@@ -32,7 +32,7 @@ class Authenticator(object):
         self.url = self.address_widget.value
 
       
-        self.widgets = self.widgets.append(self.address_widget)
+        self.widgets = [self.address_widget]
 
         self.url = self.address_widget.value
         return self.widgets

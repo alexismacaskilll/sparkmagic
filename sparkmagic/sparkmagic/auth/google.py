@@ -17,6 +17,11 @@ from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
 import google.oauth2._client
 import google.oauth2.credentials
+import sparkmagic.utils.configuration as conf
+from tornado import web
+from hdijupyterutils.ipythondisplay import IpythonDisplay
+from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+
 
 
 
@@ -188,6 +193,8 @@ class HTTPGoogleAuth(AuthBase):
 
 """   
 
+
+
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
@@ -197,14 +204,30 @@ class GoogleAuth(Authenticator):
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 
         #don't think I need address widget layout because parent has it. but we will see. 
-        self.address.widget.layout.display = 'flex'
-        self.google_credentials_widget.layout.display = 'flex'
-        self.cluster_name_widget.layout.display = 'flex'
-        self.address_widget.layout.display = 'none'
-        self.project_widget.layout.display = 'flex'
-        self.region_widget.layout.display = 'flex'
+        #self.address_widget.layout.display = 'flex'
+        #self.google_credentials_widget.layout.display = 'flex'
+        #self.cluster_name_widget.layout.display = 'flex'
+        self.address_widget2.layout.display = 'none'
+        #self.project_widget.layout.display = 'flex'
+        #self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
 
+    def get_widgets(self): 
+        ipywidget_factory = IpyWidgetFactory()
+        
+        self.address_widget2 = self.ipywidget_factory.get_text(
+            description='Addrebjkss:',
+            value='http:/nklnk/example.com/livy',
+            width=widget_width
+        )
+
+        self.url = self.address_widget.value
+
+      
+        self.widgets = [self.address_widget]
+
+        self.url = self.address_widget.value
+        return self.widgets
     """
 
     google_api_url = "https://www.googleapis.com/oauth2/v4/token"
@@ -274,7 +297,7 @@ class GoogleAuth(Authenticator):
 
 
 
-
+    """
     def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
         self.token = token
         self.accounts = list_credentialed_accounts()
@@ -285,7 +308,7 @@ class GoogleAuth(Authenticator):
 
 
     
-    """
+   
     def list_active_account(self): 
         if self.active_account is None: 
             self.credentials(refresh) 
@@ -299,7 +322,7 @@ class GoogleAuth(Authenticator):
             return ""
         except: 
             raise
-    """
+
     
     def __call__(self, request):
         callable_request = google.auth.transport.requests.Request()
@@ -309,5 +332,5 @@ class GoogleAuth(Authenticator):
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
-    
+    """
    
