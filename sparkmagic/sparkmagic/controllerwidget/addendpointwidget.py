@@ -79,6 +79,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         """
         Create an instance of the chosen auth type maps to in the config file.
         """
+        widget_width = "800px"
         
         self.auth.address_widget.layout.display = 'none'
 
