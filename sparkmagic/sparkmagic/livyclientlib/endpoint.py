@@ -7,8 +7,8 @@ class Endpoint(object):
         if not url:
             raise BadUserDataException(u"URL must not be empty")
         #if auth.login_service is not key in dictionary from auths in config file: 
-        if auth not in AUTHS_SUPPORTED:
-            raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
+        #if auth not in AUTHS_SUPPORTED:
+        #    raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
         
         self.url = url.rstrip(u"/")
         self.auth = auth
@@ -22,7 +22,7 @@ class Endpoint(object):
         if type(other) is not Endpoint:
             return False
             #change self.auth to self.auth.login_service == other.auth.login_service
-        return self.url == other.url and self.auth == other.auth
+        return self.url == other.url 
 
     #change to self.auth.name
     def __hash__(self):

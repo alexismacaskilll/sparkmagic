@@ -44,7 +44,7 @@ class Authenticator(object):
         return self.url
 
     def show_correct_endpoint_fields(self): 
-        self.address.widget.layout.display = 'flex'
+        self.address_widget.layout.display = 'flex'
     #def get_widgets(self): 
 
     def authenticate(self):

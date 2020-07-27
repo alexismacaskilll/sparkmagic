@@ -7,6 +7,7 @@ import sparkmagic.utils.configuration as conf
 import importlib
 import logging 
 import sys
+import json
 
 class AddEndpointWidget(AbstractMenuWidget):
 
@@ -49,14 +50,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
  
         self.auth_type.on_trait_change(self._update_auth)
-        """
-        self.children = []
-        self.children.append(self.ipywidget_factory.get_html(value="<br/>", width=widget_width))
-        self.children.append(self.auth_type)
-        self.children.append(self.auth.get_widgets())
-        self.children.append(self.ipywidget_factory.get_html(value="<br/>", width=widget_width))
-        self.children.append(self.submit_widget)
-        """
+        
          #also will have to add to children?
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
                         self.auth_type, self.auth.get_widgets(),
@@ -69,7 +63,6 @@ class AddEndpointWidget(AbstractMenuWidget):
         #value in the google auth. This is primarily to see if this will work for other things like adding in the project 
         #id textbox for google. 
     
-        #self.children = self.children.append([self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget])
         
         for child in self.children:
             child.parent_widget = self
@@ -79,7 +72,12 @@ class AddEndpointWidget(AbstractMenuWidget):
 
 
     def run(self):
-        endpoint = Endpoint(self.auth.url(), self.auth)
+        result = self.auth.get_authenticated_user()
+        json_formatted = json.loads(result)
+
+        login_service = (json_formatted['login_service'])
+        auth_request = (json_formatted['request'])
+        endpoint = Endpoint(self.auth.url(), auth_request)
 
         self.endpoints[self.auth.url()] = endpoint
         #getting this url could also be an issue 
@@ -109,6 +107,17 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.auth = auth_class()
         logger.info(self.auth)
         logger.info(dir(self.auth))
+        logger.info(self.auth.url())
+      
+        result = self.auth.get_authenticated_user()
+        logger.info(result)
+        json_formatted = json.loads(result)
+        logger.info(json_formatted)
+
+        login_service = (json_formatted['login_service'])
+        logger.info(login_service)
+        auth_request = (json_formatted['request'])
+        logger.info(auth_request)
         self.auth.show_correct_endpoint_fields()
         
 

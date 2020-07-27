@@ -44,7 +44,7 @@ class ReliableHttpClient(object):
 
         login_service = str(json_formatted['login_service'])
         logger.info(login_service)
-        auth_request = (json_formatted['login_service'])
+        auth_request = (json_formatted['request'])
 
         logger.info(auth_request)
 
