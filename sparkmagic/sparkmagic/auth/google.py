@@ -12,7 +12,7 @@ import six
 
 from google.auth import environment_vars
 from google.auth import exceptions
-from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException, GcloudNotInstalledException
+from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
 import google.oauth2._client
@@ -72,7 +72,8 @@ def list_accounts_pairs():
         return accounts_list
     except: 
         raise
-    
+
+  
 def list_credentialed_accounts():
     """Load all of user's credentialed accounts with ``gcloud auth list`` command.
 
@@ -92,11 +93,13 @@ def list_credentialed_accounts():
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
         return load_json_input(accounts_json)
+        """
     except (OSError) as caught_exc:
         new_exc = GcloudNotInstalledException(
             "Gcloud is not installed" 
         )
         raise new_exc
+        """
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
             #add gcloud auth login / set account message.  
@@ -118,12 +121,13 @@ def set_credentialed_account(account):
         set_account_command =   ("config", "set", "account", account)
         command = (command,) + set_account_command 
         active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        
+        """
     except (OSError) as caught_exc:
         new_exc = GcloudNotInstalledException(
             "Gcloud is not installed" 
         )
         raise new_exc
+        """
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Failed to obtain access token"
@@ -161,15 +165,14 @@ def get_component_gateway_url(cluster_name, project_id, region):
     except: 
         raise
 
-
+"""
 class HTTPGoogleAuth(AuthBase):
-    """Attaches HTTP Google Auth Authentication to the given Request
-    object."""
+    #Attaches HTTP Google Auth Authentication to the given Request object.
 
     def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
         self.token = token
-        self.accounts = list_credentialed_accounts()
-        self.active_account = list_active_account()
+        #self.accounts = list_credentialed_accounts()
+        #self.active_account = list_active_account()
 
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
 
@@ -183,7 +186,7 @@ class HTTPGoogleAuth(AuthBase):
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
-   
+"""   
 
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""

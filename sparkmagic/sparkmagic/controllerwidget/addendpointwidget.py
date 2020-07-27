@@ -27,7 +27,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             description=u"Auth type:"
         )
 
-        module, class_name = (self.auth_type).rsplit('.', 1)
+        module, class_name = (self.auth_type.value).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class(login_service = self.auth_type.label)
