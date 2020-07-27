@@ -26,6 +26,7 @@ from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 
 
+
 # The ~/.config subdirectory containing gcloud credentials.
 _CONFIG_DIRECTORY = "gcloud"
 # Windows systems store config at %APPDATA%\gcloud
@@ -213,12 +214,47 @@ class GoogleAuth(Authenticator):
         #self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
 
+    def get_component_gateway_url(self): 
+        """Gets the component gateway url for a cluster name, project id, and region
+
+        Args:
+            cluster_name (str): The cluster name to use for the url
+            project_id (str): The project id to use for the url
+            region (str): The project id to use for the url
+        
+        Returns:
+            str: the component gateway url
+
+        Raises:
+            google.api_core.exceptions.GoogleAPICallError: If the request failed for any reason.
+            google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
+            ValueError: If the parameters are invalid.
+        """
+        cluster_name = 'amacaskill-livy'
+        project_id = 'google.com:hadoop-cloud-dev'
+        region = 'us-central1'
+        
+        client = dataproc_v1beta2.ClusterControllerClient(
+                        client_options={
+                                'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
+                            }
+                        )
+        try:
+            response = client.get_cluster(project_id, region, cluster_name)
+            url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
+            index = url.find('.com/')
+            index = index + 4
+            endpointAddress = url[0: index] + '/gateway/default/livy/v1'
+            return endpointAddress
+        except: 
+            raise
+
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
         
         self.address_widget = ipywidget_factory.get_text(
             description='Addrebjkss:',
-            value='http:/nklnk/example.com/livy',
+            value=self.get_component_gateway_url(),
             width="800px"
         )
 
