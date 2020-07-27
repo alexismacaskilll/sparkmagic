@@ -69,7 +69,7 @@ def auth_config():
 def auths_supported():
     return  {
         u"Google": u"sparkmagic.auth.google.GoogleAuth", 
-        u"None": u"sparkmagic.auth.Authenticator"
+        u"None": u"sparkmagic.auth.customauth.Authenticator"
     }
        
     
