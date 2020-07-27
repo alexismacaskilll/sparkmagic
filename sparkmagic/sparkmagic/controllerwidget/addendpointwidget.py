@@ -79,8 +79,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         login_service = (json_formatted['login_service'])
         auth_request = (json_formatted['request'])
         """
-        result = self.auth()
-        endpoint = Endpoint(self.auth.url(), result)
+        #result = self.auth()
+        endpoint = Endpoint(self.auth.url(), self.auth)
 
         self.endpoints[self.auth.url()] = endpoint
         #getting this url could also be an issue 
