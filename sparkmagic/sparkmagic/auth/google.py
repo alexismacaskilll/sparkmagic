@@ -204,6 +204,7 @@ class GoogleAuth(Authenticator):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
         self.get_widgets()
+        
 
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 
@@ -322,18 +323,33 @@ class GoogleAuth(Authenticator):
                 keys the auth_type requires like tokens for google auth, user names / 
                 passwords. 
         """
-        callable_request = google.auth.transport.requests.Request()
+        """callable_request = google.auth.transport.requests.Request()
+        
 
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
         if self.credentials.valid == False:
             self.credentials.refresh(callable_request)
+        
+
+        
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         
         return {
             u"login_service": self.login_service,
             u"request": request
         }
+        """
         
+    def __call__(self, request):
+        callable_request = google.auth.transport.requests.Request()
+        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+
+        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
+        if self.credentials.valid == False:
+            self.credentials.refresh(callable_request)
+        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
+        return request
+
 
 
 

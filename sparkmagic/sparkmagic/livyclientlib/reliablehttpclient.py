@@ -37,7 +37,8 @@ class ReliableHttpClient(object):
         logger.info(self._endpoint.url)
         logger.info(self._endpoint.auth)
 
-        result = self._endpoint.auth.get_authenticated_user()
+        result = self._endpoint.auth()
+        """
         logger.info(result)
         json_formatted = json.loads(result)
         logger.info(json_formatted)
@@ -46,9 +47,11 @@ class ReliableHttpClient(object):
         logger.info(login_service)
         auth_request = (json_formatted['request'])
 
-        logger.info(auth_request)
 
-        self._auth = auth_request
+        logger.info(auth_request)
+        """
+
+        self._auth = result
 
         #need to implement for Kerberos, and auth basic later. 
         # Also removing this check because auth is a dropdown, an auth type will always be set.     

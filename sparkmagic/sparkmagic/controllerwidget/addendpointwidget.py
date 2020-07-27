@@ -107,8 +107,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.auth = auth_class()
         logger.info(self.auth)
         logger.info(dir(self.auth))
-        logger.info(self.auth.url())
-      
+        logger.info(self.auth.url)
+        """
         result = self.auth.get_authenticated_user()
         logger.info(result)
         json_formatted = json.loads(result)
@@ -118,6 +118,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         logger.info(login_service)
         auth_request = (json_formatted['request'])
         logger.info(auth_request)
+        """
         self.auth.show_correct_endpoint_fields()
         
 

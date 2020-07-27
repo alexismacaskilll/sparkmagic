@@ -67,6 +67,15 @@ class Authenticator(object):
         """
         
 
+    def __call__(self, request):
+        if self.login_service == u"None": 
+            return {
+                u"login_service": self.login_service, 
+                u"request": None
+            }
+        else: 
+            return None
+    
     def get_authenticated_user(self):
         """Authenticate the user who is attempting to log in
         Returns user dict if successful, None otherwise.
@@ -86,7 +95,7 @@ class Authenticator(object):
                 u"login_service": self.login_service, 
                 u"request": None
             }
-        authenticated =  self.authenticate(handler, data)
+        authenticated =  self.authenticate()
         """
         if authenticated is None:
             return None #maybe some error that auth failed. 
