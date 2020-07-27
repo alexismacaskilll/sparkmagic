@@ -6,6 +6,7 @@ import sparkmagic.utils.constants as constants
 import sparkmagic.utils.configuration as conf
 import importlib
 import logging 
+import sys
 
 class AddEndpointWidget(AbstractMenuWidget):
 
