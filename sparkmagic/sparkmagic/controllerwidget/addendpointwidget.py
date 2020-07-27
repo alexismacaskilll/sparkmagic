@@ -30,7 +30,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         module, class_name = (self.auth_type.value).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
-        self.auth = auth_class(login_service = self.auth_type.label)
+        self.auth = auth_class()
        
         """
         self.address_widget = self.ipywidget_factory.get_text(

@@ -8,13 +8,13 @@ from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 #class Authenticator(AuthBase):
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
-    def __init__(self, login_service = u"None", widgets = None, url = None):
+    def __init__(self):
     #Name of the login service that this authenticator is providing using to authenticate users. 
     # Example: Google. Setting this value replaces the manage_spark widget auth dropdown / setting dropdown sets this???
     #must be set to one of self.auth.constants? or sets constant
         #self.login_service = u"None"
         #self.widgets
-        self.get_widgets()
+        self.login_service = u"None"
 
     # pretty sure don't need addresss to show, but would need additional fields like for basic user name and password to show. 
         

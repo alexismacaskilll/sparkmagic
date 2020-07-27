@@ -191,6 +191,9 @@ class HTTPGoogleAuth(AuthBase):
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
+    def __init__(self):
+        self.login_service = u"Google"
+
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 
         #don't think I need address widget layout because parent has it. but we will see. 
