@@ -1,6 +1,6 @@
 # Copyright (c) 2015  aggftw@gmail.com
 # Distributed under the terms of the Modified BSD License.
-from sparkmagic.controllerwidget.abstractmenuwidget import AbstractMenuWidget
+from .abstractmenuwidget import AbstractMenuWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.utils.configuration as conf
@@ -94,6 +94,6 @@ class AddEndpointWidget(AbstractMenuWidget):
         module, class_name = (self.auth_type.value).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
-        self.auth = auth_class(login_service = self.auth_type.label)
+        self.auth = auth_class()
         
 

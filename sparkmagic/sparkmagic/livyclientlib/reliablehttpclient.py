@@ -9,8 +9,8 @@ import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
 from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
-from sparkmagic.livyclientlib.exceptions import HttpClientException
-from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
+from .exceptions import HttpClientException
+from .exceptions import BadUserConfigurationException
 from sparkmagic.auth.customauth import Authenticator
 import logging 
 
