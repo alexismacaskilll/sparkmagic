@@ -13,7 +13,7 @@ from .exceptions import HttpClientException
 from .exceptions import BadUserConfigurationException
 from sparkmagic.auth.customauth import Authenticator
 import logging 
-
+import sys
 
 
 
