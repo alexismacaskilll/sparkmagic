@@ -91,7 +91,10 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
-        self.children[-2] = self.auth.get_widgets()
+        n = 3
+        # Replace the element at index 3 to 
+        self.children = self.children [ : n] + (self.auth.get_widgets() ,) + self.children [n + 1 : ]
+        
         self.auth.address_widget.layout.display = 'flex'
         """
         self.children.insert(-2, self.auth.get_widgets())
