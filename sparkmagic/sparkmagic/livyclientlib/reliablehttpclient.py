@@ -23,34 +23,9 @@ class ReliableHttpClient(object):
     """Http client that is reliable in its requests. Uses requests library."""
 
     def __init__(self, endpoint, headers, retry_policy):
-        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-        logger = logging.getLogger('LOGGER_NAME')
         self._endpoint = endpoint
         self._headers = headers
         self._retry_policy = retry_policy
-        #self.auth needs to be set to an HTTP Authentication type
-
-        # we want to pass configuration if necessary, like Kerberos:
-        # self._auth = HTTPKerberosAuth(**conf.kerberos_auth_configuration())
-        # but we want to load this authomatically not hardcode. See
-        # _get_default_endpoints() to see how to do it
-        logger.info(self._endpoint.url)
-        logger.info(self._endpoint.auth)
-
-        #result = self._endpoint.auth()
-        """
-        logger.info(result)
-        json_formatted = json.loads(result)
-        logger.info(json_formatted)
-
-        login_service = str(json_formatted['login_service'])
-        logger.info(login_service)
-        auth_request = (json_formatted['request'])
-
-
-        logger.info(auth_request)
-        """
-
         self._auth = self._endpoint.auth
 
         #need to implement for Kerberos, and auth basic later. 
@@ -60,9 +35,7 @@ class ReliableHttpClient(object):
             raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
         """
         self._session = requests.Session()
-
         self.logger = SparkLog(u"ReliableHttpClient")
-
         self.verify_ssl = not conf.ignore_ssl_errors()
         if not self.verify_ssl:
             self.logger.debug(u"ATTENTION: Will ignore SSL errors. This might render you vulnerable to attacks.")

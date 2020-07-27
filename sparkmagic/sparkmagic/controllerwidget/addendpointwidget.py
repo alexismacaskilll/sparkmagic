@@ -68,22 +68,14 @@ class AddEndpointWidget(AbstractMenuWidget):
             child.parent_widget = self
         
         self._update_auth()
-        
+        self.auth.show_correct_endpoint_fields()
+
 
 
     def run(self):
-        """
-        result = self.auth.get_authenticated_user()
-        json_formatted = json.loads(result)
-
-        login_service = (json_formatted['login_service'])
-        auth_request = (json_formatted['request'])
-        """
-        #result = self.auth()
         endpoint = Endpoint(self.auth.url, self.auth)
 
         self.endpoints[self.auth.url] = endpoint
-        #getting this url could also be an issue 
         self.ipython_display.writeln("Added endpoint {}".format(self.auth.url))
         # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
         # value otherwise.
@@ -122,6 +114,5 @@ class AddEndpointWidget(AbstractMenuWidget):
         auth_request = (json_formatted['request'])
         logger.info(auth_request)
         """
-        self.auth.show_correct_endpoint_fields()
         
 
