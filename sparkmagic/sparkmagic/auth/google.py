@@ -1,5 +1,6 @@
 ﻿from requests.auth import AuthBase
-from .customauth import Authenticator
+import sparkmagic.auth
+from sparkmagic.auth.customauth import Authenticator
 
 
 import requests
@@ -215,18 +216,18 @@ class GoogleAuth(Authenticator):
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
         
-        self.address_widget2 = self.ipywidget_factory.get_text(
+        self.address_widget2 = ipywidget_factory.get_text(
             description='Addrebjkss:',
             value='http:/nklnk/example.com/livy',
-            width=widget_width
+            width="800px"
         )
 
-        self.url = self.address_widget.value
+        #self.url = self.address_widget.value
 
       
-        self.widgets = [self.address_widget]
+        #self.widgets = [self.address_widget]
 
-        self.url = self.address_widget.value
+        #self.url = self.address_widget.value
         return self.address_widget2 #self.widgets
     """
 

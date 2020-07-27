@@ -23,10 +23,10 @@ class Authenticator(object):
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
         
-        self.address_widget = self.ipywidget_factory.get_text(
+        self.address_widget = ipywidget_factory.get_text(
             description='Address:',
             value='http://example.com/livy',
-            width=widget_width
+            width="800px"
         )
 
         self.url = self.address_widget.value
