@@ -82,9 +82,9 @@ class AddEndpointWidget(AbstractMenuWidget):
         #result = self.auth()
         endpoint = Endpoint(self.auth.url, self.auth)
 
-        self.endpoints[self.auth.url()] = endpoint
+        self.endpoints[self.auth.url] = endpoint
         #getting this url could also be an issue 
-        self.ipython_display.writeln("Added endpoint {}".format(self.auth.url()))
+        self.ipython_display.writeln("Added endpoint {}".format(self.auth.url))
         # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
         # value otherwise.
         self.refresh_method()
