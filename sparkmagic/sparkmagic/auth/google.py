@@ -208,7 +208,7 @@ class GoogleAuth(Authenticator):
         #self.address_widget.layout.display = 'flex'
         #self.google_credentials_widget.layout.display = 'flex'
         #self.cluster_name_widget.layout.display = 'flex'
-        self.address_widget2.layout.display = 'none'
+        self.address_widget.layout.display = 'none'
         #self.project_widget.layout.display = 'flex'
         #self.region_widget.layout.display = 'flex'
     #def get_widgets(self): 
@@ -216,7 +216,7 @@ class GoogleAuth(Authenticator):
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
         
-        self.address_widget2 = ipywidget_factory.get_text(
+        self.address_widget = ipywidget_factory.get_text(
             description='Addrebjkss:',
             value='http:/nklnk/example.com/livy',
             width="800px"
@@ -228,7 +228,11 @@ class GoogleAuth(Authenticator):
         #self.widgets = [self.address_widget]
 
         #self.url = self.address_widget.value
-        return self.address_widget2 #self.widgets
+        return self.address_widget #self.widgets
+
+    def url(self): 
+        self.url = self.address_widget.value
+        return self.address_widget.value
     """
 
     google_api_url = "https://www.googleapis.com/oauth2/v4/token"
