@@ -52,7 +52,10 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.children.append(self.auth.get_widgets())
         self.children.append(self.ipywidget_factory.get_html(value="<br/>", width=widget_width))
         self.children.append(self.submit_widget)
-
+         #also will have to add to children?
+        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
+                        self.auth_type, self.auth.get_widgets(),
+                        self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
 
         #self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type]

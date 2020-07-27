@@ -35,7 +35,7 @@ class Authenticator(object):
         self.widgets = [self.address_widget]
 
         self.url = self.address_widget.value
-        return self.widgets
+        return self.address_widget #self.widgets
 
     def url(self): 
         self.url = self.address_widget.value

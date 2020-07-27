@@ -227,7 +227,7 @@ class GoogleAuth(Authenticator):
         self.widgets = [self.address_widget]
 
         self.url = self.address_widget.value
-        return self.widgets
+        return self.address_widget2 #self.widgets
     """
 
     google_api_url = "https://www.googleapis.com/oauth2/v4/token"
