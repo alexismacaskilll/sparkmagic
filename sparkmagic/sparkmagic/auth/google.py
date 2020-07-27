@@ -1,6 +1,6 @@
 ﻿from requests.auth import AuthBase
-import sparkmagic.auth
-from sparkmagic.auth.customauth import Authenticator
+
+from .customauth import Authenticator
 
 
 import requests
