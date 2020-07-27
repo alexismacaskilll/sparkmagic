@@ -53,9 +53,9 @@ class AddEndpointWidget(AbstractMenuWidget):
         
          #also will have to add to children?
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.auth_type, self.auth.get_widgets(),
+                        self.auth_type,self.auth.get_widgets(), 
                         self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
-        
+
         for child in self.children:
             child.parent_widget = self
         
@@ -79,23 +79,24 @@ class AddEndpointWidget(AbstractMenuWidget):
         """
         Create an instance of the chosen auth type maps to in the config file.
         """
-        widget_width = "800px"
+        
         
         self.auth.address_widget.layout.display = 'none'
 
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
         module, class_name = (self.auth_type.value).rsplit('.', 1)
-        logger.info(dir(module))
-        logger.info(module)
-        logger.info(class_name)
-        
+       
         events_handler_module = importlib.import_module(module)
-        logger.info(events_handler_module)
 
-        logger.info(dir(events_handler_module))
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
+        self.children[-2] = self.auth.get_widgets()
+        self.auth.address_widget.layout.display = 'flex'
+        """
+        self.children.insert(-2, self.auth.get_widgets())
+
+        
         logger.info(self.auth)
         logger.info(dir(self.auth))
         logger.info(self.auth.url)
@@ -105,18 +106,8 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         for child in self.children:
             child.parent_widget = self
+        
 
         self.auth.address_widget.layout.display = 'flex'
         """
-        result = self.auth.get_authenticated_user()
-        logger.info(result)
-        json_formatted = json.loads(result)
-        logger.info(json_formatted)
-
-        login_service = (json_formatted['login_service'])
-        logger.info(login_service)
-        auth_request = (json_formatted['request'])
-        logger.info(auth_request)
-        """
         
-
