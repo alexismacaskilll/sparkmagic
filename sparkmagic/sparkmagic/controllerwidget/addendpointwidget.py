@@ -29,9 +29,18 @@ class AddEndpointWidget(AbstractMenuWidget):
             description=u"Auth type:"
         )
 
+        self.authWidgets = []
+        for auth in self.auth_type.options:
+            module, class_name = (auth.value).rsplit('.', 1)
+            events_handler_module = importlib.import_module(module)
+            auth_class = getattr(events_handler_module, class_name)
+            widget =  auth_class().get_widgets()
+            widget.address_widget.layout.display = 'none'
+            self.authWidgets.append(widget)
+
+        
 
         module, class_name = (self.auth_type.value).rsplit('.', 1)
-        
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
@@ -53,7 +62,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
          #also will have to add to children?
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.auth_type,self.auth.get_widgets(), 
+                        self.auth_type,self.authWidgets, 
                         self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
 
         for child in self.children:
@@ -91,26 +100,15 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
+        self.auth.address_widget.layout.display = 'flex'
+
+        """
+
+
         n = 3
         # Replace the element at index 3 to 
         self.children = self.children [ : n] + (self.auth.get_widgets() ,) + self.children [n + 1 : ]
         
-        self.auth.address_widget.layout.display = 'flex'
-        """
-        self.children.insert(-2, self.auth.get_widgets())
-
-        
-        logger.info(self.auth)
-        logger.info(dir(self.auth))
-        logger.info(self.auth.url)
-        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.auth_type, self.auth.get_widgets(),
-                        self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
-        
-        for child in self.children:
-            child.parent_widget = self
-        
-
         self.auth.address_widget.layout.display = 'flex'
         """
         
