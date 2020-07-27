@@ -55,13 +55,14 @@ def get_auth_value(username, password):
 def auth_config():
     return  {
         u"auth_type": {
-            u"login_service": u"Google",
-            u"class": u"sparkmagic.auth.google.GoogleAuth"
-        }, 
-        u"auth_type": {
             u"login_service": u"None",
             u"class": u"sparkmagic.auth.customauth.Authenticator"
+        },
+        u"auth_type": {
+            u"login_service": u"Google",
+            u"class": u"sparkmagic.auth.google.GoogleAuth"
         }
+        
     }
 
 
