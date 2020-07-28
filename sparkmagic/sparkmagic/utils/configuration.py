@@ -61,6 +61,10 @@ def auth_config():
         u"auth_type": {
             u"login_service": u"Google",
             u"class": u"sparkmagic.auth.google.GoogleAuth"
+        }, 
+        u"auth_type": {
+            u"login_service": u"Basic",
+            u"class": u"sparkmagic.auth.basic.Basic"
         }
         
     }
@@ -69,7 +73,8 @@ def auth_config():
 def auths_supported():
     return  {
         u"Google": u"sparkmagic.auth.google.GoogleAuth", 
-        u"None": u"sparkmagic.auth.customauth.Authenticator"
+        u"None": u"sparkmagic.auth.customauth.Authenticator", 
+        u"Basic": u"sparkmagic.auth.basic.Basic"
     }
        
     
