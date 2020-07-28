@@ -23,32 +23,11 @@ from tornado import web
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
-
-
-
-
-# The ~/.config subdirectory containing gcloud credentials.
-_CONFIG_DIRECTORY = "gcloud"
-# Windows systems store config at %APPDATA%\gcloud
-_WINDOWS_CONFIG_ROOT_ENV_VAR = "APPDATA"
-# The name of the file in the Cloud SDK config that contains default
-# credentials.
-_CREDENTIALS_FILENAME = "application_default_credentials.json"
 # The name of the Cloud SDK shell script
 _CLOUD_SDK_POSIX_COMMAND = "gcloud"
 _CLOUD_SDK_WINDOWS_COMMAND = "gcloud.cmd"
-# The command to get the Cloud SDK configuration
-_CLOUD_SDK_CONFIG_COMMAND = ("config", "config-helper", "--format", "json")
-# The command to get google user access token
-_CLOUD_SDK_USER_ACCESS_TOKEN_COMMAND = ("auth", "print-access-token")
 # The command to get all credentialed accounts 
 _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND = ("auth", "list", "--format", "json")
-# The command to set all credentialed accounts 
-_CLOUD_SDK_SET_CREDENTIALED_ACCOUNT_COMMAND = ("config", "set", "account")
-# Cloud SDK's application-default client ID
-CLOUD_SDK_CLIENT_ID = (
-    "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com"
-)
 
 def load_json_input(result):
     """Load json data from the file."""
@@ -114,32 +93,7 @@ def list_credentialed_accounts():
         )
         raise new_exc
 
-def set_credentialed_account(account):
-    """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
-    Raises:
-        fill in 
-    """
-    accounts_json = ""
-    if os.name == "nt":
-        command = _CLOUD_SDK_WINDOWS_COMMAND
-    else:
-        command = _CLOUD_SDK_POSIX_COMMAND
-    try:
-        set_account_command =   ("config", "set", "account", account)
-        command = (command,) + set_account_command 
-        active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        """
-    except (OSError) as caught_exc:
-        new_exc = GcloudNotInstalledException(
-            "Gcloud is not installed" 
-        )
-        raise new_exc
-        """
-    except (subprocess.CalledProcessError, IOError) as caught_exc:
-        new_exc = BadUserConfigurationException(
-            "Failed to obtain access token"
-        )
-        raise new_exc
+    
 
 def get_component_gateway_url(project_id, cluster_name, region): 
     """Gets the component gateway url for a cluster name, project id, and region
@@ -172,29 +126,6 @@ def get_component_gateway_url(project_id, cluster_name, region):
     except: 
         raise
 
-"""
-class HTTPGoogleAuth(AuthBase):
-    #Attaches HTTP Google Auth Authentication to the given Request object.
-
-    def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
-        self.token = token
-        #self.accounts = list_credentialed_accounts()
-        #self.active_account = list_active_account()
-
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-
-
-    
-    def __call__(self, request):
-        callable_request = google.auth.transport.requests.Request()
-        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
-        if self.credentials.valid == False:
-            self.credentials.refresh(callable_request)
-        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
-        return request
-
-"""   
-
 
 
 class GoogleAuth(Authenticator):
@@ -210,9 +141,6 @@ class GoogleAuth(Authenticator):
 
     def hide_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'none'
-
-
-    
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -238,19 +166,25 @@ class GoogleAuth(Authenticator):
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
             options= list_accounts_pairs(),
+            value = list_active_account(),
             description=u"Account:"
         )
-        #self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value )
 
-
-        #self.widgets = [self.address_widget]
         widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
-        #self.url = self.address_widget.value
-        return widgets #self.widgets
+        return widgets 
 
     def update_url(self): 
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
    
+    def __call__(self, request):
+        callable_request = google.auth.transport.requests.Request()
+        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+
+        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
+        if self.credentials.valid == False:
+            self.credentials.refresh(callable_request)
+        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
+        return request
 
     def authenticate(self):
         
@@ -287,15 +221,6 @@ class GoogleAuth(Authenticator):
         }
         """
         
-    def __call__(self, request):
-        callable_request = google.auth.transport.requests.Request()
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-
-        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
-        if self.credentials.valid == False:
-            self.credentials.refresh(callable_request)
-        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
-        return request
 
 
    

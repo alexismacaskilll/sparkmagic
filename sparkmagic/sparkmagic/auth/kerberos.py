@@ -3,17 +3,18 @@ import sparkmagic.utils.configuration as conf
 from tornado import web
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
-from requests.auth import HTTPBasicAuth
+
+from requests_kerberos import HTTPKerberosAuth
 from .customauth import Authenticator
 
 
 #class Authenticator(AuthBase):
 
-class Basic(  HTTPBasicAuth):
+class Basic( HTTPKerberosAuth):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
         #Name of the login service that this authenticator is providing using to authenticate users. 
-        self.login_service = u"Basic"
+        self.login_service = u"Kerberos"
         self.url = 'http://example.com/livy'
         
 
@@ -27,28 +28,14 @@ class Basic(  HTTPBasicAuth):
             width=widget_width
         )
 
-        self.user_widget = ipywidget_factory.get_text(
-            description='Username:',
-            value='username',
-            width=widget_width
-        )
-       
-        self.password_widget = ipywidget_factory.get_text(
-            description='Password:',
-            value='password',
-            width=widget_width
-        )
-        widgets = {self.address_widget, self.user_widget, self.password_widget}
+        widgets = {self.address_widget}
         return widgets 
 
     def update_url(self): 
         self.url = self.address_widget.value
-        self.username = self.user_widget.value
-        self.password = self.password_widget.value
-
+       
     def show_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'flex'
-
 
     def hide_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'none'
@@ -79,6 +66,7 @@ class Basic(  HTTPBasicAuth):
     #can I add username / password to hash? 
     def __hash__(self):
         return hash((self.url, self.login_service))
+    
     
 
 
