@@ -17,7 +17,7 @@ class Authenticator(object):
         #self.widgets
         self.login_service = u"None"
         self.url = 'http://example.com/livy'
-        self.get_widgets()
+        #self.get_widgets()
     # pretty sure don't need addresss to show, but would need additional fields like for basic user name and password to show. 
         
 

@@ -200,10 +200,10 @@ class HTTPGoogleAuth(AuthBase):
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
-    def __init__(self):
+    def __init__(self, widget_width):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
-        self.get_widgets()
+        #self.get_widgets()
         self.widget_width = "800px"
         
 
