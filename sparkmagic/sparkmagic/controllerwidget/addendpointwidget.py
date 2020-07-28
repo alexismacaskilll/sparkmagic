@@ -69,7 +69,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         submit = [self.submit_widget]
         self.children = dropdown_auth + drop + custom + submitT + submit
         """
-        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + self.authWidget_values
+        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + self.authWidget_values \
         + [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),self.submit_widget ]
 
         for child in self.children:
