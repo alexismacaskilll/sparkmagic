@@ -76,7 +76,8 @@ class Basic(  HTTPBasicAuth):
     def __call__(self, request):
         super().__call__(request)
         
-        
+    def __hash__(self):
+        return hash((self.url, self.login_service))
     
     def get_authenticated_user(self):
         """Authenticate the user who is attempting to log in
