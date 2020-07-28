@@ -70,6 +70,8 @@ class Authenticator(object):
         
 
     def __call__(self, request):
+        return None
+        """
         if self.login_service == u"None": 
             return {
                 u"login_service": self.login_service, 
@@ -77,6 +79,8 @@ class Authenticator(object):
             }
         else: 
             return None
+        """
+        
     
     def get_authenticated_user(self):
         """Authenticate the user who is attempting to log in

@@ -66,7 +66,7 @@ class ReliableHttpClient(object):
     def _send_request_helper(self, url, accepted_status_codes, function, data, retry_count):
         while True:
             try:
-                if self._endpoint.auth == constants.NO_AUTH:
+                if self._endpoint.auth.login_service == constants.NO_AUTH:
                     if data is None:
                         r = function(url, headers=self._headers, verify=self.verify_ssl)
                     else:
