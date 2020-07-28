@@ -5,10 +5,7 @@ from sparkmagic.livyclientlib.endpoint import Endpoint
 import sparkmagic.utils.constants as constants
 import sparkmagic.utils.configuration as conf
 import importlib
-import logging 
-import sys
 from collections import defaultdict
-import json
 
 class AddEndpointWidget(AbstractMenuWidget):
 
@@ -61,14 +58,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
  
         self.auth_type.on_trait_change(self._update_auth)
-        """
-        dropdown_auth = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
-        drop = [self.auth_type]
-        custom = self.authWidget_values
-        submitT  = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
-        submit = [self.submit_widget]
-        self.children = dropdown_auth + drop + custom + submitT + submit
-        """
+
         self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + self.authWidget_values \
         + [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),self.submit_widget ]
 
@@ -78,10 +68,11 @@ class AddEndpointWidget(AbstractMenuWidget):
         
 
     def run(self):
-        endpoint = Endpoint(self.auth.url, self.auth)
-
-        self.endpoints[self.auth.url] = endpoint
-        self.ipython_display.writeln("Added endpoint {}".format(self.auth.url))
+        url = self.auth.url()
+        endpoint = Endpoint(url, self.auth)
+        
+        self.endpoints[url] = endpoint
+        self.ipython_display.writeln("Added endpoint {}".format(url))
         # We need to call the refresh method because drop down in Tab 2 for endpoints wouldn't refresh with the new
         # value otherwise.
         self.refresh_method()

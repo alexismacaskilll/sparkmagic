@@ -204,6 +204,7 @@ class GoogleAuth(Authenticator):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
         self.get_widgets()
+        self.widget_width = "800px"
         
 
     #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
@@ -220,7 +221,7 @@ class GoogleAuth(Authenticator):
         self.address_widget.layout.display = 'none'
 
 
-    def get_component_gateway_url(self): 
+    def get_component_gateway_url(self, project_id, cluster_name, region): 
         """Gets the component gateway url for a cluster name, project id, and region
 
         Args:
@@ -236,9 +237,6 @@ class GoogleAuth(Authenticator):
             google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
             ValueError: If the parameters are invalid.
         """
-        cluster_name = 'amacaskill-livy'
-        project_id = 'google.com:hadoop-cloud-dev'
-        region = 'us-central1'
         
         client = dataproc_v1beta2.ClusterControllerClient(
                         client_options={
@@ -257,56 +255,47 @@ class GoogleAuth(Authenticator):
 
     def get_widgets(self): 
         ipywidget_factory = IpyWidgetFactory()
-        
+        """
         self.address_widget = ipywidget_factory.get_text(
-            description='Addrebjkss:',
+            description='Address:',
             value=self.get_component_gateway_url(),
-            width="800px"
+            width=self.widget_width
+        )
+        """
+        self.project_widget = self.ipywidget_factory.get_text(
+            description='Project:',
+            value='google.com:hadoop-cloud-dev',
+            width=self.widget_width
         )
 
-        self.url = self.address_widget.value
+        self.cluster_name_widget = self.ipywidget_factory.get_text(
+            description='Cluster:',
+            value='amacaskill-livy',
+            width=self.widget_width
+        )
+
+        
+        self.region_widget = self.ipywidget_factory.get_text(
+            description='Region:',
+            value='us-central1',
+            width=self.widget_width
+        )
+
+        self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
+            options= accounts_list,
+            description=u"Account:"
+        )
+        self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value )
 
 
         #self.widgets = [self.address_widget]
-        widgets = {self.address_widget}
+        widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
         #self.url = self.address_widget.value
         return widgets #self.widgets
 
     def url(self): 
-        
-        return self.url
-    """
-
-    google_api_url = "https://www.googleapis.com/oauth2/v4/token"
-    
-
-    
-    def _token_url_default(self):
-        return "%s/oauth2/v4/token" % (self.google_api_url)
-    
-    def _scope_default(self):
-        return ['openid', 'email']
-
-    
-    name = "Google"
-    REDIRECT_STATE = False
-    AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
-    ACCESS_TOKEN_URL = 'https://accounts.google.com/o/oauth2/token'
-    ACCESS_TOKEN_METHOD = 'POST'
-    REVOKE_TOKEN_URL = 'https://accounts.google.com/o/oauth2/revoke'
-    REVOKE_TOKEN_METHOD = 'GET'
-    # The order of the default scope is important
-    DEFAULT_SCOPE = ['openid', 'email', 'profile']
-    DEPRECATED_DEFAULT_SCOPE = [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
-    ]
-    EXTRA_DATA = [
-        ('refresh_token', 'refresh_token', True),
-        ('expires_in', 'expires'),
-        ('token_type', 'token_type', True)
-    ]
-    """
+        return get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+   
 
     def authenticate(self):
         
@@ -354,45 +343,4 @@ class GoogleAuth(Authenticator):
         return request
 
 
-
-
-
-
-
-    """
-    def __init__(self, token = None, accounts = {}, active_account = "", credentials = None, project = ""):
-        self.token = token
-        self.accounts = list_credentialed_accounts()
-        self.active_account = list_active_account()
-
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-
-
-
-    
-   
-    def list_active_account(self): 
-        if self.active_account is None: 
-            self.credentials(refresh) 
-        active_account = self.credentials.id_token
-
-        try: 
-            accounts = list_credentialed_accounts()
-            for account in accounts:
-                if account['status'] == "ACTIVE": 
-                    return account['account']
-            return ""
-        except: 
-            raise
-
-    
-    def __call__(self, request):
-        callable_request = google.auth.transport.requests.Request()
-        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
-        if self.credentials.valid == False:
-            self.credentials.refresh(callable_request)
-        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
-        return request
-
-    """
    

@@ -40,7 +40,6 @@ class Authenticator(object):
         return widgets #self.widgets
 
     def url(self): 
-       
         return self.url
 
     def show_correct_endpoint_fields(self): 
