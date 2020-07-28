@@ -4,6 +4,7 @@ from tornado import web
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 from requests.auth import HTTPBasicAuth
+from .customauth import Authenticator
 
 
 #class Authenticator(AuthBase):
