@@ -65,6 +65,10 @@ def auth_config():
         u"auth_type": {
             u"login_service": u"Basic",
             u"class": u"sparkmagic.auth.basic.Basic"
+        }, 
+        u"auth_type": {
+            u"login_service": u"Kerberos",
+            u"class": u"sparkmagic.auth.kerberos.Kerberos"
         }
         
     }
@@ -74,7 +78,8 @@ def auths_supported():
     return  {
         u"Google": u"sparkmagic.auth.google.GoogleAuth", 
         u"None": u"sparkmagic.auth.customauth.Authenticator", 
-        u"Basic": u"sparkmagic.auth.basic.Basic"
+        u"Basic": u"sparkmagic.auth.basic.Basic", 
+        u"Kerberos": u"sparkmagic.auth.kerberos.Kerberos"
     }
        
     
