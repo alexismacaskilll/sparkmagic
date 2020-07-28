@@ -8,14 +8,13 @@ from requests.auth import HTTPBasicAuth
 
 #class Authenticator(AuthBase):
 
-class Basic(HTTPBasicAuth):
+class Basic( HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
         #Name of the login service that this authenticator is providing using to authenticate users. 
         self.login_service = u"Basic"
         self.url = 'http://example.com/livy'
-        self.username = ''
-        self.password = ''
+        
 
 
     def get_widgets(self, widget_width): 
@@ -74,16 +73,8 @@ class Basic(HTTPBasicAuth):
         
 
     def __call__(self, request):
-        HTTPBasicAuth(self.username, self.password)
-        """
-        if self.login_service == u"None": 
-            return {
-                u"login_service": self.login_service, 
-                u"request": None
-            }
-        else: 
-            return None
-        """
+        super(Basic, self).__call__(request)
+        
         
     
     def get_authenticated_user(self):
