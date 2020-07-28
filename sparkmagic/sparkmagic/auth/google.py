@@ -38,7 +38,6 @@ def load_json_input(result):
         pass
     return jsondata
 
- 
 def list_active_account(): 
     try: 
         accounts = list_credentialed_accounts()
@@ -48,7 +47,7 @@ def list_active_account():
         return ""
     except: 
         raise
-
+"""
 def list_accounts_pairs(): 
     try: 
         accounts = list_credentialed_accounts()
@@ -58,18 +57,49 @@ def list_accounts_pairs():
         return accounts_list
     except: 
         raise
+"""
+
+def set_credentialed_account(account):
+    """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
+    Raises:
+        fill in 
+    """
+    accounts_json = ""
+    if os.name == "nt":
+        command = _CLOUD_SDK_WINDOWS_COMMAND
+    else:
+        command = _CLOUD_SDK_POSIX_COMMAND
+    try:
+        set_account_command =   ("config", "set", "account", account)
+        command = (command,) + set_account_command 
+        active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except (OSError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Gcloud is not installed. Install the Google Cloud SDK." 
+        )
+        raise new_exc
+    except (subprocess.CalledProcessError, IOError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Failed to obtain access token. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` cquire new user credentials to use for Application Default Credentials."
+        )
+        raise new_exc
 
   
 def list_credentialed_accounts():
-    """Load all of user's credentialed accounts with ``gcloud auth list`` command.
+    """Load all of user's credentialed accounts with ``gcloud auth list`` command. Used to populate 
+    google_credentials_widget dropdown.
 
     Returns:
-        list: the users credentialed accounts 
+        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account 
+
 
     Raises:
-        sparkmagic.livyclientlib.GcloudNotInstalledException: if gcloud is not installed
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
+        or if gcloud is not installed. 
     """
+
     accounts_json = ""
     if os.name == "nt":
         command = _CLOUD_SDK_WINDOWS_COMMAND
@@ -78,18 +108,24 @@ def list_credentialed_accounts():
     try:
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        return load_json_input(accounts_json)
         """
+        accounts = load_json_input(accounts_json)
+        accounts_for_dropdown = {}
+        for account in accounts:
+            accounts_for_dropdown[account['account']] = account['account']
+        return accounts_for_dropdown
+        """
+        return load_json_input(accounts_json)
     except (OSError) as caught_exc:
-        new_exc = GcloudNotInstalledException(
-            "Gcloud is not installed" 
+        new_exc = BadUserConfigurationException(
+            "Gcloud is not installed. Install the Google Cloud SDK." 
         )
         raise new_exc
-        """
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            #add gcloud auth login / set account message.  
-            "Failed to obtain access token. "
+            "Failed to obtain access token. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` cquire new user credentials to use for Application Default Credentials."
         )
         raise new_exc
 
@@ -134,7 +170,7 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
-        self.widget_width = "800px"
+        self.active_account = list_active_account()
         
     def show_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'flex'
@@ -162,8 +198,8 @@ class GoogleAuth(Authenticator):
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
-            options= list_accounts_pairs(),
-            value = list_active_account(),
+            options= list_credentialed_accounts(),
+            value = self.active_account,
             description=u"Account:"
         )
 
@@ -172,6 +208,7 @@ class GoogleAuth(Authenticator):
 
     def update_url(self): 
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+        self.active_account = set_credentialed_account(self.google_credentials_widget.value)
    
     def __call__(self, request):
         callable_request = google.auth.transport.requests.Request()
