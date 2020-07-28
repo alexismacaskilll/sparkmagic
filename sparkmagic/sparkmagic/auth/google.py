@@ -285,7 +285,7 @@ class GoogleAuth(Authenticator):
             options= list_accounts_pairs(),
             description=u"Account:"
         )
-        self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value )
+        #self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value )
 
 
         #self.widgets = [self.address_widget]
