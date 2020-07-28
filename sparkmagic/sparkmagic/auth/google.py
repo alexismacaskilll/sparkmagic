@@ -221,37 +221,7 @@ class GoogleAuth(Authenticator):
         self.address_widget.layout.display = 'none'
 
 
-    def get_component_gateway_url(self, project_id, cluster_name, region): 
-        """Gets the component gateway url for a cluster name, project id, and region
-
-        Args:
-            cluster_name (str): The cluster name to use for the url
-            project_id (str): The project id to use for the url
-            region (str): The project id to use for the url
-        
-        Returns:
-            str: the component gateway url
-
-        Raises:
-            google.api_core.exceptions.GoogleAPICallError: If the request failed for any reason.
-            google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
-            ValueError: If the parameters are invalid.
-        """
-        
-        client = dataproc_v1beta2.ClusterControllerClient(
-                        client_options={
-                                'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
-                            }
-                        )
-        try:
-            response = client.get_cluster(project_id, region, cluster_name)
-            url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
-            index = url.find('.com/')
-            index = index + 4
-            endpointAddress = url[0: index] + '/gateway/default/livy/v1'
-            return endpointAddress
-        except: 
-            raise
+    
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
