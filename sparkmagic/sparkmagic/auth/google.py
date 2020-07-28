@@ -199,7 +199,7 @@ class GoogleAuth(Authenticator):
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
             options= list_credentialed_accounts(),
-            value = self.active_account,
+            value = list_active_account(),
             description=u"Account:"
         )
 
