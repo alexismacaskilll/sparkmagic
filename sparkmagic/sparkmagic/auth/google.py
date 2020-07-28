@@ -282,7 +282,7 @@ class GoogleAuth(Authenticator):
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
-            options= accounts_list,
+            options= list_accounts_pairs(),
             description=u"Account:"
         )
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value )
