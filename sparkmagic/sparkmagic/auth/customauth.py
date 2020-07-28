@@ -22,7 +22,7 @@ class Authenticator(object):
         
 
 
-    def get_widgets(self): 
+    def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
         
         self.address_widget = ipywidget_factory.get_text(

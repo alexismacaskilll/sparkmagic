@@ -37,7 +37,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         # maps instance to list of instances widgets. Useful so we can turn off / on display for widgets on dropdown change 
         self.authWidgets = defaultdict(set)
         for _class, instance in self.auth_instances.items():
-            widgets =  instance.get_widgets()
+            widgets =  instance.get_widgets(widget_width)
             for widget in widgets: 
                 if  (_class == self.auth_type.value): 
                     widget.layout.display = 'flex'

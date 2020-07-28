@@ -253,7 +253,7 @@ class GoogleAuth(Authenticator):
         except: 
             raise
 
-    def get_widgets(self): 
+    def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
         """
         self.address_widget = ipywidget_factory.get_text(
@@ -265,20 +265,20 @@ class GoogleAuth(Authenticator):
         self.project_widget = ipywidget_factory.get_text(
             description='Project:',
             value='google.com:hadoop-cloud-dev',
-            width=self.widget_width
+            width=widget_width
         )
 
         self.cluster_name_widget = ipywidget_factory.get_text(
             description='Cluster:',
             value='amacaskill-livy',
-            width=self.widget_width
+            width=widget_width
         )
 
         
         self.region_widget = ipywidget_factory.get_text(
             description='Region:',
             value='us-central1',
-            width=self.widget_width
+            width=widget_width
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
