@@ -147,20 +147,17 @@ class GoogleAuth(Authenticator):
 
         self.project_widget = ipywidget_factory.get_text(
             description='Project:',
-            value='google.com:hadoop-cloud-dev',
             width=widget_width
         )
 
         self.cluster_name_widget = ipywidget_factory.get_text(
             description='Cluster:',
-            value='amacaskill-livy',
             width=widget_width
         )
 
         
         self.region_widget = ipywidget_factory.get_text(
             description='Region:',
-            value='us-central1',
             width=widget_width
         )
 
