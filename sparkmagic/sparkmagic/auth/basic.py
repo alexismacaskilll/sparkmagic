@@ -21,7 +21,7 @@ class Basic(  HTTPBasicAuth):
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
         
-        self.address_widget = ipywidget_factory.get_text(
+        self.address_widget1 = ipywidget_factory.get_text(
             description='Address:',
             value='http://example.com/livy',
             width=widget_width
@@ -38,20 +38,20 @@ class Basic(  HTTPBasicAuth):
             value='password',
             width=widget_width
         )
-        widgets = {self.address_widget, self.user_widget, self.password_widget}
+        widgets = {self.address_widget1, self.user_widget, self.password_widget}
         return widgets 
 
     def update_url(self): 
-        self.url = self.address_widget.value
+        self.url = self.address_widget1.value
         self.username = self.user_widget.value
         self.password = self.password_widget.value
 
     def show_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'flex'
+        self.address_widget1.layout.display = 'flex'
 
 
     def hide_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'none'
+        self.address_widget1.layout.display = 'none'
 
     def authenticate(self):
         
