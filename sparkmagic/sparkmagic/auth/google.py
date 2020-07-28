@@ -108,14 +108,14 @@ def list_credentialed_accounts():
     try:
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        """
+        
         accounts = load_json_input(accounts_json)
         accounts_for_dropdown = {}
         for account in accounts:
             accounts_for_dropdown[account['account']] = account['account']
         return accounts_for_dropdown
-        """
-        return load_json_input(accounts_json)
+        
+        #return load_json_input(accounts_json)
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Gcloud is not installed. Install the Google Cloud SDK." 
