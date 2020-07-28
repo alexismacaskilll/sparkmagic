@@ -39,6 +39,18 @@ def load_json_input(result):
     return jsondata
 
 def list_active_account(): 
+    """Returns the active account from all the user's credentialed accounts that are listed 
+    with the ``gcloud auth list`` command. Used to set the google_credentials_widget dropdown
+    to be the active account on load. 
+
+    Returns:
+        str: the active account from the user's credentialed accounts or an empty str if no accounts 
+        are active.  
+
+    Raises:
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
+        or if gcloud is not installed. 
+    """
     try: 
         accounts = list_credentialed_accounts()
         for account in accounts:
@@ -49,6 +61,15 @@ def list_active_account():
         raise
 
 def list_accounts_pairs(): 
+    """Reformates all of user's credentialed accounts to populate google_credentials_widget dropdown's options. 
+
+    Returns:
+        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account 
+
+    Raises:
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
+        or if gcloud is not installed. 
+    """
     try: 
         accounts = list_credentialed_accounts()
         accounts_list = {}
@@ -60,9 +81,11 @@ def list_accounts_pairs():
 
 
 def set_credentialed_account(account):
-    """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
+    """Sets the user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
+    
     Raises:
-        fill in 
+         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set to a valid account, if the user needs  \ 
+         to run gcloud auth login, or if gcloud is not installed. 
     """
     accounts_json = ""
     if os.name == "nt":
@@ -88,12 +111,10 @@ def set_credentialed_account(account):
 
   
 def list_credentialed_accounts():
-    """Load all of user's credentialed accounts with ``gcloud auth list`` command. Used to populate 
-    google_credentials_widget dropdown.
+    """Load all of user's credentialed accounts with ``gcloud auth list`` command.
 
     Returns:
-        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account 
-
+        list: each key is a str of one of the users credentialed accounts
 
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
@@ -218,6 +239,9 @@ class GoogleAuth(Authenticator):
             self.credentials.refresh(callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
+        
+    def __hash__(self):
+        return hash((self.url, self.login_service))
 
     def authenticate(self):
         
