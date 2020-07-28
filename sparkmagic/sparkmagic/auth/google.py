@@ -293,8 +293,8 @@ class GoogleAuth(Authenticator):
         #self.url = self.address_widget.value
         return widgets #self.widgets
 
-    def url(self): 
-        return get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+    def update_url(self): 
+        self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
    
 
     def authenticate(self):

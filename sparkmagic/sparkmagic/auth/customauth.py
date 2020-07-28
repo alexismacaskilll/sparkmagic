@@ -31,7 +31,7 @@ class Authenticator(object):
             width="800px"
         )
 
-        self.url = self.address_widget.value
+        #self.url = self.address_widget.value
 
       
         widgets = {self.address_widget}
@@ -39,8 +39,8 @@ class Authenticator(object):
        
         return widgets #self.widgets
 
-    def url(self): 
-        return self.url
+    def update_url(self): 
+        return self.address_widget.value
 
     def show_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'flex'
