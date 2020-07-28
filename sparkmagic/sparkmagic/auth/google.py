@@ -262,26 +262,26 @@ class GoogleAuth(Authenticator):
             width=self.widget_width
         )
         """
-        self.project_widget = self.ipywidget_factory.get_text(
+        self.project_widget = ipywidget_factory.get_text(
             description='Project:',
             value='google.com:hadoop-cloud-dev',
             width=self.widget_width
         )
 
-        self.cluster_name_widget = self.ipywidget_factory.get_text(
+        self.cluster_name_widget = ipywidget_factory.get_text(
             description='Cluster:',
             value='amacaskill-livy',
             width=self.widget_width
         )
 
         
-        self.region_widget = self.ipywidget_factory.get_text(
+        self.region_widget = ipywidget_factory.get_text(
             description='Region:',
             value='us-central1',
             width=self.widget_width
         )
 
-        self.google_credentials_widget = self.ipywidget_factory.get_dropdown(
+        self.google_credentials_widget = ipywidget_factory.get_dropdown(
             options= accounts_list,
             description=u"Account:"
         )
