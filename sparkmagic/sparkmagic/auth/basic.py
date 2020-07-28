@@ -74,7 +74,7 @@ class Basic(  HTTPBasicAuth):
         
 
     def __call__(self, request):
-        super(Basic, self).__call__(request)
+        super().__call__(request)
         
         
     
