@@ -214,6 +214,8 @@ class GoogleAuth(Authenticator):
             options= list_accounts_pairs(),
             description=u"Account:"
         )
+
+        """
         active_account = "None"
         try: 
             active_account=list_active_account()
@@ -222,13 +224,13 @@ class GoogleAuth(Authenticator):
 
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
-
+        """
         widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
         return widgets 
 
     def update_url(self): 
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
-        set_credentialed_account(self.google_credentials_widget.value)
+        #set_credentialed_account(self.google_credentials_widget.value)
    
     def __call__(self, request):
         callable_request = google.auth.transport.requests.Request()
@@ -241,7 +243,7 @@ class GoogleAuth(Authenticator):
         return request
         
     def __hash__(self):
-        return hash((self.url, self.login_service))
+        return hash((self.login_service))
 
     def authenticate(self):
         
