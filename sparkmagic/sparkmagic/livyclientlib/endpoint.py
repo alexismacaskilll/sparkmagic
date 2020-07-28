@@ -7,8 +7,8 @@ class Endpoint(object):
         if not url:
             raise BadUserDataException(u"URL must not be empty")
         #if auth.login_service is not key in dictionary from auths in config file: 
-        if auth not in AUTHS_SUPPORTED:
-            raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
+        #if auth not in AUTHS_SUPPORTED:
+            #raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
         
         self.url = url.rstrip(u"/")
         self.username = username
