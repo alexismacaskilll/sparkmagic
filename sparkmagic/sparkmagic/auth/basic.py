@@ -9,7 +9,7 @@ from .customauth import Authenticator
 
 #class Authenticator(AuthBase):
 
-class Basic( HTTPBasicAuth, Authenticator):
+class Basic(  HTTPBasicAuth):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
         #Name of the login service that this authenticator is providing using to authenticate users. 
