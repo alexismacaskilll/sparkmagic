@@ -39,7 +39,7 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         #defaultdict maps keys to list of values. .values() should then just return all of the values in one list not nested arrays. 
         # maps instance to list of instances widgets. Useful so we can turn off / on display for widgets on dropdown change 
-        self.authWidgets = defaultdict(list)
+        self.authWidgets = defaultdict(set)
         for _class, instance in self.auth_instances.items():
             widgets =  instance.get_widgets()
             for widget in widgets: 
@@ -48,9 +48,12 @@ class AddEndpointWidget(AbstractMenuWidget):
                     self.auth = instance
                 else: 
                     widget.layout.display = 'none'
-                self.authWidgets[instance].append(widget)
-            
-       
+                self.authWidgets[instance].add(widget)
+        self.authWidget_values = []
+        
+        for _set in self.authWidgets.values(): 
+            self.authWidget_values = self.authWidget_values + list(_set)
+
         """
         self.address_widget = self.ipywidget_factory.get_text(
             description='Address:',
@@ -68,7 +71,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         dropdown_auth = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         drop = [self.auth_type]
-        custom = self.authWidgets.values()
+        custom = self.authWidget_values
         submitT  = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         submit = [self.submit_widget]
 
