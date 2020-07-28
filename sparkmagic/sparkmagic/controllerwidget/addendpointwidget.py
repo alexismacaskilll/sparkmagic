@@ -22,6 +22,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.endpoints = endpoints
         self.endpoints_dropdown_widget = endpoints_dropdown_widget
         self.refresh_method = refresh_method
+
         #map auth class path string to the instance of the class. 
         self.auth_instances = {}
         for auth in conf.auths_supported().values(): 
@@ -30,8 +31,6 @@ class AddEndpointWidget(AbstractMenuWidget):
             auth_class = getattr(events_handler_module, class_name)
             self.auth_instances[auth] = auth_class()
 
-
-        #options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_BASIC: constants.AUTH_BASIC, constants.NO_AUTH: constants.NO_AUTH}
         self.auth_type = self.ipywidget_factory.get_dropdown(
             options = conf.auths_supported(),
             description=u"Auth type:"
@@ -51,39 +50,32 @@ class AddEndpointWidget(AbstractMenuWidget):
                 self.authWidgets[instance].add(widget)
         self.authWidget_values = []
         
+        #self.authWidgets.values() returns list of widget sets, so need to convert to one list of widgets 
+        # to be able to add to self.children list 
         for _set in self.authWidgets.values(): 
             self.authWidget_values = self.authWidget_values + list(_set)
 
-        """
-        self.address_widget = self.ipywidget_factory.get_text(
-            description='Address:',
-            value='http://example.com/livy',
-            width=widget_width
-        )
-        """
-        
         # Submit widget
         self.submit_widget = self.ipywidget_factory.get_submit_button(
             description='Add endpoint'
         )
  
         self.auth_type.on_trait_change(self._update_auth)
-        
+        """
         dropdown_auth = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         drop = [self.auth_type]
         custom = self.authWidget_values
         submitT  = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         submit = [self.submit_widget]
-
         self.children = dropdown_auth + drop + custom + submitT + submit
+        """
+        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + self.authWidget_values
+        + [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),self.submit_widget ]
 
         for child in self.children:
             child.parent_widget = self
-        
         self._update_auth()
         
-
-
 
     def run(self):
         endpoint = Endpoint(self.auth.url, self.auth)
@@ -94,8 +86,6 @@ class AddEndpointWidget(AbstractMenuWidget):
         # value otherwise.
         self.refresh_method()
 
-    
-
     def _update_auth(self): 
         """
         Create an instance of the chosen auth type maps to in the config file.
@@ -103,23 +93,9 @@ class AddEndpointWidget(AbstractMenuWidget):
         #go through all widgets of old self.auth instance, and turn it off
         for widget in self.authWidgets[self.auth]: 
             widget.layout.display = 'none'
-
-        logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-        logger = logging.getLogger('LOGGER_NAME')
         #set self.auth to the auth instance the dropdown class maps to 
         self.auth = self.auth_instances.get(self.auth_type.value)
         #go through all widgets of new self.auth instance, and turn their display on 
         for widget in self.authWidgets[self.auth]: 
             widget.layout.display = 'flex'
 
-       
-        """
-
-
-        n = 3
-        # Replace the element at index 3 to 
-        self.children = self.children [ : n] + (self.auth.get_widgets() ,) + self.children [n + 1 : ]
-        
-        self.auth.address_widget.layout.display = 'flex'
-        """
-        
