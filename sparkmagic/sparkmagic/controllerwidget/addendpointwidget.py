@@ -28,7 +28,7 @@ class AddEndpointWidget(AbstractMenuWidget):
             module, class_name = (auth).rsplit('.', 1)
             events_handler_module = importlib.import_module(module)
             auth_class = getattr(events_handler_module, class_name)
-            self.auth_instances.add(auth,auth_class())
+            self.auth_instances[auth] = auth_class()
 
 
         #options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_BASIC: constants.AUTH_BASIC, constants.NO_AUTH: constants.NO_AUTH}
