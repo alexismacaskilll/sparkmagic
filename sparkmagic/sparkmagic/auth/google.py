@@ -47,7 +47,7 @@ def list_active_account():
         return ""
     except: 
         raise
-"""
+
 def list_accounts_pairs(): 
     try: 
         accounts = list_credentialed_accounts()
@@ -57,7 +57,7 @@ def list_accounts_pairs():
         return accounts_list
     except: 
         raise
-"""
+
 
 def set_credentialed_account(account):
     """Load all of user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
@@ -108,14 +108,7 @@ def list_credentialed_accounts():
     try:
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        
-        accounts = load_json_input(accounts_json)
-        accounts_for_dropdown = {}
-        for account in accounts:
-            accounts_for_dropdown[account['account']] = account['account']
-        return accounts_for_dropdown
-        
-        #return load_json_input(accounts_json)
+        return load_json_input(accounts_json)
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Gcloud is not installed. Install the Google Cloud SDK." 
@@ -197,7 +190,7 @@ class GoogleAuth(Authenticator):
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
-            options= list_credentialed_accounts(),
+            options= list_accounts_pairs(),
             description=u"Account:"
         )
         active_account = "None"
