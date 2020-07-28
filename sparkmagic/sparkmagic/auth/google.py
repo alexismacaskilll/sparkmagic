@@ -170,7 +170,6 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
-        self.active_account = list_active_account()
         
     def show_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'flex'
@@ -199,16 +198,23 @@ class GoogleAuth(Authenticator):
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
             options= list_credentialed_accounts(),
-            value = list_active_account(),
             description=u"Account:"
         )
+        active_account = "None"
+        try: 
+            active_account=list_active_account()
+        except BadUserConfigurationException: 
+            active_account = "None"
+
+        if active_account != "None": 
+            self.google_credentials_widget.value = active_account
 
         widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
         return widgets 
 
     def update_url(self): 
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
-        self.active_account = set_credentialed_account(self.google_credentials_widget.value)
+        set_credentialed_account(self.google_credentials_widget.value)
    
     def __call__(self, request):
         callable_request = google.auth.transport.requests.Request()
