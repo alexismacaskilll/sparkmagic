@@ -7,6 +7,7 @@ import sparkmagic.utils.configuration as conf
 import importlib
 import logging 
 import sys
+from collections import defaultdict
 import json
 
 class AddEndpointWidget(AbstractMenuWidget):
@@ -21,6 +22,13 @@ class AddEndpointWidget(AbstractMenuWidget):
         self.endpoints = endpoints
         self.endpoints_dropdown_widget = endpoints_dropdown_widget
         self.refresh_method = refresh_method
+        #map auth class path string to the instance of the class. 
+        self.auth_instances = {}
+        for auth in conf.auths_supported().values(): 
+            module, class_name = (auth).rsplit('.', 1)
+            events_handler_module = importlib.import_module(module)
+            auth_class = getattr(events_handler_module, class_name)
+            self.auth_instances.add(auth,auth_class())
 
 
         #options={constants.AUTH_KERBEROS: constants.AUTH_KERBEROS, constants.AUTH_BASIC: constants.AUTH_BASIC, constants.NO_AUTH: constants.NO_AUTH}
@@ -29,28 +37,19 @@ class AddEndpointWidget(AbstractMenuWidget):
             description=u"Auth type:"
         )
 
-        self.authWidgets = []
-        for auth in self.auth_type.options:
-            module, class_name = (auth).rsplit('.', 1)
-            events_handler_module = importlib.import_module(module)
-            auth_class = getattr(events_handler_module, class_name)
-            widget =  auth_class().get_widgets()
-            if  (auth != self.auth_type.value ): 
-                widget.layout.display = 'none'
-            else: 
-                widget.layout.display = 'flex'
-            self.authWidgets.append(widget)
-
-        
-
-        module, class_name = (self.auth_type.value).rsplit('.', 1)
-        events_handler_module = importlib.import_module(module)
-        auth_class = getattr(events_handler_module, class_name)
-        
-
-        self.auth = auth_class()
-        widget = self.auth.get_widgets()
-        widget.layout.display = 'flex'
+        #defaultdict maps keys to list of values. .values() should then just return all of the values in one list not nested arrays. 
+        # maps instance to list of instances widgets. Useful so we can turn off / on display for widgets on dropdown change 
+        self.authWidgets = defaultdict(list)
+        for _class, instance in self.auth_instances.items():
+            widgets =  instance.get_widgets()
+            for widget in widgets: 
+                if  (_class == self.auth_type.value): 
+                    widget.layout.display = 'flex'
+                    self.auth = instance
+                else: 
+                    widget.layout.display = 'none'
+                self.authWidgets[instance].append(widget)
+            
        
         """
         self.address_widget = self.ipywidget_factory.get_text(
@@ -69,7 +68,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
         dropdown_auth = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         drop = [self.auth_type]
-        custom = [self.authWidgets]
+        custom = self.authWidgets.values()
         submitT  = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
         submit = [self.submit_widget]
 
@@ -98,22 +97,19 @@ class AddEndpointWidget(AbstractMenuWidget):
         """
         Create an instance of the chosen auth type maps to in the config file.
         """
-        
-        
-        self.auth.address_widget.layout.display = 'none'
+        #go through all widgets of old self.auth instance, and turn it off
+        for widget in self.authWidgets[self.auth]: 
+            widget.layout.display = 'none'
 
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logger = logging.getLogger('LOGGER_NAME')
-        module, class_name = (self.auth_type.value).rsplit('.', 1)
+        #set self.auth to the auth instance the dropdown class maps to 
+        self.auth = self.auth_instances.get(self.auth_type.value)
+        #go through all widgets of new self.auth instance, and turn their display on 
+        for widget in self.authWidgets[self.auth]: 
+            widget.layout.display = 'flex'
+
        
-        events_handler_module = importlib.import_module(module)
-
-        auth_class = getattr(events_handler_module, class_name)
-        self.auth = auth_class()
-        #this doesn't work because auth_class() is new instance so self.auth.address_widget is  not changing the same widget thats in self.children. 
-        
-        self.auth.address_widget.layout.display = 'flex'
-
         """
 
 

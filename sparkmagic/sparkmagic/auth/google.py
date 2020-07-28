@@ -218,7 +218,7 @@ class GoogleAuth(Authenticator):
     #def get_widgets(self): 
     def hide_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'none'
-        
+
 
     def get_component_gateway_url(self): 
         """Gets the component gateway url for a cluster name, project id, and region
@@ -266,11 +266,11 @@ class GoogleAuth(Authenticator):
 
         self.url = self.address_widget.value
 
-      
-        #self.widgets = [self.address_widget]
 
+        #self.widgets = [self.address_widget]
+        widgets = {self.address_widget}
         #self.url = self.address_widget.value
-        return self.address_widget #self.widgets
+        return widgets #self.widgets
 
     def url(self): 
         

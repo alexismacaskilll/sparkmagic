@@ -34,10 +34,10 @@ class Authenticator(object):
         self.url = self.address_widget.value
 
       
-        self.widgets = [self.address_widget]
+        widgets = {self.address_widget}
 
        
-        return self.address_widget #self.widgets
+        return widgets #self.widgets
 
     def url(self): 
        
