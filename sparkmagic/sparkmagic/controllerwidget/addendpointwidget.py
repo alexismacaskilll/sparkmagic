@@ -31,11 +31,14 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         self.authWidgets = []
         for auth in self.auth_type.options:
-            module, class_name = (auth.value).rsplit('.', 1)
+            module, class_name = (auth).rsplit('.', 1)
             events_handler_module = importlib.import_module(module)
             auth_class = getattr(events_handler_module, class_name)
             widget =  auth_class().get_widgets()
-            widget.address_widget.layout.display = 'none'
+            if  (auth != self.auth_type.value ): 
+                widget.layout.display = 'none'
+            else: 
+                widget.layout.display = 'flex'
             self.authWidgets.append(widget)
 
         
@@ -43,7 +46,11 @@ class AddEndpointWidget(AbstractMenuWidget):
         module, class_name = (self.auth_type.value).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
+        
+
         self.auth = auth_class()
+        widget = self.auth.get_widgets()
+        widget.layout.display = 'flex'
        
         """
         self.address_widget = self.ipywidget_factory.get_text(
@@ -60,10 +67,13 @@ class AddEndpointWidget(AbstractMenuWidget):
  
         self.auth_type.on_trait_change(self._update_auth)
         
-         #also will have to add to children?
-        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),
-                        self.auth_type,self.authWidgets, 
-                        self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.submit_widget]
+        dropdown_auth = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
+        drop = [self.auth_type]
+        custom = [self.authWidgets]
+        submitT  = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width)]
+        submit = [self.submit_widget]
+
+        self.children = dropdown_auth + drop + custom + submitT + submit
 
         for child in self.children:
             child.parent_widget = self
@@ -100,6 +110,8 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         auth_class = getattr(events_handler_module, class_name)
         self.auth = auth_class()
+        #this doesn't work because auth_class() is new instance so self.auth.address_widget is  not changing the same widget thats in self.children. 
+        
         self.auth.address_widget.layout.display = 'flex'
 
         """
