@@ -141,7 +141,7 @@ def set_credentialed_account(account):
         )
         raise new_exc
 
-def get_component_gateway_url(cluster_name, project_id, region): 
+def get_component_gateway_url(project_id, cluster_name, region): 
     """Gets the component gateway url for a cluster name, project id, and region
 
     Args:
