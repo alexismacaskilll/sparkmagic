@@ -203,20 +203,11 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
-        #self.get_widgets()
         self.widget_width = "800px"
         
-
-    #overrides Authenticators endpoint widgets because it needs to show the project ID, cluster name, region and credentials dropdown. 
     def show_correct_endpoint_fields(self): 
-        #don't think I need address widget layout because parent has it. but we will see. 
-        #self.address_widget.layout.display = 'flex'
-        #self.google_credentials_widget.layout.display = 'flex'
-        #self.cluster_name_widget.layout.display = 'flex'
         self.address_widget.layout.display = 'flex'
-        #self.project_widget.layout.display = 'flex'
-        #self.region_widget.layout.display = 'flex'
-    #def get_widgets(self): 
+
     def hide_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'none'
 
@@ -225,13 +216,7 @@ class GoogleAuth(Authenticator):
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
-        """
-        self.address_widget = ipywidget_factory.get_text(
-            description='Address:',
-            value=self.get_component_gateway_url(),
-            width=self.widget_width
-        )
-        """
+
         self.project_widget = ipywidget_factory.get_text(
             description='Project:',
             value='google.com:hadoop-cloud-dev',

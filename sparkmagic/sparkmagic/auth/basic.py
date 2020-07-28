@@ -3,16 +3,20 @@ import sparkmagic.utils.configuration as conf
 from tornado import web
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+from requests.auth import HTTPBasicAuth
 
 
 #class Authenticator(AuthBase):
 
-class Authenticator(object):
+class Basic(HTTPBasicAuth):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
-        self.login_service = u"None"
+        #Name of the login service that this authenticator is providing using to authenticate users. 
+        self.login_service = u"Basic"
         self.url = 'http://example.com/livy'
-    
+        self.username = ''
+        self.password = ''
+
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -20,17 +24,31 @@ class Authenticator(object):
         self.address_widget = ipywidget_factory.get_text(
             description='Address:',
             value='http://example.com/livy',
-            width="800px"
+            width=widget_width
         )
-        widgets = {self.address_widget}
+
+        self.user_widget = self.ipywidget_factory.get_text(
+            description='Username:',
+            value='username',
+            width=widget_width
+        )
+       
+        self.password_widget = self.ipywidget_factory.get_text(
+            description='Password:',
+            value='password',
+            width=widget_width
+        )
+        widgets = {self.address_widget, self.user_widget, self.password_widget}
         return widgets 
 
     def update_url(self): 
         self.url = self.address_widget.value
-        
+        self.username = self.user_widget.value
+        self.password = self.password_widget.value
 
     def show_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'flex'
+
 
     def hide_correct_endpoint_fields(self): 
         self.address_widget.layout.display = 'none'
@@ -56,7 +74,7 @@ class Authenticator(object):
         
 
     def __call__(self, request):
-        return None
+        HTTPBasicAuth(self.username, self.password)
         """
         if self.login_service == u"None": 
             return {
@@ -97,13 +115,6 @@ class Authenticator(object):
         return authenticated
 
 
-    
-        
-
-
-    #get_handlers? 
-    #login / login url 
-    #def refresh_user(self, user, handler=None)?
 
 
    
