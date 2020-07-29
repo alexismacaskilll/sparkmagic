@@ -33,11 +33,12 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
         
 
         return basic_widgets 
-      """
+     
 
     def update_with_widget_values(self): 
         self.url = self.address_widget.value
-       
+    
+     """
    
     def __call__(self, request):
         super().__call__(request)
