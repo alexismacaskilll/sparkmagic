@@ -212,6 +212,7 @@ class GoogleAuth(Authenticator):
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
             options= list_accounts_pairs(),
+            value = None,
             description=u"Account:"
         )
 
