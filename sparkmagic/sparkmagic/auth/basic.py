@@ -9,23 +9,26 @@ from .customauth import Authenticator
 
 #class Authenticator(AuthBase):
 
-class Basic(  HTTPBasicAuth):
+class Basic(HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
+        Authenticator.__init__(self)
         #Name of the login service that this authenticator is providing using to authenticate users. 
-        self.login_service = u"Basic"
-        self.url = 'http://example.com/livy'
+        #self.login_service = u"Basic"
+    
         
-
 
     def get_widgets(self, widget_width): 
+        Authenticator.get_widgets(self)
         ipywidget_factory = IpyWidgetFactory()
         
+        """
         self.address_widget = ipywidget_factory.get_text(
             description='Address:',
             value='http://example.com/livy',
             width=widget_width
         )
+        """
 
         self.user_widget = ipywidget_factory.get_text(
             description='Username:',
@@ -41,8 +44,9 @@ class Basic(  HTTPBasicAuth):
         widgets = {self.address_widget, self.user_widget, self.password_widget}
         return widgets 
 
-    def update_with_widget_values(self): 
-        self.url = self.address_widget.value
+    def update_with_widget_values(self):
+        Authenticator.update_with_widget_values(self)
+        #self.url = self.address_widget.value
         self.username = self.user_widget.value
         self.password = self.password_widget.value
 
@@ -67,15 +71,13 @@ class Basic(  HTTPBasicAuth):
         
 
     def __call__(self, request):
-        super().__call__(request)
+        HTTPBasicAuth.__call__(request)
         
     # can I add username / password to hash? 
     # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
     # saying 'Basic' is not hashable
     def __hash__(self):
         return hash((self.url, self.login_service))
-    
-
 
 
 

@@ -7,7 +7,7 @@ from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):
-        self.login_service = u"None"
+        self.login_service = login_service
         self.url = 'http://example.com/livy'
     
 
