@@ -68,7 +68,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         
 
     def run(self):
-        self.auth.update_url()
+        self.auth.update_with_widget_values()
         endpoint = Endpoint(self.auth.url, self.auth)
         
         self.endpoints[self.auth.url] = endpoint

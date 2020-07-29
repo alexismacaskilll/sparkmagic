@@ -185,12 +185,6 @@ class GoogleAuth(Authenticator):
         self.login_service = u"Google"
         self.url = 'http://example.com/livy'
         
-    def show_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'flex'
-
-    def hide_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'none'
-
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
 
@@ -231,7 +225,7 @@ class GoogleAuth(Authenticator):
         widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
         return widgets 
 
-    def update_url(self): 
+    def update_with_widget_values(self): 
         self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
         set_credentialed_account(self.google_credentials_widget.value)
    

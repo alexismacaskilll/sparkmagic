@@ -41,17 +41,10 @@ class Basic(  HTTPBasicAuth):
         widgets = {self.address_widget, self.user_widget, self.password_widget}
         return widgets 
 
-    def update_url(self): 
+    def update_with_widget_values(self): 
         self.url = self.address_widget.value
         self.username = self.user_widget.value
         self.password = self.password_widget.value
-
-    def show_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'flex'
-
-
-    def hide_correct_endpoint_fields(self): 
-        self.address_widget.layout.display = 'none'
 
     def authenticate(self):
         
