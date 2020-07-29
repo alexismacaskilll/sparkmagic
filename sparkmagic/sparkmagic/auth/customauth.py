@@ -4,9 +4,6 @@ from tornado import web
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
-
-#class Authenticator(AuthBase):
-
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self):

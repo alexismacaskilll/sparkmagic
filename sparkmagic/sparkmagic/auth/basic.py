@@ -69,7 +69,9 @@ class Basic(  HTTPBasicAuth):
     def __call__(self, request):
         super().__call__(request)
         
-    #can I add username / password to hash? 
+    # can I add username / password to hash? 
+    # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
+    # saying 'Basic' is not hashable
     def __hash__(self):
         return hash((self.url, self.login_service))
     
