@@ -241,9 +241,6 @@ class GoogleAuth(Authenticator):
             self.credentials.refresh(callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
-        
-    def __hash__(self):
-        return hash((self.login_service))
 
     def authenticate(self):
         
