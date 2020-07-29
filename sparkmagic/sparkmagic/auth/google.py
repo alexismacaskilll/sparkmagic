@@ -207,7 +207,7 @@ class GoogleAuth(Authenticator):
 
         #this causes an error when you try to create session. It is a TypeError which says: 
         # 'Expecting value: line 2 column 1 (char 1)
-        
+        """
         active_account = "None"
         try: 
             active_account=list_active_account()
@@ -216,7 +216,7 @@ class GoogleAuth(Authenticator):
 
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
-        
+        """
         widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
         return widgets 
 
