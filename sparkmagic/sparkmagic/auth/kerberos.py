@@ -16,19 +16,24 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
         self.login_service = u"Kerberos"
         self.url = 'http://example.com/livy'
         
+    """
     def get_widgets(self, widget_width): 
         basic_widgets = super().get_widgets(widget_width)
         ipywidget_factory = IpyWidgetFactory()
-        
+      
         self.address_widget = ipywidget_factory.get_text(
             description='Adbhkbdress:',
             value='http://example.com/livy',
-            width=widget_width
-        )
-
+            width=widget_width)
         basic_widgets.add(self.address_widget)
+      
+
+
+
+        
 
         return basic_widgets 
+      """
 
     def update_with_widget_values(self): 
         self.url = self.address_widget.value
