@@ -17,7 +17,7 @@ class Authenticator(object):
         self.address_widget = ipywidget_factory.get_text(
             description='Address:',
             value='http://example.com/livy',
-            width="800px"
+            width=widget_width
         )
         widgets = {self.address_widget}
         return widgets 
