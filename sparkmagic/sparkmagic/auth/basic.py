@@ -15,6 +15,8 @@ class Basic(HTTPBasicAuth, Authenticator):
         Authenticator.__init__(self)
         #Name of the login service that this authenticator is providing using to authenticate users. 
         #self.login_service = u"Basic"
+        self.username = 'username'
+        self.password = 'password'
     
         
 
