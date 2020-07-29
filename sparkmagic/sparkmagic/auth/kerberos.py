@@ -26,9 +26,9 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
             width=widget_width
         )
 
-        widgets = basic_widgets.add(self.address_widget)
+        basic_widgets.add(self.address_widget)
 
-        return widgets 
+        return basic_widgets 
 
     def update_with_widget_values(self): 
         self.url = self.address_widget.value
