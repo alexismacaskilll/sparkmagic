@@ -1,8 +1,6 @@
 ﻿from requests.auth import AuthBase
 
 from .customauth import Authenticator
-
-
 import requests
 
 import json
@@ -120,7 +118,6 @@ def list_credentialed_accounts():
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
         or if gcloud is not installed. 
     """
-
     accounts_json = ""
     if os.name == "nt":
         command = _CLOUD_SDK_WINDOWS_COMMAND
@@ -144,7 +141,6 @@ def list_credentialed_accounts():
         raise new_exc
 
     
-
 def get_component_gateway_url(project_id, cluster_name, region): 
     """Gets the component gateway url for a cluster name, project id, and region
 
@@ -177,13 +173,12 @@ def get_component_gateway_url(project_id, cluster_name, region):
         raise
 
 
-
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
     def __init__(self):
-        self.login_service = u"Google"
-        self.url = 'http://example.com/livy'
+        Authenticator.__init__(self)
+        #self.login_service = u"Google"
         
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -198,7 +193,6 @@ class GoogleAuth(Authenticator):
             width=widget_width
         )
 
-        
         self.region_widget = ipywidget_factory.get_text(
             description='Region:',
             width=widget_width
@@ -232,48 +226,12 @@ class GoogleAuth(Authenticator):
     def __call__(self, request):
         callable_request = google.auth.transport.requests.Request()
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-
         #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         if self.credentials.valid == False:
             self.credentials.refresh(callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
-    def authenticate(self):
-        
-        """Authenticate a user with login form data
-        It must return dict on successful authentication,
-        and return None on failed authentication. self.login_service
-        is not none, must override this in subclass
-        
-        Args:
-            handler (tornado.web.RequestHandler): the current request handler
-            data (dict): The formdata of the login form.
-                        The default form has 'username' and 'password' fields.
-        Returns:
-            user (dict or None):
-                The Authenticator may return a dict instead, which MUST have a
-                key `login_service` holding the login_service, and other optional 
-                keys the auth_type requires like tokens for google auth, user names / 
-                passwords. 
-        """
-        """callable_request = google.auth.transport.requests.Request()
-        
-
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-        if self.credentials.valid == False:
-            self.credentials.refresh(callable_request)
-        
-
-        
-        request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
-        
-        return {
-            u"login_service": self.login_service,
-            u"request": request
-        }
-        """
-        
-
+   
 
    
