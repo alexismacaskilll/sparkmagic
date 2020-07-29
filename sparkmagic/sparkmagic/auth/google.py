@@ -216,6 +216,8 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
+        #this causes an error when you try to create session. It is a TypeError which says: 
+        # 'Expecting value: line 2 column 1 (char 1)
         """
         active_account = "None"
         try: 
