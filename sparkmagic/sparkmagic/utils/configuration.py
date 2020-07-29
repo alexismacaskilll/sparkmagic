@@ -51,7 +51,7 @@ def get_auth_value(username, password):
         return constants.NO_AUTH
     return constants.AUTH_BASIC
 
-
+"""
 def auth_config():
     return  {
         u"auth_type": {
@@ -72,6 +72,8 @@ def auth_config():
         }
         
     }
+
+"""
 
 
 def auths_supported():
