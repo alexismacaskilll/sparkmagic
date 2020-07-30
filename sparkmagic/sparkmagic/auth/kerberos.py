@@ -21,7 +21,7 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
         self.login_service = u"Kerberos" 
         
     def __call__(self, request):
-        HTTPKerberosAuth.__call__(self, request)
+        return HTTPKerberosAuth.__call__(self, request)
 
     # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
     # saying 'Kerberos' is not hashable

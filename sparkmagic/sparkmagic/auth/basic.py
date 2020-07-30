@@ -12,12 +12,10 @@ class Basic(HTTPBasicAuth, Authenticator):
     def __init__(self):
         Authenticator.__init__(self)
         #Name of the login service that this authenticator is providing using to authenticate users. 
-        #self.login_service = u"Basic"
-        self.username = 'username'
-        self.password = 'password'
+        self.login_service = u"Basic"
+        HTTPBasicAuth.__init__(self, 'username', 'password')
     
     def get_widgets(self, widget_width): 
-        Authenticator.get_widgets(self, widget_width)
         ipywidget_factory = IpyWidgetFactory()
 
         self.user_widget = ipywidget_factory.get_text(
@@ -32,8 +30,9 @@ class Basic(HTTPBasicAuth, Authenticator):
             width=widget_width
         )
         
-        widgets = {self.address_widget, self.user_widget, self.password_widget}
-        return widgets 
+        widgets = {self.user_widget, self.password_widget}
+        return widgets.union(Authenticator.get_widgets(self, widget_width))
+
 
     def update_with_widget_values(self):
         Authenticator.update_with_widget_values(self)
@@ -41,7 +40,7 @@ class Basic(HTTPBasicAuth, Authenticator):
         self.password = self.password_widget.value
 
     def __call__(self, request):
-        HTTPBasicAuth.__call__(request)
+        return HTTPBasicAuth.__call__(request)
         
     # can I add username / password to hash? 
     # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
