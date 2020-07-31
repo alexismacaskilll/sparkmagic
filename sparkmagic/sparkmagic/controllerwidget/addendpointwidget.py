@@ -19,14 +19,14 @@ class AddEndpointWidget(AbstractMenuWidget):
 
         #map auth class path string to the instance of the class. 
         self.auth_instances = {}
-        for auth in conf.auths_supported().values(): 
+        for auth in conf.authenticators().values(): 
             module, class_name = (auth).rsplit('.', 1)
             events_handler_module = importlib.import_module(module)
             auth_class = getattr(events_handler_module, class_name)
             self.auth_instances[auth] = auth_class(widget_width)
 
         self.auth_type = self.ipywidget_factory.get_dropdown(
-            options = conf.auths_supported(),
+            options = conf.authenticators(),
             description=u"Auth type:"
         )
         
@@ -57,7 +57,10 @@ class AddEndpointWidget(AbstractMenuWidget):
         
     def run(self):
         self.auth.update_with_widget_values()
-        endpoint = Endpoint(self.auth.url, self.auth)
+        if self.auth_type.label == "None":
+            endpoint = Endpoint(self.auth.url, None)
+        else:
+            endpoint = Endpoint(self.auth.url, self.auth)
         self.endpoints[self.auth.url] = endpoint
         self.ipython_display.writeln("Added endpoint {}".format(self.auth.url))
         try: 

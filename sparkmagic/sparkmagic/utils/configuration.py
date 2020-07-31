@@ -51,32 +51,9 @@ def get_auth_value(username, password):
         return constants.NO_AUTH
     return constants.AUTH_BASIC
 
-"""
-def auth_config():
-    return  {
-        u"auth_type": {
-            u"login_service": u"None",
-            u"class": u"sparkmagic.auth.customauth.Authenticator"
-        },
-        u"auth_type": {
-            u"login_service": u"Google",
-            u"class": u"sparkmagic.auth.google.GoogleAuth"
-        }, 
-        u"auth_type": {
-            u"login_service": u"Basic",
-            u"class": u"sparkmagic.auth.basic.Basic"
-        }, 
-        u"auth_type": {
-            u"login_service": u"Kerberos",
-            u"class": u"sparkmagic.auth.kerberos.Kerberos"
-        }
-        
-    }
 
-"""
-
-
-def auths_supported():
+@_with_override
+def authenticators():
     return  {
         u"Kerberos": u"sparkmagic.auth.kerberos.Kerberos",
         u"None": u"sparkmagic.auth.customauth.Authenticator", 
@@ -87,7 +64,6 @@ def auths_supported():
     
 # Configs
 
- 
 def get_session_properties(language):
     properties = copy.deepcopy(session_configs())
     properties[LIVY_KIND_PARAM] = get_livy_kind(language)
