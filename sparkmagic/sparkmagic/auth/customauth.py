@@ -5,6 +5,7 @@ class Authenticator(object):
     def __init__(self, widget_width):
         self.login_service = u"None"
         self.url = 'http://example.com/livy'
+        self.widgets = get_widgets(widget_width)
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
