@@ -57,7 +57,10 @@ class AddEndpointWidget(AbstractMenuWidget):
         
     def run(self):
         self.auth.update_with_widget_values()
-        endpoint = Endpoint(self.auth.url, self.auth)
+        if self.auth_type.label == "None":
+            endpoint = Endpoint(self.auth.url, None)
+        else:
+            endpoint = Endpoint(self.auth.url, self.auth)
         self.endpoints[self.auth.url] = endpoint
         self.ipython_display.writeln("Added endpoint {}".format(self.auth.url))
         try: 

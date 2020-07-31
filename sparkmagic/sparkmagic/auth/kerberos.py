@@ -9,8 +9,6 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
     def __init__(self, widget_width):
         HTTPKerberosAuth.__init__(self, **conf.kerberos_auth_configuration())
         Authenticator.__init__(self, widget_width)
-        #Name of the login service that this authenticator is providing using to authenticate users. 
-        self.login_service = u"Kerberos" 
         
     def __call__(self, request):
         return HTTPKerberosAuth.__call__(self, request)

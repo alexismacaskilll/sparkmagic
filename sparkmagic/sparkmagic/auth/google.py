@@ -165,7 +165,6 @@ class GoogleAuth(Authenticator):
     def __init__(self, widget_width):
         Authenticator.__init__(self, widget_width)
         self.url = 'http://example.com/livy'
-        self.login_service = u"Google"
         self.widgets = self.get_widgets(widget_width)
         
     def get_widgets(self, widget_width): 

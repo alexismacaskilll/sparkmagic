@@ -7,8 +7,6 @@ class Basic(HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self, widget_width):
         Authenticator.__init__(self, widget_width)
-        #Name of the login service that this authenticator is providing using to authenticate users. 
-        self.login_service = u"Basic"
         HTTPBasicAuth.__init__(self, 'username', 'password')
         self.widgets = self.get_widgets(widget_width)
     

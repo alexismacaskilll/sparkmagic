@@ -3,7 +3,6 @@
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self, widget_width):
-        self.login_service = u"None"
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(widget_width)
 
