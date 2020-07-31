@@ -65,9 +65,9 @@ class AddEndpointWidget(AbstractMenuWidget):
             # value otherwise.
             self.refresh_method()
         except: 
-            self.endpoints.pop(self.auth.url)
-            self.__init__(self.spark_controller, self.ipywidget_factory, self.ipython_display, self.endpoints, self.endpoints_dropdown_widget, self.refresh_method)
-
+            self.endpoints.pop(self.auth.url, None)
+            self.refresh_method()
+            raise
 
     def _update_auth(self): 
         """

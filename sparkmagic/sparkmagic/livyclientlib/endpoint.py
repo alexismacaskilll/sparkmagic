@@ -11,11 +11,11 @@ class Endpoint(object):
         # a widget, but was instead implicitly defined as an endpoint to a wrapper kernel in the configuration
         # JSON file.
         self.implicitly_added = implicitly_added
-        
+
     def __eq__(self, other):
         if type(other) is not Endpoint:
             return False
-        return self.url == other.url
+        return self.url == other.url and self.auth == other.auth 
 
     def __hash__(self):
         return hash((self.url, self.auth))

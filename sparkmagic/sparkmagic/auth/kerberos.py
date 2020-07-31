@@ -18,7 +18,7 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
     # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
     # saying 'Kerberos' is not hashable
     def __hash__(self):
-        return hash((self.url, self.login_service))
+        return id(self)
     
     
 

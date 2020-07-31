@@ -36,7 +36,7 @@ class Basic(HTTPBasicAuth, Authenticator):
         self.password = self.password_widget.value
 
     def __call__(self, request):
-        return HTTPBasicAuth.__call__(request)
+        return HTTPBasicAuth.__call__(self, request)
         
     def __hash__(self):
-        return hash((self.url, self.login_service))
+        return id(self)
