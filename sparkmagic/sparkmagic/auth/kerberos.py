@@ -1,22 +1,14 @@
-﻿from tornado import web
-from hdijupyterutils.ipythondisplay import IpythonDisplay
-from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
-
-
+﻿from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 import sparkmagic.utils.configuration as conf
-
-
-
 from requests_kerberos import HTTPKerberosAuth
 from .customauth import Authenticator
-
 
 class Kerberos(HTTPKerberosAuth, Authenticator):
     #Base class for implementing an authentication provider for SparkMagic
 
-    def __init__(self):
+    def __init__(self, widget_width):
         HTTPKerberosAuth.__init__(self, **conf.kerberos_auth_configuration())
-        Authenticator.__init__(self)
+        Authenticator.__init__(self, widget_width)
         #Name of the login service that this authenticator is providing using to authenticate users. 
         self.login_service = u"Kerberos" 
         

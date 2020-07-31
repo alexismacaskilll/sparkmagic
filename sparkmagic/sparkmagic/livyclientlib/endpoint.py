@@ -1,6 +1,4 @@
-from .exceptions import BadUserDataException, BadUserConfigurationException
-from sparkmagic.utils.constants import AUTHS_SUPPORTED
-
+from .exceptions import BadUserDataException
 
 class Endpoint(object):
     def __init__(self, url, auth, implicitly_added=False):
@@ -17,7 +15,6 @@ class Endpoint(object):
         # a widget, but was instead implicitly defined as an endpoint to a wrapper kernel in the configuration
         # JSON file.
         self.implicitly_added = implicitly_added
-
 
     def __eq__(self, other):
         if type(other) is not Endpoint:

@@ -1,19 +1,16 @@
-﻿
-import sparkmagic.utils.configuration as conf
-from tornado import web
-from hdijupyterutils.ipythondisplay import IpythonDisplay
-from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+﻿from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 from requests.auth import HTTPBasicAuth
 from .customauth import Authenticator
 
 
 class Basic(HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
-    def __init__(self):
-        Authenticator.__init__(self)
+    def __init__(self, widget_width):
+        Authenticator.__init__(self, widget_width)
         #Name of the login service that this authenticator is providing using to authenticate users. 
         self.login_service = u"Basic"
         HTTPBasicAuth.__init__(self, 'username', 'password')
+        self.widgets = self.get_widgets(widget_width)
     
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -33,7 +30,6 @@ class Basic(HTTPBasicAuth, Authenticator):
         widgets = {self.user_widget, self.password_widget}
         return widgets.union(Authenticator.get_widgets(self, widget_width))
 
-
     def update_with_widget_values(self):
         Authenticator.update_with_widget_values(self)
         self.username = self.user_widget.value
@@ -42,12 +38,5 @@ class Basic(HTTPBasicAuth, Authenticator):
     def __call__(self, request):
         return HTTPBasicAuth.__call__(request)
         
-    # can I add username / password to hash? 
-    # had to add this because otherwise self.authWidgets[instance].add(widget) in addendpointwidget.py errors
-    # saying 'Basic' is not hashable
     def __hash__(self):
         return hash((self.url, self.login_service))
-
-
-
-   

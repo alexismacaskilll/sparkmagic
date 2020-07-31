@@ -3,21 +3,11 @@
 import json
 from time import sleep
 import requests
-from requests_kerberos import HTTPKerberosAuth
-
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
-from sparkmagic.utils.constants import MAGICS_LOGGER_NAME
 import sparkmagic.utils.constants as constants
 from .exceptions import HttpClientException
 from .exceptions import BadUserConfigurationException
-from sparkmagic.auth.customauth import Authenticator
-import logging 
-import sys
-
-
-
-
 
 class ReliableHttpClient(object):
     """Http client that is reliable in its requests. Uses requests library."""
@@ -27,13 +17,6 @@ class ReliableHttpClient(object):
         self._headers = headers
         self._retry_policy = retry_policy
         self._auth = self._endpoint.auth
-
-        #need to implement for Kerberos, and auth basic later. 
-        # Also removing this check because auth is a dropdown, an auth type will always be set.     
-        """
-        elif self._endpoint.auth != constants.NO_AUTH:
-            raise BadUserConfigurationException(u"Unsupported auth %s" %self._endpoint.auth)
-        """
         self._session = requests.Session()
         self.logger = SparkLog(u"ReliableHttpClient")
         self.verify_ssl = not conf.ignore_ssl_errors()

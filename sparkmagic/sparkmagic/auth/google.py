@@ -1,24 +1,10 @@
-﻿from requests.auth import AuthBase
-
-from .customauth import Authenticator
-import requests
-
+﻿from .customauth import Authenticator
 import json
 import os
 import subprocess
-
-import six
-
-from google.auth import environment_vars
-from google.auth import exceptions
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
-import google.oauth2._client
-import google.oauth2.credentials
-import sparkmagic.utils.configuration as conf
-from tornado import web
-from hdijupyterutils.ipythondisplay import IpythonDisplay
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 # The name of the Cloud SDK shell script
@@ -176,10 +162,11 @@ def get_component_gateway_url(project_id, cluster_name, region):
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
-    def __init__(self):
-        #Authenticator.__init__(self)
+    def __init__(self, widget_width):
+        Authenticator.__init__(self, widget_width)
         self.url = 'http://example.com/livy'
         self.login_service = u"Google"
+        self.widgets = self.get_widgets(widget_width)
         
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()

@@ -1,13 +1,8 @@
-﻿
-import sparkmagic.utils.configuration as conf
-from tornado import web
-from hdijupyterutils.ipythondisplay import IpythonDisplay
-from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+﻿from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
-    def __init__(self):
-        #currently not using login_service anywhere, so can probably delete. 
+    def __init__(self, widget_width):
         self.login_service = u"None"
         self.url = 'http://example.com/livy'
 
