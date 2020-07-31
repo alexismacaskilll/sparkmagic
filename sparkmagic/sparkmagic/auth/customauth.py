@@ -14,7 +14,7 @@ class Authenticator(object):
             value='http://example.com/livy',
             width=widget_width
         )
-        widgets = {self.address_widget}
+        widgets = [self.address_widget]
         return widgets 
 
     def update_with_widget_values(self): 

@@ -31,7 +31,7 @@ class AddEndpointWidget(AbstractMenuWidget):
         )
         
         #combine all authentication instance's widgets into one set to pass to self.children. 
-        self.all_widgets = set()
+        self.all_widgets = list()
         for _class, instance in self.auth_instances.items():
             for widget in instance.widgets: 
                 if  (_class == self.auth_type.value): 
@@ -39,7 +39,7 @@ class AddEndpointWidget(AbstractMenuWidget):
                     self.auth = instance
                 else: 
                     widget.layout.display = 'none'
-                self.all_widgets.add(widget)
+                self.all_widgets.append(widget)
 
         # Submit widget
         self.submit_widget = self.ipywidget_factory.get_submit_button(
@@ -48,7 +48,7 @@ class AddEndpointWidget(AbstractMenuWidget):
  
         self.auth_type.on_trait_change(self._update_auth)
 
-        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + list(self.all_widgets) \
+        self.children = [self.ipywidget_factory.get_html(value="<br/>", width=widget_width), self.auth_type] + self.all_widgets \
         + [self.ipywidget_factory.get_html(value="<br/>", width=widget_width),self.submit_widget ]
 
         for child in self.children:
