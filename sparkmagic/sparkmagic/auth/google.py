@@ -204,7 +204,7 @@ class GoogleAuth(Authenticator):
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
         """
-        widgets = {self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget}
+        widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
         return widgets 
 
     def update_with_widget_values(self): 
