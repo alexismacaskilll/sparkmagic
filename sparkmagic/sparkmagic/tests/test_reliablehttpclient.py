@@ -5,7 +5,8 @@ from mock import patch, PropertyMock, MagicMock
 from nose.tools import raises, assert_equals, with_setup, assert_is_not_none, assert_false, assert_true
 import requests
 from requests_kerberos.kerberos_ import HTTPKerberosAuth, REQUIRED, OPTIONAL
-
+from sparkmagic.auth.basic import Basic
+from sparkmagic.auth.kerberos import Kerberos
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
@@ -16,8 +17,9 @@ import sparkmagic.utils.constants as constants
 
 retry_policy = None
 sequential_values = []
-
-endpoint = Endpoint("http://url.com", constants.AUTH_BASIC, "username", "password")
+basic_auth = Basic(constants.WIDGET_WIDTH)
+kerberos_auth = Kerberos(constants.WIDGET_WIDTH)
+endpoint = Endpoint("http://url.com", basic_auth)
 
 
 def _setup():
@@ -213,23 +215,21 @@ def test_will_retry_error_no():
 
 @with_setup(_setup, _teardown)
 def test_basic_auth_check_auth():
+    endpoint = Endpoint("http://url.com", basic_auth)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
-    assert_is_not_none(client._auth)
-    assert isinstance(client._auth, tuple)
-    assert_equals(1, client._auth.count(endpoint.username))
-    assert_equals(1, client._auth.count(endpoint.password))
+    assert isinstance(client._auth, Basic)
 
 
 @with_setup(_setup, _teardown)
 def test_no_auth_check_auth():
-    endpoint = Endpoint("http://url.com", constants.NO_AUTH)
+    endpoint = Endpoint("http://url.com", None)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
-    assert_false(hasattr(client, '_auth'))
+    assert_equals(client._auth, None)
 
 
 @with_setup(_setup, _teardown)
 def test_kerberos_auth_check_auth():
-    endpoint = Endpoint("http://url.com", constants.AUTH_KERBEROS, "username", "password")
+    endpoint = Endpoint("http://url.com", kerberos_auth)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert_is_not_none(client._auth)
     assert isinstance(client._auth, HTTPKerberosAuth)
@@ -244,8 +244,10 @@ def test_kerberos_auth_custom_configuration():
         "force_preemptive": True
     }
     overrides = { conf.kerberos_auth_configuration.__name__: custom_kerberos_conf }
+    
     conf.override_all(overrides)
-    endpoint = Endpoint("http://url.com", constants.AUTH_KERBEROS, "username", "password")
+    kerberos_auth = Kerberos(constants.WIDGET_WIDTH )
+    endpoint = Endpoint("http://url.com", kerberos_auth)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert_is_not_none(client._auth)
     assert isinstance(client._auth, HTTPKerberosAuth)

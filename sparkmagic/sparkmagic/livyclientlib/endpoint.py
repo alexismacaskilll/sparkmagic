@@ -1,10 +1,11 @@
 from .exceptions import BadUserDataException
+import sparkmagic.utils.configuration as conf
 
 class Endpoint(object):
     def __init__(self, url, auth, implicitly_added=False):
         if not url:
             raise BadUserDataException(u"URL must not be empty")
-
+        
         self.url = url.rstrip(u"/")
         self.auth = auth
         # implicitly_added is set to True only if the endpoint wasn't configured manually by the user through

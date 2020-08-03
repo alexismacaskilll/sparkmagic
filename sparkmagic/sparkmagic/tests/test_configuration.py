@@ -4,8 +4,8 @@ import json
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
-from sparkmagic.utils.constants import AUTH_BASIC, NO_AUTH
-
+from sparkmagic.auth.basic import Basic
+from sparkmagic.utils.constants import WIDGET_WIDTH
 
 def _setup():
     conf.override_all({})
@@ -13,14 +13,14 @@ def _setup():
 
 @with_setup(_setup)
 def test_configuration_override_base64_password():
-    kpc = { 'username': 'U', 'password': 'P', 'base64_password': 'cGFzc3dvcmQ=', 'url': 'L', "auth": AUTH_BASIC }
+    kpc = { 'username': 'U', 'password': 'P', 'base64_password': 'cGFzc3dvcmQ=', 'url': 'L', "auth": Basic(WIDGET_WIDTH) }
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
     conf.override(conf.livy_session_startup_timeout_seconds.__name__, 1)
     assert_equals(conf.d, { conf.kernel_python_credentials.__name__: kpc,
                                      conf.livy_session_startup_timeout_seconds.__name__: 1 })
     assert_equals(conf.livy_session_startup_timeout_seconds(), 1)
-    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'password', 'url': 'L', 'auth': AUTH_BASIC })
+    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'password', 'url': 'L', 'auth': Basic(WIDGET_WIDTH) })
 
 
 @with_setup(_setup)
@@ -28,7 +28,7 @@ def test_configuration_auth_missing_basic_auth():
     kpc = { 'username': 'U', 'password': 'P', 'url': 'L'}
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
-    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': AUTH_BASIC })
+    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': Basic(WIDGET_WIDTH) })
 
 
 @with_setup(_setup)
@@ -36,12 +36,12 @@ def test_configuration_auth_missing_no_auth():
     kpc = { 'username': '', 'password': '', 'url': 'L'}
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
-    assert_equals(conf.base64_kernel_python_credentials(), { 'username': '', 'password': '', 'url': 'L', 'auth': NO_AUTH })
+    assert_equals(conf.base64_kernel_python_credentials(), { 'username': '', 'password': '', 'url': 'L', 'auth': None })
 
 
 @with_setup(_setup)
 def test_configuration_override_fallback_to_password():
-    kpc = { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': NO_AUTH }
+    kpc = { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': None }
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
     conf.override(conf.livy_session_startup_timeout_seconds.__name__, 1)
@@ -53,14 +53,14 @@ def test_configuration_override_fallback_to_password():
 
 @with_setup(_setup)
 def test_configuration_override_work_with_empty_password():
-    kpc = { 'username': 'U', 'base64_password': '', 'password': '', 'url': '', 'auth': AUTH_BASIC }
+    kpc = { 'username': 'U', 'base64_password': '', 'password': '', 'url': '', 'auth': Basic(WIDGET_WIDTH) }
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
     conf.override(conf.livy_session_startup_timeout_seconds.__name__, 1)
     assert_equals(conf.d, { conf.kernel_python_credentials.__name__: kpc,
                                      conf.livy_session_startup_timeout_seconds.__name__: 1 })
     assert_equals(conf.livy_session_startup_timeout_seconds(), 1)
-    assert_equals(conf.base64_kernel_python_credentials(),  { 'username': 'U', 'password': '', 'url': '', 'auth': AUTH_BASIC })
+    assert_equals(conf.base64_kernel_python_credentials(),  { 'username': 'U', 'password': '', 'url': '', 'auth': Basic(WIDGET_WIDTH) })
 
 
 @raises(BadUserConfigurationException)
@@ -75,6 +75,6 @@ def test_configuration_raise_error_for_bad_base64_password():
 
 @with_setup(_setup)
 def test_share_config_between_pyspark_and_pyspark3():
-    kpc = { 'username': 'U', 'password': 'P', 'base64_password': 'cGFzc3dvcmQ=', 'url': 'L', 'auth': AUTH_BASIC }
+    kpc = { 'username': 'U', 'password': 'P', 'base64_password': 'cGFzc3dvcmQ=', 'url': 'L', 'auth': Basic(WIDGET_WIDTH) }
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     assert_equals(conf.base64_kernel_python3_credentials(), conf.base64_kernel_python_credentials())

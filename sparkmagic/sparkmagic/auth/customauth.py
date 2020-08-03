@@ -23,6 +23,9 @@ class Authenticator(object):
     def __call__(self, request):
         """subclasses should override"""
         return None
+
+    def __hash__(self):
+        return id(self)
        
         
  

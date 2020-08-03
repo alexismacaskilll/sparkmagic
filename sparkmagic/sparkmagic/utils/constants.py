@@ -54,6 +54,8 @@ LANGS_SUPPORTED = [LANG_SCALA, LANG_PYTHON, LANG_R]
 
 LONG_RANDOM_VARIABLE_NAME = "yQeKOYBsFgLWWGWZJu3y"
 
+WIDGET_WIDTH = "800px"
+
 MAGICS_LOGGER_NAME = "magicsLogger"
 
 # The list here https://livy.incubator.apache.org/docs/latest/rest-api.html
@@ -97,10 +99,10 @@ RESOURCE_LIMIT_WARNING = "Warning: The Spark session does not have enough YARN r
 LIVY_HEARTBEAT_TIMEOUT_PARAM = u"heartbeatTimeoutInSecond"
 LIVY_KIND_PARAM = u"kind"
 
-NO_AUTH = "None"
-AUTH_KERBEROS = "Kerberos"
-AUTH_BASIC = "Basic_Access"
-AUTHS_SUPPORTED = [NO_AUTH, AUTH_KERBEROS, AUTH_BASIC]
+#NO_AUTH = "None"
+#AUTH_KERBEROS = "Kerberos"
+#AUTH_BASIC = "Basic_Access"
+#AUTHS_SUPPORTED = [NO_AUTH, AUTH_KERBEROS, AUTH_BASIC]
 
 CONFIGURABLE_RETRY = "configurable"
 LINEAR_RETRY = "linear"

@@ -2,7 +2,7 @@ from mock import MagicMock
 from nose.tools import with_setup
 
 import sparkmagic.utils.configuration as conf
-from sparkmagic.utils.constants import EXPECTED_ERROR_MSG, AUTH_BASIC, NO_AUTH, MIMETYPE_TEXT_PLAIN
+from sparkmagic.utils.constants import EXPECTED_ERROR_MSG, MIMETYPE_TEXT_PLAIN
 from sparkmagic.magics.remotesparkmagics import RemoteSparkMagics
 from sparkmagic.livyclientlib.command import Command
 from sparkmagic.livyclientlib.endpoint import Endpoint
