@@ -2,8 +2,6 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
-import sparkmagic.utils.configuration as conf
-
 
 HOME_PATH = os.environ.get("SPARKMAGIC_CONF_DIR", "~/.sparkmagic")
 CONFIG_FILE = os.environ.get("SPARKMAGIC_CONF_FILE", "config.json")

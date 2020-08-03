@@ -1,5 +1,5 @@
 from mock import MagicMock, patch
-from nose.tools import with_setup, raises, assert_equals, assert_is
+from nose.tools import assert_equals
 from tornado.concurrent import Future
 from tornado.web import MissingArgumentError
 from tornado.testing import gen_test
@@ -8,7 +8,6 @@ import json
 
 from sparkmagic.serverextension.handlers import ReconnectHandler
 from sparkmagic.kernels.kernelmagics import KernelMagics
-import sparkmagic.utils.configuration as conf
 from sparkmagic.utils import constants
 
 
