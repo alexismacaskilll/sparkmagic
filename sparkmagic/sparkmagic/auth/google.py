@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
+from sparkmagic.utils.constants import WIDGET_WIDTH
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
@@ -162,10 +163,10 @@ def get_component_gateway_url(project_id, cluster_name, region):
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
-    def __init__(self, widget_width):
-        Authenticator.__init__(self, widget_width)
+    def __init__(self):
+        Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
-        self.widgets = self.get_widgets(widget_width)
+        self.widgets = self.get_widgets(WIDGET_WIDTH)
         
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()

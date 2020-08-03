@@ -1,10 +1,11 @@
 ﻿from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+from sparkmagic.utils.constants import WIDGET_WIDTH
 
 class Authenticator(object):
     """Base class for implementing an authentication provider for SparkMagic"""
-    def __init__(self, widget_width):
+    def __init__(self):
         self.url = 'http://example.com/livy'
-        self.widgets = self.get_widgets(widget_width)
+        self.widgets = self.get_widgets(WIDGET_WIDTH)
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()

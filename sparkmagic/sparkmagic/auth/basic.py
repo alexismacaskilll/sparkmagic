@@ -1,17 +1,18 @@
 ﻿from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 from requests.auth import HTTPBasicAuth
 from .customauth import Authenticator
+from sparkmagic.utils.constants import WIDGET_WIDTH
 
 
 class Basic(HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
-    def __init__(self, widget_width):
+    def __init__(self):
         #Authenticator.__init__(self, widget_width)
         self.username = 'username'
         self.password = 'password'
         HTTPBasicAuth.__init__(self, self.username, self.password)
         
-        self.widgets = self.get_widgets(widget_width)
+        self.widgets = self.get_widgets(WIDGET_WIDTH)
     
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -29,7 +30,7 @@ class Basic(HTTPBasicAuth, Authenticator):
         )
         
         widgets = [self.user_widget, self.password_widget]
-        return Authenticator.get_widgets(self, widget_width) + widgets
+        return Authenticator.get_widgets(self) + widgets
 
     def update_with_widget_values(self):
         Authenticator.update_with_widget_values(self)

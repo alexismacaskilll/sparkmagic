@@ -2,13 +2,14 @@
 import sparkmagic.utils.configuration as conf
 from requests_kerberos import HTTPKerberosAuth
 from .customauth import Authenticator
+ 
 
 class Kerberos(HTTPKerberosAuth, Authenticator):
     #Base class for implementing an authentication provider for SparkMagic
 
-    def __init__(self, widget_width):
+    def __init__(self):
         HTTPKerberosAuth.__init__(self, **conf.kerberos_auth_configuration())
-        Authenticator.__init__(self, widget_width)
+        Authenticator.__init__(self)
         
     def __call__(self, request):
         return HTTPKerberosAuth.__call__(self, request)
