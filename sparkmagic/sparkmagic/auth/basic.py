@@ -30,7 +30,7 @@ class Basic(HTTPBasicAuth, Authenticator):
         )
         
         widgets = [self.user_widget, self.password_widget]
-        return Authenticator.get_widgets(self) + widgets
+        return Authenticator.get_widgets(self, widget_width) + widgets
 
     def update_with_widget_values(self):
         Authenticator.update_with_widget_values(self)

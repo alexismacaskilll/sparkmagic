@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
+import sparkmagic.utils.configuration as conf
 
 
 HOME_PATH = os.environ.get("SPARKMAGIC_CONF_DIR", "~/.sparkmagic")
@@ -99,10 +100,9 @@ RESOURCE_LIMIT_WARNING = "Warning: The Spark session does not have enough YARN r
 LIVY_HEARTBEAT_TIMEOUT_PARAM = u"heartbeatTimeoutInSecond"
 LIVY_KIND_PARAM = u"kind"
 
-#NO_AUTH = "None"
-#AUTH_KERBEROS = "Kerberos"
-#AUTH_BASIC = "Basic_Access"
-#AUTHS_SUPPORTED = [NO_AUTH, AUTH_KERBEROS, AUTH_BASIC]
+NO_AUTH = "None"
+AUTH_KERBEROS = "Kerberos"
+AUTH_BASIC = "Basic"
 
 CONFIGURABLE_RETRY = "configurable"
 LINEAR_RETRY = "linear"

@@ -17,8 +17,8 @@ import sparkmagic.utils.constants as constants
 
 retry_policy = None
 sequential_values = []
-basic_auth = Basic(constants.WIDGET_WIDTH)
-kerberos_auth = Kerberos(constants.WIDGET_WIDTH)
+basic_auth = Basic()
+kerberos_auth = Kerberos()
 endpoint = Endpoint("http://url.com", basic_auth)
 
 
@@ -246,7 +246,7 @@ def test_kerberos_auth_custom_configuration():
     overrides = { conf.kerberos_auth_configuration.__name__: custom_kerberos_conf }
     
     conf.override_all(overrides)
-    kerberos_auth = Kerberos(constants.WIDGET_WIDTH )
+    kerberos_auth = Kerberos()
     endpoint = Endpoint("http://url.com", kerberos_auth)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert_is_not_none(client._auth)

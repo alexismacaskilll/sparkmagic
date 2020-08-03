@@ -453,7 +453,7 @@ class KernelMagics(SparkMagicBase):
         events_handler_module = importlib.import_module(module)
         auth_instance = getattr(events_handler_module, class_name)
         #fix this
-        if args.auth is 'Basic': 
+        if args.auth is constants.AUTH_BASIC: 
             auth_instance.username = args.user
             auth_instance.password = args.password
         return auth_instance
