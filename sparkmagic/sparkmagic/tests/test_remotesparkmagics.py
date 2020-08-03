@@ -1,5 +1,6 @@
 from mock import MagicMock
 from nose.tools import with_setup
+import importlib
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.constants import EXPECTED_ERROR_MSG, MIMETYPE_TEXT_PLAIN
@@ -74,12 +75,12 @@ def test_add_sessions_command_parses():
     command = "add"
     name = "-s name"
     language = "-l python"
-    connection_string = "-u http://url.com -t {} -a sdf -p w".format(AUTH_BASIC)
+    connection_string = "-u http://url.com -t {} -a sdf -p w".format('Basic')
     line = " ".join([command, name, language, connection_string])
 
     magic.spark(line)
 
-    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", AUTH_BASIC, "sdf", "w"),
+    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", _initialize_auth("Basic", "sdf", "w")),
                                               False, {"kind": "pyspark"})
 
     # Skip and scala - upper case
@@ -93,7 +94,7 @@ def test_add_sessions_command_parses():
 
     magic.spark(line)
 
-    add_sessions_mock.assert_called_once_with("name", Endpoint("http://location:port", NO_AUTH),
+    add_sessions_mock.assert_called_once_with("name", Endpoint("http://location:port", _initialize_auth("None")),
                                               True, {"kind": "spark"})
 
 
@@ -105,12 +106,12 @@ def test_add_sessions_command_exception():
     command = "add"
     name = "-s name"
     language = "-l python"
-    connection_string = "-u http://url.com -t {} -a sdf -p w".format(AUTH_BASIC)
+    connection_string = "-u http://url.com -t {} -a sdf -p w".format('Basic')
     line = " ".join([command, name, language, connection_string])
 
     magic.spark(line)
-
-    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", AUTH_BASIC, "sdf", "w"),
+    
+    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", _initialize_auth("Basic", "sdf", "w")),
                                               False, {"kind": "pyspark"})
     ipython_display.send_error.assert_called_once_with(EXPECTED_ERROR_MSG
                                                        .format(add_sessions_mock.side_effect))
@@ -132,7 +133,7 @@ def test_add_sessions_command_extra_properties():
 
     magic.spark(line)
 
-    add_sessions_mock.assert_called_once_with("name", Endpoint("http://livyendpoint.com", NO_AUTH),
+    add_sessions_mock.assert_called_once_with("name", Endpoint("http://livyendpoint.com", _initialize_auth("None") ),
                                               False, {"kind": "spark", "extra": "yes"})
     conf.override_all({})
 
@@ -145,11 +146,11 @@ def test_delete_sessions_command_parses():
     magic.spark(command)
     mock_method.assert_called_once_with("name")
 
-    command = "delete -u URL -t {} -a username -p password -i 4".format(AUTH_BASIC)
+    command = "delete -u URL -t {} -a username -p password -i 4".format('Basic')
     mock_method = MagicMock()
     spark_controller.delete_session_by_id = mock_method
     magic.spark(command)
-    mock_method.assert_called_once_with(Endpoint("URL", AUTH_BASIC, "username", "password"), 4)
+    mock_method.assert_called_once_with(Endpoint("URL", _initialize_auth("Basic", "username", "password")), 4)
 
 
 @with_setup(_setup, _teardown)
@@ -194,12 +195,24 @@ def test_cleanup_endpoint_command_parses():
 
     magic.spark(line)
 
-    mock_method.assert_called_once_with(Endpoint("endp", NO_AUTH))
+    mock_method.assert_called_once_with(Endpoint("endp", _initialize_auth("None")))
 
-    line = "cleanup -u endp -a user -p passw -t {}".format(AUTH_BASIC)
+    line = "cleanup -u endp -a user -p passw -t {}".format('Basic')
     magic.spark(line)
-    mock_method.assert_called_with(Endpoint("endp", AUTH_BASIC, "user", "passw"))
+    _initialize_auth("Basic", "user", "passw") 
+    mock_method.assert_called_with(Endpoint("endp", _initialize_auth("Basic", "user", "passw") ))
 
+
+def _initialize_auth(auth, username = None, password = None): 
+        full_class = conf.authenticators().get(auth, conf.authenticators().get("None"))
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_instance = getattr(events_handler_module, class_name)
+        #fix this
+        if auth is 'Basic': 
+            auth_instance.username = username
+            auth_instance.password = password
+        return auth_instance
 
 @with_setup(_setup, _teardown)
 def test_bad_command_writes_error():

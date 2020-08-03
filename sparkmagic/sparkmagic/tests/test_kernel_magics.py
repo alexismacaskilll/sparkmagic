@@ -10,7 +10,9 @@ from sparkmagic.livyclientlib.exceptions import LivyClientTimeoutException, BadU
     HttpClientException, DataFrameParseException, SqlContextNotFoundException, SparkStatementException
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.livyclientlib.command import Command
-from sparkmagic.utils.constants import NO_AUTH, AUTH_BASIC
+from sparkmagic.utils.constants import WIDGET_WIDTH
+from sparkmagic.auth.basic import Basic
+import importlib
 
 magic = None
 spark_controller = None
@@ -25,10 +27,10 @@ class TestKernelMagics(KernelMagics):
         super(TestKernelMagics, self).__init__(shell, spark_events=spark_events)
 
         self.language = constants.LANG_PYTHON
-        self.endpoint = Endpoint("url", NO_AUTH)
+        self.endpoint = Endpoint("url", None)
 
     def refresh_configuration(self):
-        self.endpoint = Endpoint("new_url", NO_AUTH)
+        self.endpoint = Endpoint("new_url", None)
 
 
 def _setup():
@@ -145,7 +147,7 @@ def test_change_language():
     magic._do_not_call_change_language(line)
 
     assert_equals(constants.LANG_SCALA, magic.language)
-    assert_equals(Endpoint("new_url", NO_AUTH), magic.endpoint)
+    assert_equals(Endpoint("new_url", None), magic.endpoint)
 
 
 @with_setup(_setup, _teardown)
@@ -158,7 +160,7 @@ def test_change_language_session_started():
 
     assert_equals(ipython_display.send_error.call_count, 1)
     assert_equals(constants.LANG_PYTHON, magic.language)
-    assert_equals(Endpoint("url", NO_AUTH), magic.endpoint)
+    assert_equals(Endpoint("url", None), magic.endpoint)
 
 
 @with_setup(_setup, _teardown)
@@ -170,20 +172,26 @@ def test_change_language_not_valid():
 
     assert_equals(ipython_display.send_error.call_count, 1)
     assert_equals(constants.LANG_PYTHON, magic.language)
-    assert_equals(Endpoint("url", NO_AUTH), magic.endpoint)
+    assert_equals(Endpoint("url", None), magic.endpoint)
 
 
 @with_setup(_setup, _teardown)
 def test_change_endpoint():
+    s = 'server'
     u = 'user'
     p = 'password'
-    s = 'server'
-    t = AUTH_BASIC
+    t = 'Basic'
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
 
     magic._do_not_call_change_endpoint(line)
-
-    assert_equals(Endpoint(s, t, u, p), magic.endpoint)
+    
+    auth_instance = getattr(importlib.import_module('sparkmagic.auth.basic'), t)
+    auth_instance.username = u
+    auth_instance.password = p
+    endpoint = Endpoint(s, auth_instance)
+    assert_equals(endpoint.url, magic.endpoint.url)
+    assert_equals(endpoint.auth.username, magic.endpoint.auth.username)
+    assert_equals(endpoint.auth.password, magic.endpoint.auth.password)
 
 
 @with_setup(_setup, _teardown)
@@ -194,7 +202,6 @@ def test_change_endpoint_session_started():
     s = 'server'
     line = "-s {} -u {} -p {}".format(s, u, p)
     magic.session_started = True
-
     magic._do_not_call_change_endpoint(line)
     
 

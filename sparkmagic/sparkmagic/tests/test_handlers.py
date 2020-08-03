@@ -31,7 +31,7 @@ class TestSparkMagicHandler(AsyncTestCase):
     username = 'username'
     password = 'password'
     endpoint = 'http://endpoint.com'
-    auth = constants.AUTH_BASIC
+    auth = 'Basic'#constants.AUTH_BASIC
     response_id = '0'
     good_msg = dict(content=dict(status='ok'))
     bad_msg = dict(content=dict(status='error', ename='SyntaxError', evalue='oh no!'))
@@ -119,7 +119,7 @@ class TestSparkMagicHandler(AsyncTestCase):
     @patch('sparkmagic.serverextension.handlers.ReconnectHandler._get_kernel_manager')
     @gen_test
     def test_post_existing_kernel_with_auth_missing_no_auth(self, _get_kernel_manager):
-        self.request.body = json.dumps({ "path": self.path, "username": '', "password": '', "endpoint": self.endpoint })
+        self.request.body = json.dumps({ "path": self.path, "endpoint": self.endpoint })
         kernel_manager_future = Future()
         kernel_manager_future.set_result(self.individual_kernel_manager)
         _get_kernel_manager.return_value = kernel_manager_future
@@ -127,7 +127,7 @@ class TestSparkMagicHandler(AsyncTestCase):
         res = yield self.reconnect_handler.post()
         assert_equals(res, None)
 
-        code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, '', '', constants.NO_AUTH)
+        code = '%{} -s {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, 'None')
         self.client.execute.assert_called_once_with(code, silent=False, store_history=False)
         self.reconnect_handler.set_status.assert_called_once_with(200)
         self.reconnect_handler.finish.assert_called_once_with('{"error": null, "success": true}')
@@ -144,7 +144,7 @@ class TestSparkMagicHandler(AsyncTestCase):
         res = yield self.reconnect_handler.post()
         assert_equals(res, None)
 
-        code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, self.username, self.password, constants.AUTH_BASIC)
+        code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, self.username, self.password, 'Basic')
         self.client.execute.assert_called_once_with(code, silent=False, store_history=False)
         self.reconnect_handler.set_status.assert_called_once_with(200)
         self.reconnect_handler.finish.assert_called_once_with('{"error": null, "success": true}')

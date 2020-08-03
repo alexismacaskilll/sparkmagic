@@ -28,7 +28,7 @@ def test_configuration_auth_missing_basic_auth():
     kpc = { 'username': 'U', 'password': 'P', 'url': 'L'}
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
-    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': Basic(WIDGET_WIDTH) })
+    assert_equals(conf.base64_kernel_python_credentials(), { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': 'Basic' })
 
 
 @with_setup(_setup)
@@ -36,12 +36,12 @@ def test_configuration_auth_missing_no_auth():
     kpc = { 'username': '', 'password': '', 'url': 'L'}
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
-    assert_equals(conf.base64_kernel_python_credentials(), { 'username': '', 'password': '', 'url': 'L', 'auth': None })
+    assert_equals(conf.base64_kernel_python_credentials(), { 'username': '', 'password': '', 'url': 'L', 'auth': 'None' })
 
 
 @with_setup(_setup)
 def test_configuration_override_fallback_to_password():
-    kpc = { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': None }
+    kpc = { 'username': 'U', 'password': 'P', 'url': 'L', 'auth': 'None' }
     overrides = { conf.kernel_python_credentials.__name__: kpc }
     conf.override_all(overrides)
     conf.override(conf.livy_session_startup_timeout_seconds.__name__, 1)

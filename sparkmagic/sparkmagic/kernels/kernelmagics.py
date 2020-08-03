@@ -10,6 +10,7 @@ from IPython.core.magic import magics_class
 from IPython.core.magic import needs_local_scope, cell_magic, line_magic
 from IPython.core.magic_arguments import argument, magic_arguments
 from hdijupyterutils.utils import generate_uuid
+import importlib
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.configuration import get_livy_kind
@@ -408,17 +409,16 @@ class KernelMagics(SparkMagicBase):
     @argument("-t", "--auth", type=str, help="Auth type for authentication")
     @_event
     def _do_not_call_change_endpoint(self, line, cell="", local_ns=None):
-        args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)
-        username = args.username
-        password = args.password
+        args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)    
         server = args.server
-        auth = args.auth
+        auth_instance = self._initialize_auth(args)
+        auth = auth_instance
 
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
 
-        self.endpoint = Endpoint(server, auth, username, password)
+        self.endpoint = Endpoint(server, auth)
 
     @line_magic
     def matplot(self, line, cell="", local_ns=None):
@@ -446,6 +446,17 @@ class KernelMagics(SparkMagicBase):
                 return line[:-3]
             else:
                 return None
+
+    def _initialize_auth(self, args): 
+        full_class = conf.authenticators().get(args.auth, conf.authenticators().get("None"))
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_instance = getattr(events_handler_module, class_name)
+        #fix this
+        if args.auth is 'Basic': 
+            auth_instance.username = args.user
+            auth_instance.password = args.password
+        return auth_instance
 
     @staticmethod
     def _override_session_settings(settings):

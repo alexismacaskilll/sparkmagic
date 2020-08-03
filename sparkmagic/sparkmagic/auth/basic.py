@@ -6,8 +6,11 @@ from .customauth import Authenticator
 class Basic(HTTPBasicAuth, Authenticator):
     """Base class for implementing an authentication provider for SparkMagic"""
     def __init__(self, widget_width):
-        Authenticator.__init__(self, widget_width)
-        HTTPBasicAuth.__init__(self, 'username', 'password')
+        #Authenticator.__init__(self, widget_width)
+        self.username = 'username'
+        self.password = 'password'
+        HTTPBasicAuth.__init__(self, self.username, self.password)
+        
         self.widgets = self.get_widgets(widget_width)
     
     def get_widgets(self, widget_width): 
@@ -15,13 +18,13 @@ class Basic(HTTPBasicAuth, Authenticator):
 
         self.user_widget = ipywidget_factory.get_text(
             description='Username:',
-            value='username',
+            value=self.username,
             width=widget_width
         )
        
         self.password_widget = ipywidget_factory.get_text(
             description='Password:',
-            value='password',
+            value=self.password,
             width=widget_width
         )
         
