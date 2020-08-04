@@ -154,8 +154,8 @@ def get_component_gateway_url(project_id, cluster_name, region):
         url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
         index = url.find('.com/')
         index = index + 4
-        endpointAddress = url[0: index] + '/gateway/default/livy/v1'
-        return endpointAddress
+        endpoint_address = url[0: index] + '/gateway/default/livy/v1'
+        return endpoint_address
     except: 
         raise
 

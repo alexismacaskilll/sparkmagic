@@ -7,6 +7,7 @@ import requests
 from requests_kerberos.kerberos_ import HTTPKerberosAuth, REQUIRED, OPTIONAL
 from sparkmagic.auth.basic import Basic
 from sparkmagic.auth.kerberos import Kerberos
+from sparkmagic.auth.customauth import Authenticator
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.livyclientlib.exceptions import HttpClientException
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
@@ -234,6 +235,7 @@ def test_kerberos_auth_check_auth():
     assert_is_not_none(client._auth)
     assert isinstance(client._auth, HTTPKerberosAuth)
     assert hasattr(client._auth, 'mutual_authentication')
+    conf.kerberos_auth_configuration
     assert_equals(client._auth.mutual_authentication, REQUIRED)
 
 

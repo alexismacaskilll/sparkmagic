@@ -7,7 +7,7 @@ class Authenticator(object):
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
-    def get_widgets(self, widget_width): 
+    def get_widgets(self, widget_width):
         ipywidget_factory = IpyWidgetFactory()
         
         self.address_widget = ipywidget_factory.get_text(
@@ -16,11 +16,11 @@ class Authenticator(object):
             width=widget_width
         )
         widgets = [self.address_widget]
-        return widgets 
+        return widgets
 
-    def update_with_widget_values(self): 
+    def update_with_widget_values(self):
         self.url = self.address_widget.value
-        
+    
     def __call__(self, request):
         """subclasses should override"""
         return None

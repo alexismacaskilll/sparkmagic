@@ -183,7 +183,7 @@ def test_change_endpoint():
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
 
     magic._do_not_call_change_endpoint(line)
-    
+
     auth_instance = getattr(importlib.import_module('sparkmagic.auth.basic'), t)
     auth_instance.username = u
     auth_instance.password = p
@@ -202,7 +202,7 @@ def test_change_endpoint_session_started():
     line = "-s {} -u {} -p {}".format(s, u, p)
     magic.session_started = True
     magic._do_not_call_change_endpoint(line)
-    
+
 
 @with_setup(_setup, _teardown)
 def test_info():
@@ -583,21 +583,21 @@ def test_spark_fatal_spark_statement_exception():
 def test_spark_unexpected_exception_in_storing():
     line = "-o var_name"
     cell = "some spark code"
-    side_effect = [(True,'ok',constants.MIMETYPE_TEXT_PLAIN), Exception('oups')]
+    side_effect = [(True, 'ok', constants.MIMETYPE_TEXT_PLAIN), Exception('oups')]
     spark_controller.run_command = MagicMock(side_effect=side_effect)
 
     magic.spark(line, cell)
     assert_equals(spark_controller.run_command.call_count, 2)
     spark_controller.run_command.assert_any_call(Command(cell), None)
     ipython_display.send_error.assert_called_with(constants.INTERNAL_ERROR_MSG
-                                                       .format(side_effect[1]))
+                                                  .format(side_effect[1]))
 
 
 @with_setup(_setup, _teardown)
 def test_spark_expected_exception_in_storing():
     line = "-o var_name"
     cell = "some spark code"
-    side_effect = [(True,'ok',constants.MIMETYPE_TEXT_PLAIN), SessionManagementException('oups')]
+    side_effect = [(True, 'ok', constants.MIMETYPE_TEXT_PLAIN), SessionManagementException('oups')]
     spark_controller.run_command = MagicMock(side_effect=side_effect)
 
     magic.spark(line, cell)

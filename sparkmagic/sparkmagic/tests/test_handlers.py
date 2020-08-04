@@ -213,7 +213,7 @@ class TestSparkMagicHandler(AsyncTestCase):
         km_future = Future()
         km_future.set_result(self.individual_kernel_manager)
         _get_kernel_manager_new_session.return_value = km_future
-        
+
         km = yield self.reconnect_handler._get_kernel_manager(self.path, different_kernel)
 
         assert_equals(self.individual_kernel_manager, km)

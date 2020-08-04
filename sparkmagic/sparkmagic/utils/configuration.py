@@ -56,8 +56,8 @@ def get_auth_value(username, password):
 def authenticators():
     return  {
         u"Kerberos": u"sparkmagic.auth.kerberos.Kerberos",
-        u"None": u"sparkmagic.auth.customauth.Authenticator", 
-        u"Basic": u"sparkmagic.auth.basic.Basic", 
+        u"None": u"sparkmagic.auth.customauth.Authenticator",
+        u"Basic": u"sparkmagic.auth.basic.Basic",
         u"Google": u"sparkmagic.auth.google.GoogleAuth"
     }
        
@@ -207,7 +207,7 @@ def pyspark_dataframe_encoding():
 @_with_override
 def heartbeat_refresh_seconds():
     return 30
-    
+
 
 @_with_override
 def heartbeat_retry_seconds():
