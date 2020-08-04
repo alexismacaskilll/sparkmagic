@@ -245,8 +245,7 @@ def test_kerberos_auth_custom_configuration():
         "mutual_authentication": OPTIONAL,
         "force_preemptive": True
     }
-    overrides = { conf.kerberos_auth_configuration.__name__: custom_kerberos_conf }
-    
+    overrides = { conf.kerberos_auth_configuration.__name__: custom_kerberos_conf } 
     conf.override_all(overrides)
     kerberos_auth = Kerberos()
     endpoint = Endpoint("http://url.com", kerberos_auth)

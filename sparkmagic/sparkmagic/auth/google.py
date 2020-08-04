@@ -165,6 +165,9 @@ class GoogleAuth(Authenticator):
 
     def __init__(self):
         Authenticator.__init__(self)
+        self.callable_request = google.auth.transport.requests.Request()
+        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
         
@@ -212,11 +215,8 @@ class GoogleAuth(Authenticator):
         set_credentialed_account(self.google_credentials_widget.value)
    
     def __call__(self, request):
-        callable_request = google.auth.transport.requests.Request()
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         if self.credentials.valid == False:
-            self.credentials.refresh(callable_request)
+            self.credentials.refresh(self.callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
 
