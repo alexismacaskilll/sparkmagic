@@ -1,5 +1,4 @@
 from .exceptions import BadUserDataException
-import sparkmagic.utils.configuration as conf
 
 class Endpoint(object):
     def __init__(self, url, auth, implicitly_added=False):

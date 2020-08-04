@@ -10,7 +10,8 @@ from hdijupyterutils.configuration import with_override
 
 from .constants import HOME_PATH, CONFIG_FILE, MAGICS_LOGGER_NAME, LIVY_KIND_PARAM, \
     LANG_SCALA, LANG_PYTHON, LANG_R, \
-    SESSION_KIND_SPARKR, SESSION_KIND_SPARK, SESSION_KIND_PYSPARK, CONFIGURABLE_RETRY
+    SESSION_KIND_SPARKR, SESSION_KIND_SPARK, SESSION_KIND_PYSPARK, CONFIGURABLE_RETRY, \
+    NO_AUTH, AUTH_BASIC
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 import sparkmagic.utils.constants as constants
 
@@ -48,8 +49,8 @@ def get_livy_kind(language):
 
 def get_auth_value(username, password):
     if username == '' and password == '':
-        return "None"#constants.NO_AUTH
-    return "Basic" #constants.AUTH_BASIC
+        return constants.NO_AUTH
+    return constants.AUTH_BASIC
 
 
 @_with_override

@@ -38,8 +38,6 @@ class MagicsControllerWidget(AbstractMenuWidget):
                     authentication = conf.get_auth_value(user, passwd)
 
                 default_endpoints.add(Endpoint(
-                    username=user,
-                    password=passwd,
                     auth=authentication,
                     url=endpoint_config["url"],
                     implicitly_added=True))
