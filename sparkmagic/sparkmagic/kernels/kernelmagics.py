@@ -250,10 +250,10 @@ class KernelMagics(SparkMagicBase):
     @argument("-o", "--output", type=str, default=None, help="If present, indicated variable will be stored in variable"
                                                              "of this name in user's local context.")
     @argument("-m", "--samplemethod", type=str, default=None, help="Sample method for dataframe: either take or sample")
-    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " \
+    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " 
                                                                         "from the dataframe on the server for storing")
     @argument("-r", "--samplefraction", type=float, default=None, help="Sample fraction for sampling from dataframe")
-    @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " \
+    @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " 
                                                                         "of the dataframe or not (pass False)")
     @wrap_unexpected_exceptions
     @handle_expected_exceptions
@@ -274,10 +274,10 @@ class KernelMagics(SparkMagicBase):
                                                              "name.")
     @argument("-q", "--quiet", type=bool, default=False, const=True, nargs="?", help="Return None instead of the dataframe.")
     @argument("-m", "--samplemethod", type=str, default=None, help="Sample method for SQL queries: either take or sample")
-    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " \
+    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " 
                                                                         "from the server for SQL queries")
     @argument("-r", "--samplefraction", type=float, default=None, help="Sample fraction for sampling from SQL queries")
-    @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " \
+    @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " 
                                                                         "of the dataframe or not (pass False)")
     @wrap_unexpected_exceptions
     @handle_expected_exceptions
