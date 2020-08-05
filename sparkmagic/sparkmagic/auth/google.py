@@ -238,7 +238,7 @@ class GoogleAuth(Authenticator):
             raise DefaultCredentialsError
         if (self.google_credentials_widget.value != 'default-credentials'): 
             set_credentialed_account(self.google_credentials_widget.value)
-            self.credentials = Credentials(_cloud_sdk.get_auth_access_token(google_credentials_widget.value))
+            self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
         
 
    
