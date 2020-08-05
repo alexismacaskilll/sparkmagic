@@ -9,6 +9,7 @@ import google.auth.transport.requests
 from google.auth import _cloud_sdk  
 from google.auth.exceptions import DefaultCredentialsError, RefreshError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+from hdijupyterutils.ipythondisplay import IpythonDisplay
 from google.oauth2.credentials import Credentials
 
 # The name of the Cloud SDK shell script
@@ -62,6 +63,7 @@ def list_accounts_pairs():
     accounts_list = {}
     for account in accounts:
         accounts_list[account['account']] = account['account']
+    #check if file exists (its configured first)
     accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
@@ -238,12 +240,19 @@ class GoogleAuth(Authenticator):
             raise DefaultCredentialsError
         if (self.google_credentials_widget.value != 'default-credentials'): 
             set_credentialed_account(self.google_credentials_widget.value)
+            ipython_display = IpythonDisplay()
+            ipython_display.writeln(self.credentials.to_json())
             self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
-        
+            ipython_display.writeln(self.credentials.to_json())
+        else: 
+            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
 
-   
+
     def __call__(self, request):
+        ipython_display = IpythonDisplay()
+        ipython_display.writeln(self.credentials.to_json())
         if self.credentials.valid == False:
             self.credentials.refresh(self.callable_request)
+        ipython_display.writeln(self.credentials.to_json())
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
