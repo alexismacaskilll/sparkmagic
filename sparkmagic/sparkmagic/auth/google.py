@@ -9,6 +9,7 @@ import google.auth.transport.requests
 from google.auth import _cloud_sdk  
 from google.auth.exceptions import DefaultCredentialsError, RefreshError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
+from google.oauth2.credentials import Credentials
 
 # The name of the Cloud SDK shell script
 _CLOUD_SDK_POSIX_COMMAND = "gcloud"
@@ -219,6 +220,7 @@ class GoogleAuth(Authenticator):
         #default credentials uses user credentials first
         if active_account is not None: 
             self.google_credentials_widget.value = active_account
+            
         #then it uses default credentials 
         elif self.credentials is not None: 
             self.google_credentials_widget.value = 'default-credentials'
@@ -236,7 +238,8 @@ class GoogleAuth(Authenticator):
             raise DefaultCredentialsError
         if (self.google_credentials_widget.value != 'default-credentials'): 
             set_credentialed_account(self.google_credentials_widget.value)
-            
+            self.credentials = Credentials(_cloud_sdk.get_auth_access_token(google_credentials_widget.value))
+        
 
    
     def __call__(self, request):
