@@ -7,7 +7,7 @@ from sparkmagic.utils.constants import WIDGET_WIDTH
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
 from google.auth import _cloud_sdk  
-from google.auth.exceptions import DefaultCredentialsError
+from google.auth.exceptions import DefaultCredentialsError, RefreshError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 # The name of the Cloud SDK shell script
@@ -174,7 +174,7 @@ class GoogleAuth(Authenticator):
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
         try: 
             self.credentials.refresh(self.callable_request)
-        except DefaultCredentialsError: 
+        except (DefaultCredentialsError, RefreshError) as error: 
             self.credentials, self.project = None, None
 
         #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
