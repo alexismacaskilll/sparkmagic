@@ -251,8 +251,13 @@ class GoogleAuth(Authenticator):
     def __call__(self, request):
         ipython_display = IpythonDisplay()
         ipython_display.writeln(self.credentials.to_json())
+        ipython_display.writeln(self.credentials.token)
+        ipython_display.writeln(self.credentials._refresh_token)
+
         if self.credentials.valid == False:
             self.credentials.refresh(self.callable_request)
         ipython_display.writeln(self.credentials.to_json())
+        ipython_display.writeln(self.credentials.token)
+        ipython_display.writeln(self.credentials._refresh_token)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
