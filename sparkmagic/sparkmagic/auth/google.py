@@ -61,6 +61,7 @@ def list_accounts_pairs():
     accounts_list = {}
     for account in accounts:
         accounts_list[account['account']] = account['account']
+    accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
 def set_credentialed_account(account):
@@ -213,8 +214,13 @@ class GoogleAuth(Authenticator):
         except BadUserConfigurationException: 
             pass
 
+        #default credentials uses user credentials first
         if active_account is not None: 
             self.google_credentials_widget.value = active_account
+        #then it uses default credentials 
+        elif self.credentials is not None: 
+            self.google_credentials_widget.value = 'default-credentials'
+        #if it can't find any we just disable it. 
         else: 
             self.google_credentials_widget.disabled = True
         
