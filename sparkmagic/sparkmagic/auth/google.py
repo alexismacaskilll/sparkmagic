@@ -6,6 +6,7 @@ from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from sparkmagic.utils.constants import WIDGET_WIDTH
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
+from google.auth.exceptions import DefaultCredentialsError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 # The name of the Cloud SDK shell script
@@ -167,6 +168,11 @@ class GoogleAuth(Authenticator):
         Authenticator.__init__(self)
         self.callable_request = google.auth.transport.requests.Request()
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+        try: 
+            self.credentials.refresh(self.callable_request)
+        except DefaultCredentialsError: 
+            self.credentials, self.project = None, None
+
         #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
@@ -207,10 +213,13 @@ class GoogleAuth(Authenticator):
             self.google_credentials_widget.value = active_account
         
         widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
-        return widgets 
+        return widgets
 
     def update_with_widget_values(self): 
-        self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+        if (self.credentials is not None):
+            self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+        else: 
+            raise DefaultCredentialsError
         set_credentialed_account(self.google_credentials_widget.value)
    
     def __call__(self, request):
@@ -218,7 +227,3 @@ class GoogleAuth(Authenticator):
             self.credentials.refresh(self.callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
-
-   
-
-   
