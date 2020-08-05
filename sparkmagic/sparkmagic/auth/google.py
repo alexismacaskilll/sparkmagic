@@ -195,18 +195,17 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        #this causes an error when you try to create session. It is a TypeError which says: 
-        # 'Expecting value: line 2 column 1 (char 1)
-        """
+        #set credentialed account dropdown to be the account with status 'ACTIVE' 
+        # in accounts returned by `gcloud auth list`
         active_account = "None"
         try: 
-            active_account=list_active_account()
+            active_account = list_active_account()
         except BadUserConfigurationException: 
             active_account = "None"
 
         if active_account != "None": 
             self.google_credentials_widget.value = active_account
-        """
+        
         widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
         return widgets 
 
