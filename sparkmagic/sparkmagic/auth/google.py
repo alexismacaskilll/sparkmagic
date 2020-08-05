@@ -170,7 +170,7 @@ class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
     def __init__(self):
-        Authenticator.__init__(self)
+        
         self.callable_request = google.auth.transport.requests.Request()
         self.credentials, self.project_id = None, None
         self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
@@ -178,7 +178,8 @@ class GoogleAuth(Authenticator):
             self.credentials.refresh(self.callable_request)
         except (DefaultCredentialsError, RefreshError) as error: 
             self.credentials, self.project = None, None
-
+        
+        Authenticator.__init__(self)
         #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
