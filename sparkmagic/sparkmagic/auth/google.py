@@ -57,18 +57,14 @@ def list_accounts_pairs():
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
         or if gcloud is not installed. 
     """
-    try: 
-        accounts = list_credentialed_accounts()
-        accounts_list = {}
-        for account in accounts:
-            accounts_list[account['account']] = account['account']
-        return accounts_list
-
-
+    accounts = list_credentialed_accounts()
+    accounts_list = {}
+    for account in accounts:
+        accounts_list[account['account']] = account['account']
+    return accounts_list
 
 def set_credentialed_account(account):
     """Sets the user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
-    
     Raises:
          sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set to a valid account, if the user needs  \ 
          to run gcloud auth login, or if gcloud is not installed. 
@@ -123,9 +119,6 @@ def list_credentialed_accounts():
             except: 
                 pass
         return credentialed_accounts
-  
-
-
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Gcloud is not installed. Install the Google Cloud SDK." 
