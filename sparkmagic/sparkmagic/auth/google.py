@@ -234,7 +234,10 @@ class GoogleAuth(Authenticator):
             self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
         else: 
             raise DefaultCredentialsError
-        set_credentialed_account(self.google_credentials_widget.value)
+        if (self.google_credentials_widget.value != 'default-credentials'): 
+            set_credentialed_account(self.google_credentials_widget.value)
+            
+
    
     def __call__(self, request):
         if self.credentials.valid == False:
