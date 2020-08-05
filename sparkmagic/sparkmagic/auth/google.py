@@ -43,7 +43,7 @@ def list_active_account():
         for account in accounts:
             if account['status'] == "ACTIVE": 
                 return account['account']
-        return ""
+        return None
     except: 
         raise
 
@@ -207,13 +207,13 @@ class GoogleAuth(Authenticator):
 
         #set credentialed account dropdown to be the account with status 'ACTIVE' 
         # in accounts returned by `gcloud auth list`
-        active_account = "None"
+        active_account = None
         try: 
             active_account = list_active_account()
         except BadUserConfigurationException: 
-            active_account = "None"
+            pass
 
-        if active_account != "None": 
+        if active_account is not None: 
             self.google_credentials_widget.value = active_account
         
         widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
