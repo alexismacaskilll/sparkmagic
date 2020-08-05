@@ -6,6 +6,7 @@ from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from sparkmagic.utils.constants import WIDGET_WIDTH
 from google.cloud import dataproc_v1beta2
 import google.auth.transport.requests 
+from google.auth import _cloud_sdk  
 from google.auth.exceptions import DefaultCredentialsError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
@@ -62,8 +63,7 @@ def list_accounts_pairs():
         for account in accounts:
             accounts_list[account['account']] = account['account']
         return accounts_list
-    except: 
-        raise
+
 
 
 def set_credentialed_account(account):
@@ -114,7 +114,18 @@ def list_credentialed_accounts():
     try:
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        return load_json_input(accounts_json)
+        all_accounts = load_json_input(accounts_json)
+        credentialed_accounts = list()
+        for account in all_accounts:
+            try: 
+                _cloud_sdk.get_auth_access_token(account['account'])
+                credentialed_accounts.append(account)
+            except: 
+                pass
+        return credentialed_accounts
+  
+
+
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Gcloud is not installed. Install the Google Cloud SDK." 
