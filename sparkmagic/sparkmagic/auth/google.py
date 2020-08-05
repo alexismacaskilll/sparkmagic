@@ -216,7 +216,6 @@ class GoogleAuth(Authenticator):
         if active_account is not None: 
             self.google_credentials_widget.value = active_account
         else: 
-            self.google_credentials_widget.value = 'No credentials found'
             self.google_credentials_widget.disabled = True
         
         widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
