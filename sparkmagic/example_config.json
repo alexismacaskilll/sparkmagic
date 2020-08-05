@@ -36,8 +36,7 @@
   "authenticators": {
     "Kerberos": "sparkmagic.auth.kerberos.Kerberos",
     "None": "sparkmagic.auth.customauth.Authenticator", 
-    "Basic": "sparkmagic.auth.basic.Basic", 
-    "Google": "sparkmagic.auth.google.GoogleAuth"
+    "Basic": "sparkmagic.auth.basic.Basic"
   },
 
   "wait_for_idle_timeout_seconds": 15,
