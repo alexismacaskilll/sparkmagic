@@ -113,13 +113,15 @@ class RemoteSparkMagics(SparkMagicBase):
         args = parse_argstring_or_throw(self.spark, user_input)
 
         subcommand = args.command[0].lower()
-        if args.auth is None: 
-            args.auth = NO_AUTH
+        if args.auth is None:
+            args.auth = conf.get_auth_value(args.user, args.password)
+        else:
+            args.auth = args.auth
 
         # info
         if subcommand == "info":
             if args.url is not None:
-                endpoint = Endpoint(args.url, self._initialize_auth(args))
+                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
                 info_sessions = self.spark_controller.get_all_sessions_endpoint_info(endpoint)
                 self._print_endpoint_info(info_sessions)
             else:
@@ -135,7 +137,7 @@ class RemoteSparkMagics(SparkMagicBase):
 
             name = args.session
             language = args.language
-            endpoint = Endpoint(args.url, self._initialize_auth(args))
+            endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
             skip = args.skip
 
             properties = conf.get_session_properties(language)
@@ -149,7 +151,7 @@ class RemoteSparkMagics(SparkMagicBase):
                 if args.id is None:
                     self.ipython_display.send_error("Must provide --id or -i option to delete session at endpoint from URL")
                     return
-                endpoint = Endpoint(args.url, self._initialize_auth(args))
+                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
                 session_id = args.id
                 self.spark_controller.delete_session_by_id(endpoint, session_id)
             else:
@@ -157,7 +159,7 @@ class RemoteSparkMagics(SparkMagicBase):
         # cleanup
         elif subcommand == "cleanup":
             if args.url is not None:
-                endpoint = Endpoint(args.url, self._initialize_auth(args))
+                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
                 self.spark_controller.cleanup_endpoint(endpoint)
             else:
                 self.spark_controller.cleanup()
@@ -188,15 +190,15 @@ class RemoteSparkMagics(SparkMagicBase):
         {}
 """.format("\n".join(sessions_info), conf.session_configs()))
 
-
-    def _initialize_auth(self, args): 
-        full_class = conf.authenticators().get(args.auth)
+    @staticmethod
+    def _initialize_auth(auth, username = None, password = None):
+        full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_instance = getattr(events_handler_module, class_name)
-        if args.auth is AUTH_BASIC:
-            auth_instance.username = args.user
-            auth_instance.password = args.password
+        if auth is AUTH_BASIC:
+            auth_instance.username = username
+            auth_instance.password = password
         return auth_instance
 
 def load_ipython_extension(ip):

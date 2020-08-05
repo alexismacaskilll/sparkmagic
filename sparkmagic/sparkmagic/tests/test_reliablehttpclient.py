@@ -219,6 +219,12 @@ def test_basic_auth_check_auth():
     endpoint = Endpoint("http://url.com", basic_auth)
     client = ReliableHttpClient(endpoint, {}, retry_policy)
     assert isinstance(client._auth, Basic)
+    assert hasattr(client._auth, 'username')
+    assert hasattr(client._auth, 'password')
+    assert_equals(client._auth.username, endpoint.auth.username)
+    assert_equals(client._auth.password, endpoint.auth.password)
+
+
 
 
 @with_setup(_setup, _teardown)
