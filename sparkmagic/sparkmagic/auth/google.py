@@ -47,24 +47,20 @@ def list_active_account():
                 return account['account']
         return None
     except: 
-        raise
+        pass
 
 def list_accounts_pairs(): 
     """Reformates all of user's credentialed accounts to populate google_credentials_widget dropdown's options. 
 
     Returns:
-        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account 
-
-    Raises:
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
-        or if gcloud is not installed. 
+        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account
     """
     accounts = list_credentialed_accounts()
     accounts_list = {}
     for account in accounts:
         accounts_list[account['account']] = account['account']
-    #check if file exists (its configured first)
-    accounts_list['default-credentials'] = 'default-credentials'
+    if application_default_credentials_configured():
+        accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
 def set_credentialed_account(account):
@@ -141,8 +137,7 @@ def get_credentials_for_account(account, scopes):
 
     Args:
         account (str): user credentialed account to return credentials for
-        scopes (Sequence[str]): Optional list of scopes to include in the
-                credentials.
+        scopes (Sequence[str]): list of scopes to include in the credentials.
     
     Returns:
         google.oauth2.credentials.Credentials: The constructed credentials
@@ -186,7 +181,7 @@ def get_credentials_for_account(account, scopes):
         raise new_exc
 
     
-def get_component_gateway_url(project_id, cluster_name, region): 
+def get_component_gateway_url(project_id, cluster_name, region):
     """Gets the component gateway url for a cluster name, project id, and region
 
     Args:
@@ -218,11 +213,23 @@ def get_component_gateway_url(project_id, cluster_name, region):
         raise
 
 
+def application_default_credentials_configured(): 
+    """Checks if google application-default credentials are configured"""
+    callable_request = google.auth.transport.requests.Request()
+    credentials, project = google.auth.default()
+    try:
+        credentials.refresh(callable_request) 
+    except (DefaultCredentialsError, RefreshError) as error:
+            return False
+    return True
+
+
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
     def __init__(self):
         self.callable_request = google.auth.transport.requests.Request()
+        self.active_account = list_active_account()
         self.credentials, self.project_id = None, None
         try: 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
@@ -231,7 +238,7 @@ class GoogleAuth(Authenticator):
             self.credentials, self.project = None, None
         #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
-        self.widgets = self.get_widgets(WIDGET_WIDTH)  
+        self.widgets = self.get_widgets(WIDGET_WIDTH)
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -257,19 +264,11 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        #set credentialed account dropdown to be the account with status 'ACTIVE' 
-        # in accounts returned by `gcloud auth list`
-        active_account = None
-        try: 
-            active_account = list_active_account()
-        except BadUserConfigurationException: 
-            pass
-
         #set account dropdown to currently active credentialed user account, if there is one. 
-        if active_account is not None: 
+        if self.active_account is not None: 
             self.google_credentials_widget.value = active_account
-        #set account dropdown to if default-credentials is configured
-        elif self.credentials is not None: 
+        #set account dropdown to default-credentials if application-default credentials are configured
+        elif application_default_credentials_configured(): 
             self.google_credentials_widget.value = 'default-credentials'
         else: 
             self.google_credentials_widget.disabled = True
@@ -277,18 +276,26 @@ class GoogleAuth(Authenticator):
         widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
         return widgets
 
-    def update_with_widget_values(self): 
-        if (self.credentials is not None):
-            self.url = get_component_gateway_url(self.project_widget.value,self.cluster_name_widget.value, self.region_widget.value)
+    def initialize_credentials_with_auth_account_selection(self): 
+        """Initializes self.credentials with the accound selected from the auth dropdown widget"""
+        if (self.google_credentials_widget.value == 'default-credentials'): 
+            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            self.credentials.refresh(self.callable_request)
         else: 
-            raise DefaultCredentialsError
-        if (self.google_credentials_widget.value != 'default-credentials'): 
             set_credentialed_account(self.google_credentials_widget.value)
             self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             self.credentials.refresh(self.callable_request)
-        else: 
-            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            self.credentials.refresh(self.callable_request)
+
+    def update_with_widget_values(self): 
+        if (self.credentials is not None):
+            self.url = get_component_gateway_url(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
+        else:
+            new_exc = ValueError(
+                "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
+                    .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
+            )
+            raise new_exc
+        self.initialize_credentials_with_auth_account_selection()
 
     def __call__(self, request):
         if self.credentials.valid == False:
