@@ -204,8 +204,10 @@ class GoogleAuth(Authenticator):
         else:
             command = _CLOUD_SDK_POSIX_COMMAND
         try:
-            command = 'gcloud auth describe ' + account + ' --format json'
+            
             ipython_display = IpythonDisplay()
+            describe_account_command = ("auth", "describe", account, '--format', 'json')
+            command = (command,) + describe_account_command
 
             account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
             ipython_display.writeln(account_json)
