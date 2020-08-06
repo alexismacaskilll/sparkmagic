@@ -136,6 +136,7 @@ def list_credentialed_accounts():
         )
         raise new_exc
 
+
     
 def get_component_gateway_url(project_id, cluster_name, region): 
     """Gets the component gateway url for a cluster name, project id, and region
@@ -187,6 +188,40 @@ class GoogleAuth(Authenticator):
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
         
+    def get_credentials_for_account(self, account):
+        """Load all of user's credentialed accounts with ``gcloud auth list`` command.
+
+        Returns:
+            list: each key is a str of one of the users credentialed accounts
+
+        Raises:
+            sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
+            or if gcloud is not installed. 
+        """
+        accounts_json = ""
+        if os.name == "nt":
+            command = _CLOUD_SDK_WINDOWS_COMMAND
+        else:
+            command = _CLOUD_SDK_POSIX_COMMAND
+        try:
+            command = 'gcloud auth describe ' + account + ' --format json'
+            account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            account_describe = load_json_input(account_json)
+            return Credentials.from_authorized_user_info(account_describe, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ])
+        except (OSError) as caught_exc:
+            new_exc = BadUserConfigurationException(
+                "Gcloud is not installed. Install the Google Cloud SDK." 
+            )
+            raise new_exc
+        except (subprocess.CalledProcessError, IOError) as caught_exc:
+            new_exc = BadUserConfigurationException(
+                "Failed to obtain access token. Run `gcloud auth login` in your command line \
+                to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+                application-default login` cquire new user credentials to use for Application Default Credentials."
+            )
+            raise new_exc
+
+
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
 
@@ -242,7 +277,8 @@ class GoogleAuth(Authenticator):
             set_credentialed_account(self.google_credentials_widget.value)
             ipython_display = IpythonDisplay()
             ipython_display.writeln(self.credentials.to_json())
-            self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
+            #self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
+            self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value)
             ipython_display.writeln(self.credentials.to_json())
         else: 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
