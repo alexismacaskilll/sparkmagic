@@ -231,12 +231,16 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.callable_request = google.auth.transport.requests.Request()
         self.active_account = list_active_account()
+  
         self.credentials, self.project_id = None, None
-        try: 
+
+        if application_default_credentials_configured():
+        #try: 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            self.credentials.refresh(self.callable_request) 
-        except (DefaultCredentialsError, RefreshError) as error: 
-            self.credentials, self.project = None, None
+            self.credentials.refresh(self.callable_request)
+        
+        #except (DefaultCredentialsError, RefreshError) as error: 
+        #    self.credentials, self.project = None, None
         #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
@@ -285,7 +289,6 @@ class GoogleAuth(Authenticator):
         else: 
             ipython_display = IpythonDisplay()
             set_credentialed_account(self.google_credentials_widget.value)
-           
             self.credentials = get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             ipython_display.writeln('returned from get_credentiials_for_account')
             self.credentials.refresh(self.callable_request)
