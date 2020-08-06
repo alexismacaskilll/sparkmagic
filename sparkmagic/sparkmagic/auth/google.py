@@ -287,20 +287,16 @@ class GoogleAuth(Authenticator):
             self.credentials.refresh(self.callable_request)
 
     def update_with_widget_values(self): 
+        new_exc = ValueError(
+                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
+                        .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
+                )
         if (self.credentials is not None):
             try: 
                 self.url = get_component_gateway_url(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
             except: 
-                new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
-                        .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
-                )
                 raise new_exc
         else: 
-            new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
-                        .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
-                )
             raise new_exc
         self.initialize_credentials_with_auth_account_selection()
 
