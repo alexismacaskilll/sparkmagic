@@ -288,10 +288,11 @@ class GoogleAuth(Authenticator):
             ipython_display.writeln(self.credentials.to_json())
             #self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
             self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value)
+            self.credentials.refresh(self.callable_request)
             ipython_display.writeln(self.credentials.to_json())
         else: 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-
+            self.credentials.refresh(self.callable_request)
 
     def __call__(self, request):
         ipython_display = IpythonDisplay()
