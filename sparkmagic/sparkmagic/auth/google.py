@@ -136,6 +136,54 @@ def list_credentialed_accounts():
         )
         raise new_exc
 
+def get_credentials_for_account(account, scopes):
+    """Load all of user's credentialed accounts with ``gcloud auth describe ACCOUNT`` command.
+
+    Args:
+        account (str): user credentialed account to return credentials for
+        scopes (Sequence[str]): Optional list of scopes to include in the
+                credentials.
+    
+    Returns:
+        google.oauth2.credentials.Credentials: The constructed credentials
+
+    Raises:
+        ValueError: If `gcloud auth describe ACCOUNT --format json` returns json not in the expected format.
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
+        or if gcloud is not installed. 
+    """
+    accounts_json = ""
+    if os.name == "nt":
+        command = _CLOUD_SDK_WINDOWS_COMMAND
+    else:
+        command = _CLOUD_SDK_POSIX_COMMAND
+    try:
+        
+        ipython_display = IpythonDisplay()
+        describe_account_command = ("auth", "describe", account, '--format', 'json')
+        command = (command,) + describe_account_command
+
+        account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        ipython_display.writeln(account_json)
+        account_describe = load_json_input(account_json)
+        
+        ipython_display.writeln(account_describe)
+
+        return Credentials.from_authorized_user_info(account_describe)
+    except ValueError: 
+        raise
+    except (OSError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Gcloud is not installed. Install the Google Cloud SDK." 
+        )
+        raise new_exc
+    except (subprocess.CalledProcessError, IOError) as caught_exc:
+        new_exc = BadUserConfigurationException(
+            "Failed to obtain access token. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` cquire new user credentials to use for Application Default Credentials."
+        )
+        raise new_exc
 
     
 def get_component_gateway_url(project_id, cluster_name, region): 
@@ -174,62 +222,16 @@ class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
     def __init__(self):
-        
         self.callable_request = google.auth.transport.requests.Request()
         self.credentials, self.project_id = None, None
-        self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
         try: 
-            self.credentials.refresh(self.callable_request)
+            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            self.credentials.refresh(self.callable_request) 
         except (DefaultCredentialsError, RefreshError) as error: 
             self.credentials, self.project = None, None
-        
-        Authenticator.__init__(self)
-        #valid is in google.auth.credentials, not oauth2 so make sure this is doing the right thing
+        #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
-        self.widgets = self.get_widgets(WIDGET_WIDTH)
-        
-    def get_credentials_for_account(self, account):
-        """Load all of user's credentialed accounts with ``gcloud auth list`` command.
-
-        Returns:
-            list: each key is a str of one of the users credentialed accounts
-
-        Raises:
-            sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
-            or if gcloud is not installed. 
-        """
-        accounts_json = ""
-        if os.name == "nt":
-            command = _CLOUD_SDK_WINDOWS_COMMAND
-        else:
-            command = _CLOUD_SDK_POSIX_COMMAND
-        try:
-            
-            ipython_display = IpythonDisplay()
-            describe_account_command = ("auth", "describe", account, '--format', 'json')
-            command = (command,) + describe_account_command
-
-            account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            ipython_display.writeln(account_json)
-            account_describe = load_json_input(account_json)
-         
-            ipython_display.writeln(account_describe)
-
-
-            return Credentials.from_authorized_user_info(account_describe)
-        except (OSError) as caught_exc:
-            new_exc = BadUserConfigurationException(
-                "Gcloud is not installed. Install the Google Cloud SDK." 
-            )
-            raise new_exc
-        except (subprocess.CalledProcessError, IOError) as caught_exc:
-            new_exc = BadUserConfigurationException(
-                "Failed to obtain access token. Run `gcloud auth login` in your command line \
-                to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-                application-default login` cquire new user credentials to use for Application Default Credentials."
-            )
-            raise new_exc
-
+        self.widgets = self.get_widgets(WIDGET_WIDTH)  
 
     def get_widgets(self, widget_width): 
         ipywidget_factory = IpyWidgetFactory()
@@ -250,7 +252,7 @@ class GoogleAuth(Authenticator):
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
-            options= list_accounts_pairs(),
+            options=list_accounts_pairs(),
             value = None,
             description=u"Account:"
         )
@@ -263,14 +265,12 @@ class GoogleAuth(Authenticator):
         except BadUserConfigurationException: 
             pass
 
-        #default credentials uses user credentials first
+        #set account dropdown to currently active credentialed user account, if there is one. 
         if active_account is not None: 
             self.google_credentials_widget.value = active_account
-            
-        #then it uses default credentials 
+        #set account dropdown to if default-credentials is configured
         elif self.credentials is not None: 
             self.google_credentials_widget.value = 'default-credentials'
-        #if it can't find any we just disable it. 
         else: 
             self.google_credentials_widget.disabled = True
         
@@ -284,26 +284,14 @@ class GoogleAuth(Authenticator):
             raise DefaultCredentialsError
         if (self.google_credentials_widget.value != 'default-credentials'): 
             set_credentialed_account(self.google_credentials_widget.value)
-            ipython_display = IpythonDisplay()
-            ipython_display.writeln(self.credentials.to_json())
-            #self.credentials = Credentials(_cloud_sdk.get_auth_access_token(self.google_credentials_widget.value))
-            self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value)
+            self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             self.credentials.refresh(self.callable_request)
-            ipython_display.writeln(self.credentials.to_json())
         else: 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             self.credentials.refresh(self.callable_request)
 
     def __call__(self, request):
-        ipython_display = IpythonDisplay()
-        ipython_display.writeln(self.credentials.to_json())
-        ipython_display.writeln(self.credentials.token)
-        ipython_display.writeln(self.credentials._refresh_token)
-
         if self.credentials.valid == False:
             self.credentials.refresh(self.callable_request)
-        ipython_display.writeln(self.credentials.to_json())
-        ipython_display.writeln(self.credentials.token)
-        ipython_display.writeln(self.credentials._refresh_token)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
