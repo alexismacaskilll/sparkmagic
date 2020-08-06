@@ -285,7 +285,7 @@ class GoogleAuth(Authenticator):
         else: 
             ipython_display = IpythonDisplay()
             set_credentialed_account(self.google_credentials_widget.value)
-            ipython_display.writeln()
+           
             self.credentials = get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             ipython_display.writeln('returned from get_credentiials_for_account')
             self.credentials.refresh(self.callable_request)
