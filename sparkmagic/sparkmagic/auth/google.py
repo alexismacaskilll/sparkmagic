@@ -266,7 +266,7 @@ class GoogleAuth(Authenticator):
 
         #set account dropdown to currently active credentialed user account, if there is one. 
         if self.active_account is not None: 
-            self.google_credentials_widget.value = active_account
+            self.google_credentials_widget.value = self.active_account
         #set account dropdown to default-credentials if application-default credentials are configured
         elif application_default_credentials_configured(): 
             self.google_credentials_widget.value = 'default-credentials'
