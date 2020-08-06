@@ -57,9 +57,6 @@ class CreateSessionWidget(AbstractMenuWidget):
         try:
             self.spark_controller.add_session(alias, endpoint, skip, properties)
         except ValueError as e:
-            #self.spark_controller.delete_session_by_name(alias)
-            session_id = self.spark_controller.get_session_id_for_client(alias)
-            self.spark_controller.delete_session_by_id(endpoint, session_id)
             self.ipython_display.send_error("""Could not add session with
 name:
     {}
