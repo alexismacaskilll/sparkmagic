@@ -279,11 +279,11 @@ class GoogleAuth(Authenticator):
     def initialize_credentials_with_auth_account_selection(self): 
         """Initializes self.credentials with the accound selected from the auth dropdown widget"""
         if (self.google_credentials_widget.value == 'default-credentials'): 
-            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
             self.credentials.refresh(self.callable_request)
         else: 
             set_credentialed_account(self.google_credentials_widget.value)
-            self.credentials = self.get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            self.credentials = get_credentials_for_account(self.google_credentials_widget.value, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
             self.credentials.refresh(self.callable_request)
 
     def update_with_widget_values(self): 
