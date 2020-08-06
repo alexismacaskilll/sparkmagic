@@ -205,9 +205,16 @@ class GoogleAuth(Authenticator):
             command = _CLOUD_SDK_POSIX_COMMAND
         try:
             command = 'gcloud auth describe ' + account + ' --format json'
+            ipython_display = IpythonDisplay()
+
             account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            ipython_display.writeln(account_json)
             account_describe = load_json_input(account_json)
-            return Credentials.from_authorized_user_info(account_describe, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ])
+         
+            ipython_display.writeln(account_describe)
+
+
+            return Credentials.from_authorized_user_info(account_describe)
         except (OSError) as caught_exc:
             new_exc = BadUserConfigurationException(
                 "Gcloud is not installed. Install the Google Cloud SDK." 
