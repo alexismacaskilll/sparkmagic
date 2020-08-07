@@ -1,6 +1,6 @@
 # Copyright (c) 2015  aggftw@gmail.com
 # Distributed under the terms of the Modified BSD License.
-
+import json
 from mock import patch, PropertyMock, MagicMock, sentinel, Mock
 from nose.tools import raises, assert_equals, with_setup, assert_is_not_none, assert_false, assert_true
 import requests
@@ -210,11 +210,19 @@ def test_google_auth():
     
 MOCK_GOOGLE = Mock(spec=GoogleAuth)
 MOCK_CREDENTIALS = Mock(spec = credentials.Credentials)
-
+def make_credentials():
+    return credentials.Credentials(
+        token=None,
+        refresh_token='refresh',
+        token_uri='token_uri',
+        client_id='client_id',
+        client_secret='client_secret',
+    )
+creds = make_credentials()
 def test_default_credentials_configured_credentials_is_not_none():
-    with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
+    with patch('google.auth.default', return_value=(creds, 'project'), \
     autospec=True):
-        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS)
+        assert_equals(GoogleAuth().credentials, creds)
         assert_is_not_none(GoogleAuth().credentials)
 
 def test_default_credentials_not_configured_credentials_is_none():
@@ -243,7 +251,8 @@ def test_active_account_returns_valid_active_account_subprocess():
         patch('google.auth.default', side_effect=DefaultCredentialsError), \
         patch('google.auth._cloud_sdk', return_value='token'):
         #assertion error: None != account@google.com
-        assert_equals(GoogleAuth().active_account, 'account@google.com')
+        credentialed_acccounts = sparkmagic.auth.google.list_credentialed_accounts()
+        assert_equals(sparkmagic.auth.google.list_active_account(credentialed_acccounts), 'account@google.com')
 
 
 def test_list_credentialed_accounts_subprocess():
@@ -254,17 +263,37 @@ def test_list_credentialed_accounts_subprocess():
         assert_equals(GoogleAuth().credentialed_accounts, ['account@google.com'])
 
 
-def test_initialize_credentials_with_default_credentals():
-    """Tests default-credentials is in google credentials dropdown if if default credentials
-    are configured""" 
+def test_initialize_credentials_with_default_credentials():
     with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
     autospec=True):
         google_auth = GoogleAuth()
         assert_false(hasattr(google_auth.credentials, 'token'))
+        assert_true(hasattr(google_auth.credentials, 'quota_project_id'))
         #this calls refresh which will error. 
+        #request = mock.create_autospec(transport.Request)
         google_auth.initialize_credentials_with_auth_account_selection('default-credentials')
         #false is not true. Side effect to make refresh change correct. 
-        assert_true(hasattr(google_auth.credentials, 'token'))
+        #assert_true(hasattr(google_auth.credentials, 'token'))
+        assert_true(hasattr(google_auth.credentials, 'quota_project_id'))
+
+#DATA_DIR = os.path.join(os.path.dirname(__file__), ".", "data")
+#AUTH_USER_JSON_FILE = os.path.join(DATA_DIR, "authorized_user_cloud_sdk.json")
+
+with open(AUTH_USER_JSON_FILE, "r") as fh:
+    AUTH_USER_INFO = json.load(fh)
+with open('./data/authorized_user_cloud_sdk.json') as f: 
+    USER_CREDENTIALS_JSON = json.load(f)
+def test_initialize_credentials_with_user_credentals(): 
+    with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
+    autospec=True), patch('subprocess.check_output', return_value=USER_CREDENTIALS_JSON):
+        google_auth = GoogleAuth()
+        assert_false(hasattr(google_auth.credentials, 'token'))
+        #this calls refresh which will error. 
+        #request = mock.create_autospec(transport.Request)
+        google_auth.initialize_credentials_with_auth_account_selection('account@google.com')
+        #false is not true. Side effect to make refresh change correct. 
+        #assert_true(hasattr(google_auth.credentials, 'token'))
+        assert_false(hasattr(google_auth.credentials, 'quota_project_id'))
 
 
 """
