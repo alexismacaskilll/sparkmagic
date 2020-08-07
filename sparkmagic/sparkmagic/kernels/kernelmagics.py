@@ -250,7 +250,7 @@ class KernelMagics(SparkMagicBase):
     @argument("-o", "--output", type=str, default=None, help="If present, indicated variable will be stored in variable"
                                                              "of this name in user's local context.")
     @argument("-m", "--samplemethod", type=str, default=None, help="Sample method for dataframe: either take or sample")
-    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " 
+    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back "
                                                                         "from the dataframe on the server for storing")
     @argument("-r", "--samplefraction", type=float, default=None, help="Sample fraction for sampling from dataframe")
     @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " 
@@ -411,8 +411,7 @@ class KernelMagics(SparkMagicBase):
     def _do_not_call_change_endpoint(self, line, cell="", local_ns=None):
         args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)
         server = args.server
-        auth_instance = self._initialize_auth(args)
-        auth = auth_instance
+        auth = self._initialize_auth(args.auth, args.username, args.password)
 
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
@@ -433,7 +432,9 @@ class KernelMagics(SparkMagicBase):
     def refresh_configuration(self):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
-        self.endpoint = Endpoint(url, auth, username, password)
+        auth_instance = self._initialize_auth(auth, username, password)
+
+        self.endpoint = Endpoint(url, auth_instance, username, password)
 
     def get_session_settings(self, line, force):
         line = line.strip()
@@ -447,14 +448,29 @@ class KernelMagics(SparkMagicBase):
             else:
                 return None
 
-    def _initialize_auth(self, args):
-        full_class = conf.authenticators().get(args.auth, conf.authenticators().get("None"))
+    @staticmethod
+    def _initialize_auth(auth, username=None, password=None):
+        """Creates an authenticatior class instance for the given auth type 
+      
+        Args:
+            auth (str): The auth type to be initialized.
+            username (Optional[str]): The username used to initialize the auth instance 
+            password (Optional[str]): The password used to initialize the auth instance 
+
+        Returns:
+            An instance of one of the following authenticators:
+            google.auth.customauth.Authenticator, google.auth.basic.Basic,
+            google.auth.kerberos.Kerberos
+        """
+        if auth is None:
+            auth = conf.get_auth_value(username, password)
+        full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_instance = getattr(events_handler_module, class_name)
-        if args.auth is constants.AUTH_BASIC: 
-            auth_instance.username = args.user
-            auth_instance.password = args.password
+        if hasattr(auth_instance, 'username'):
+            auth_instance.username = username
+            auth_instance.password = password
         return auth_instance
 
     @staticmethod

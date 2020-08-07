@@ -30,7 +30,7 @@ class TestSparkMagicHandler(AsyncTestCase):
     username = 'username'
     password = 'password'
     endpoint = 'http://endpoint.com'
-    auth = 'Basic'#constants.AUTH_BASIC
+    auth = constants.AUTH_BASIC
     response_id = '0'
     good_msg = dict(content=dict(status='ok'))
     bad_msg = dict(content=dict(status='error', ename='SyntaxError', evalue='oh no!'))
@@ -143,7 +143,7 @@ class TestSparkMagicHandler(AsyncTestCase):
         res = yield self.reconnect_handler.post()
         assert_equals(res, None)
 
-        code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, self.username, self.password, 'Basic')
+        code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, self.endpoint, self.username, self.password, constants.AUTH_BASIC)
         self.client.execute.assert_called_once_with(code, silent=False, store_history=False)
         self.reconnect_handler.set_status.assert_called_once_with(200)
         self.reconnect_handler.finish.assert_called_once_with('{"error": null, "success": true}')

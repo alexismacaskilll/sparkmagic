@@ -32,7 +32,7 @@ class MagicsControllerWidget(AbstractMenuWidget):
             if all([p in endpoint_config for p in ["url", "password", "username"]]) and endpoint_config["url"] != "":
                 user = endpoint_config["username"]
                 passwd = endpoint_config["password"]
-                
+
                 authentication = endpoint_config.get("auth", None)
                 if authentication is None:
                     authentication = conf.get_auth_value(user, passwd)
@@ -46,8 +46,8 @@ class MagicsControllerWidget(AbstractMenuWidget):
 
     def _refresh(self):
         self.endpoints_dropdown_widget = self.ipywidget_factory.get_dropdown(
-                description="Endpoint:",
-                options=self.endpoints
+            description="Endpoint:",
+            options=self.endpoints
         )
 
         self.manage_session = ManageSessionWidget(self.spark_controller, self.ipywidget_factory, self.ipython_display,

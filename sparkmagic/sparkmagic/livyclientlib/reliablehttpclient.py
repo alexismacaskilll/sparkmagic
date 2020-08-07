@@ -5,9 +5,7 @@ from time import sleep
 import requests
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.sparklogger import SparkLog
-import sparkmagic.utils.constants as constants
 from .exceptions import HttpClientException
-from .exceptions import BadUserConfigurationException
 
 class ReliableHttpClient(object):
     """Http client that is reliable in its requests. Uses requests library."""

@@ -13,11 +13,10 @@ from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 import importlib
 
 import sparkmagic.utils.configuration as conf
-from sparkmagic.utils.constants import AUTH_BASIC, NO_AUTH
+from sparkmagic.utils.constants import AUTH_BASIC
 from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value
 from sparkmagic.utils.constants import CONTEXT_NAME_SPARK, CONTEXT_NAME_SQL, LANG_PYTHON, LANG_R, LANG_SCALA
 from sparkmagic.controllerwidget.magicscontrollerwidget import MagicsControllerWidget
-from sparkmagic.livyclientlib.command import Command
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.magics.sparkmagicsbase import SparkMagicBase
 from sparkmagic.livyclientlib.exceptions import handle_expected_exceptions
@@ -191,7 +190,22 @@ class RemoteSparkMagics(SparkMagicBase):
 """.format("\n".join(sessions_info), conf.session_configs()))
 
     @staticmethod
-    def _initialize_auth(auth, username = None, password = None):
+    def _initialize_auth(auth, username=None, password=None):
+        """Creates an authenticatior class instance for the given auth type
+
+        Args:
+            auth (str): The auth type to be initialized.
+            username (Optional[str]): The username used to initialize the auth instance
+            password (Optional[str]): The password used to initialize the auth instance
+
+        Returns:
+            An instance of one of the following authenticators:
+            google.auth.customauth.Authenticator, google.auth.basic.Basic,
+            google.auth.kerberos.Kerberos
+        """
+        if auth is None:
+            auth = conf.get_auth_value(username, password)
+        full_class = conf.authenticators().get(auth)
         full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
@@ -203,4 +217,3 @@ class RemoteSparkMagics(SparkMagicBase):
 
 def load_ipython_extension(ip):
     ip.register_magics(RemoteSparkMagics)
-

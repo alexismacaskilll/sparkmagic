@@ -8,6 +8,9 @@ import sparkmagic.utils.constants as constants
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from sparkmagic.livyclientlib.configurableretrypolicy import ConfigurableRetryPolicy
 from sparkmagic.livyclientlib.linearretrypolicy import LinearRetryPolicy
+from sparkmagic.auth.google import GoogleAuth
+
+
 
 
 def test_post_statement():
@@ -50,6 +53,17 @@ def test_get_session():
     out = livy_client.get_session(4)
     assert_equals(out, http_client.get.return_value.json.return_value)
     http_client.get.assert_called_once_with("/sessions/4", [200])
+"""
+def test_get_session_google():
+    #http_client = MagicMock()
+    google_auth = GoogleAuth()
+    endpoint = Endpoint("http://url.com", google_auth)
+    http_client = LivyReliableHttpClient.from_endpoint(endpoint)
+    livy_client = LivyReliableHttpClient(http_client, None)
+    out = livy_client.get_session(4)
+    assert_equals(out, http_client.get.return_value.json.return_value)
+    http_client.get.assert_called_once_with("/sessions/4", [200])
+"""
 
 
 def test_delete_session():

@@ -40,13 +40,11 @@ class ReconnectHandler(IPythonHandler):
             password = self._get_argument_if_exists(data, 'password')
             endpoint = self._get_argument_or_raise(data, 'endpoint')
             auth = self._get_argument_if_exists(data, 'auth')
-           
+
             if auth is None:
-                if username != None and password != None:
+                if username is not None and password is not None:
                     auth = constants.AUTH_BASIC
-                else:
-                    auth = constants.NO_AUTH
-            
+
         except MissingArgumentError as e:
             self.set_status(400)
             self.finish(str(e))
@@ -62,10 +60,11 @@ class ReconnectHandler(IPythonHandler):
         # Execute code
         client = kernel_manager.client()
         code = ''
-        if auth == 'Basic':
+        if auth == constants.AUTH_BASIC: 
             code = '%{} -s {} -u {} -p {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, endpoint, username, password, auth)
         else:
             code = '%{} -s {} -t {}'.format(KernelMagics._do_not_call_change_endpoint.__name__, endpoint, auth)
+       
         response_id = client.execute(code, silent=False, store_history=False)
         msg = client.get_shell_msg(response_id)
 

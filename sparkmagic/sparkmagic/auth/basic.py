@@ -12,7 +12,6 @@ class Basic(HTTPBasicAuth, Authenticator):
         self.password = 'password'
         HTTPBasicAuth.__init__(self, self.username, self.password)
         Authenticator.__init__(self)
-        #self.widgets = self.get_widgets(WIDGET_WIDTH)
 
     def get_widgets(self, widget_width):
         """Creates and returns a list with an address, username, and password widget
