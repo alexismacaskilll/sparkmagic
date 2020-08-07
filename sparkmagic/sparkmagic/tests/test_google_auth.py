@@ -210,6 +210,14 @@ def test_google_auth():
 def test_active_account_returns_valid_active_account():
     with patch('sparkmagic.auth.google.list_active_account') as list_active_account, \
         patch('sparkmagic.auth.google.list_accounts_pairs') as list_accounts_pairs:
+        mock_credentials = Mock(spec=GoogleAuth)
+        #mock google auth
+        #set active account for google auth 
+
+
+        #mock_credentials.return_value = mock.Mock()
+        #mock_credentials_instance = mock_credentials.return_value
+       # mock_credentials_instance.
         list_active_account.return_value = 'account@google.com'
         list_accounts_pairs.return_value = {'account@google.com':'account@google.com'}
         google_auth = GoogleAuth()  
@@ -224,6 +232,29 @@ def test_active_account_returns_none_if_no_accounts():
         list_active_account.return_value = None
         google_auth = GoogleAuth()
         assert_equals(None, google_auth.active_account)
+
+
+def test_active_account_returns_none_if_no_accounts1():
+    mock_credentials = Mock(spec=GoogleAuth)
+    mock_credentials.return_value = Mock()
+    mock_credentials_instance = mock_credentials.return_value
+    mock_credentials_instance.application_default_credentials_configured.side_effect = \
+        False
+    mock_credentials_instance.list_active_account.side_effect = None
+    assert_equals(mock_credentials_instance.list_active_account, None)
+    #with patch('sparkmagic.auth.google.list_active_account') as list_active_account, \
+     #   patch('sparkmagic.auth.google.list_accounts_pairs') as list_accounts_pairs:# , \
+        #patch('google.auth.default') as default_credentials_patch:
+        #default_credentials_patch.return_value = False
+        #list_accounts_pairs.return_value = {}
+        #list_active_account.return_value = None
+        #google_auth = GoogleAuth()
+
+
+
+
+
+
 """
 def test_credentials_is_none_application_default_credentials_not_configured():
     with patch('google.auth.default') as default_credentials_patch:
@@ -253,19 +284,20 @@ def test_credentials_application_default_credentials_configured():
 """
 MOCK_CREDENTIALS = Mock(spec=GoogleAuth)
 
-
-
 def test_default_configured():
     with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
     autospec=True) as default_credentials_patch:
-        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
+        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS)
         #mock_credentials = Mock(spec=GoogleAuth)
         #mock_credentials.return_value = mock.Mock()
         #mock_credentials_instance = mock_credentials.return_value
+
+
+
 def test_no_default_configured():
-    with patch('google.auth.default', return_value=(DefaultCredentialsError, 'project'), \
-    autospec=True) as default_credentials_patch:
-        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
+    with patch('google.auth.default', side_effect=DefaultCredentialsError, \
+    autospec=True):
+        assert_equals(GoogleAuth().credentials, None)
 
 
 """
