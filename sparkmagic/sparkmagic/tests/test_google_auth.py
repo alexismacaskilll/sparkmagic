@@ -9,6 +9,7 @@ from sparkmagic.auth.basic import Basic
 from sparkmagic.auth.kerberos import Kerberos
 import sparkmagic.auth.google as google_auth_class
 import google.auth
+from google.auth.exceptions import DefaultCredentialsError
 import sparkmagic
 from sparkmagic.auth.google import GoogleAuth
 from sparkmagic.auth.customauth import Authenticator
@@ -223,12 +224,23 @@ def test_active_account_returns_none_if_no_accounts():
         list_active_account.return_value = None
         google_auth = GoogleAuth()
         assert_equals(None, google_auth.active_account)
-
+"""
 def test_credentials_is_none_application_default_credentials_not_configured():
-    with patch('sparkmagic.auth.google.application_default_credentials_configured') as default_credentials_patch:
-        default_credentials_patch.return_value = False
+    with patch('google.auth.default') as default_credentials_patch:
+    #with patch('sparkmagic.auth.google.application_default_credentials_configured') as default_credentials_patch:
+        creds = credentials.Credentials(
+            token=None,
+            refresh_token='refresh',
+            token_uri='http://token_uri',
+            client_id='client_id',
+            client_secret='client_secret',
+        )
+        default_credentials_patch.return_value = creds, 'project'
+        #default_credentials_patch.return_value = False
         google_auth = GoogleAuth()
-        assert_equals(None, google_auth.credentials)
+        google_auth.google_credentials_widget.value = 'default-credentials'
+        google_auth.initialize_credentials_with_auth_account_selection()
+        assert_equals(creds, google_auth.credentials)
 
 
 def test_credentials_application_default_credentials_configured():
@@ -237,6 +249,50 @@ def test_credentials_application_default_credentials_configured():
         google_auth = GoogleAuth()
         isinstance(google_auth.credentials, credentials.Credentials)
 
+
+"""
+MOCK_CREDENTIALS = Mock(spec=GoogleAuth)
+
+DEFAULT_PATCH = patch(
+    "google.auth._default",
+    return_value=(MOCK_CREDENTIALS, 'project'),
+    autospec=True,
+)
+
+def test_no_default_configured():
+    with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
+    autospec=True) as default_credentials_patch:
+        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
+        #mock_credentials = Mock(spec=GoogleAuth)
+        #mock_credentials.return_value = mock.Mock()
+        #mock_credentials_instance = mock_credentials.return_value
+
+
+
+"""
+def test_no_default_configured():
+    with patch('sparkmagic.auth.google.GoogleAuth') as google_mock, \
+        patch('google.auth.default') as default_credentials_patch: 
+         instance = google_mock.return_value
+         default_credentials_patch.return_value = DefaultCredentialsError
+         assert_equals(instance.credentials, None )
+
+    #with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), 
+    #    autospec=True) as default_credentials_patch:
+        #mock_credentials = Mock(spec=GoogleAuth)
+        #mock_credentials.return_value = mock.Mock()
+        #mock_credentials_instance = mock_credentials.return_value
+
+
+        #default_credentials_patch.return_value = DefaultCredentialsError
+      #  assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
+
+        #google_auth1 = GoogleAuth()
+        #assert None == google_auth1.credentials 
+
+    #assert excinfo.match(r"not found")
+"""
+"""
 def test_credentials_application_default_credentials_configured():
     with patch('sparkmagic.auth.google.application_default_credentials_configured') as default_credentials_patch, \
         patch('sparkmagic.auth.google.get_credentials_for_account') as get_cred_for_account_patch, \
@@ -245,8 +301,7 @@ def test_credentials_application_default_credentials_configured():
         mock_credentials.google_credentials_widget.value = 'default-credentials'
         #trying to check that get_credentials_for_account() will call application default
 
-
-         
+"""      
 """       
 def test_credentials_application_default_credentials_configured():
     with patch('sparkmagic.auth.google.application_default_credentials_configured') as default_credentials_configured_patch, \
