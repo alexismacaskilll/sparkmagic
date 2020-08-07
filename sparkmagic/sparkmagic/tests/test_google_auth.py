@@ -253,20 +253,19 @@ def test_credentials_application_default_credentials_configured():
 """
 MOCK_CREDENTIALS = Mock(spec=GoogleAuth)
 
-DEFAULT_PATCH = patch(
-    "google.auth._default",
-    return_value=(MOCK_CREDENTIALS, 'project'),
-    autospec=True,
-)
 
-def test_no_default_configured():
+
+def test_default_configured():
     with patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project'), \
     autospec=True) as default_credentials_patch:
         assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
         #mock_credentials = Mock(spec=GoogleAuth)
         #mock_credentials.return_value = mock.Mock()
         #mock_credentials_instance = mock_credentials.return_value
-
+def test_no_default_configured():
+    with patch('google.auth.default', return_value=(DefaultCredentialsError, 'project'), \
+    autospec=True) as default_credentials_patch:
+        assert_equals(GoogleAuth().credentials, MOCK_CREDENTIALS )
 
 
 """
