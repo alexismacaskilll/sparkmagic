@@ -64,6 +64,9 @@ class RemoteSparkMagics(SparkMagicBase):
     @argument("-i", "--id", type=int, default=None, help="Session ID")
     @argument("-e", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) "
                                                                         "of the dataframe or not (pass False)")
+    @argument("-g", "--credentials", type=str, default='default-credentials', help="Credentials for Google authentication. [account@google.com, "
+                                                                        "default-credentials]")
+
     @needs_local_scope
     @line_cell_magic
     @handle_expected_exceptions
