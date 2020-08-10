@@ -100,9 +100,10 @@ def list_credentialed_accounts():
         raise new_exc
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line \
-            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-            application-default login` cquire new user credentials to use for Application Default Credentials."
+            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials to"\
+            "authenticate. Run `gcloud auth application-default login` acquire new user"\
+            "credentials to use for Application Default Credentials."
         )
         raise new_exc
 
