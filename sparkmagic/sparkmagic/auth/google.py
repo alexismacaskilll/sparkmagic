@@ -188,7 +188,7 @@ def application_default_credentials_configured():
         credentials.refresh(callable_request) 
     #Hangs unless refresh error. 
     except:
-            return False
+        return False
     """if credentials is None:
         return False
     """
@@ -269,13 +269,13 @@ class GoogleAuth(Authenticator):
                         .format(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
                 )
         if (self.credentials is not None):
-            try: 
-                self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
-            except: 
-                raise new_exc
-        else: 
-            raise new_exc
-        self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
+            #try: 
+            self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
+            #except: 
+            #raise new_exc
+            #else: 
+            #raise new_exc
+            self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
 
     def __call__(self, request):
         if self.credentials.valid == False:
