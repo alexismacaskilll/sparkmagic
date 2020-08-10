@@ -197,16 +197,17 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
-        self.active_account = list_active_account(self.credentialed_accounts)
         self.scopes = ['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'] 
-        #self.credentials, self.project_id = None, None
-
+        self.active_credentials = None
+        active_user_account = list_active_account(self.credentialed_accounts)
         if application_default_credentials_configured():
             self.credentials, self.project = google.auth.default(scopes=self.scopes)
-            self.credentials.refresh(self.callable_request)
-        elif self.active_account is not None: 
-            self.credentials = get_credentials_for_account(self.active_account, self.scopes)
-            self.credentials.refresh(self.callable_request)
+            #self.credentials.refresh(self.callable_request)
+            self.active_credentials = 'default-credentials'
+        elif active_user_account is not None:
+            self.credentials = get_credentials_for_account(active_user_account, self.scopes)
+            #self.credentials.refresh(self.callable_request)
+            self.active_credentials = active_user_account
         else: 
             self.credentials, self.project = None, None
         #Authenticator.__init__(self)
@@ -237,8 +238,12 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        
         #set account dropdown to default-credentials if application-default credentials are configured
+        if self.active_credentials is not None: 
+            self.google_credentials_widget.value = self.active_credentials
+        else: 
+            self.google_credentials_widget.disabled = True
+        """
         if application_default_credentials_configured(): 
             self.google_credentials_widget.value = 'default-credentials'
         #set account dropdown to currently active credentialed user account, if there is one.
@@ -246,20 +251,21 @@ class GoogleAuth(Authenticator):
             self.google_credentials_widget.value = self.active_account
         else: 
             self.google_credentials_widget.disabled = True
-        
+        """
         widgets = [self.project_widget, self.region_widget, self.cluster_name_widget, self.google_credentials_widget]
         return widgets
 
     def initialize_credentials_with_auth_account_selection(self, account):
         """Initializes self.credentials with the accound selected from the auth dropdown widget"""
-        if (account == 'default-credentials'):
-            self.credentials, self.project = google.auth.default(scopes=self.scopes)
-            self.credentials.refresh(self.callable_request)
-        else: 
-            #set_credentialed_account(account)
-            self.credentials = get_credentials_for_account(account, self.scopes)
-            self.credentials.refresh(self.callable_request)
-
+        if (account != self.active_credentials):
+            if (account == 'default-credentials'):
+                self.credentials, self.project = google.auth.default(scopes=self.scopes)
+                #self.credentials.refresh(self.callable_request)
+            else: 
+                self.credentials = get_credentials_for_account(account, self.scopes)
+                #self.credentials.refresh(self.callable_request)
+        
+        
     def update_with_widget_values(self):
         new_exc = ValueError(
                     "Could not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
@@ -273,10 +279,11 @@ class GoogleAuth(Authenticator):
                 raise new_exc
         else: 
             raise new_exc
+        
         self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
 
     def __call__(self, request):
-        if self.credentials.valid == False:
+        if not self.credentials.valid:
             self.credentials.refresh(self.callable_request)
         request.headers['Authorization'] = 'Bearer {}'.format(self.credentials.token)
         return request
