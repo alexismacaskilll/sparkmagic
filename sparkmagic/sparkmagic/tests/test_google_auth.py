@@ -307,25 +307,25 @@ def test_initialize_credentials_with_default_credentials():
 def test_generate_component_gateway_url_raises_retry_error():
     with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
         side_effect=RetryError('error message', 'cause')):
-        google_auth_class.get_component_gateway_url('project', 'cluster', 'region')
+        google_auth_class.get_component_gateway_url('project', 'region', 'cluster')
 
 @raises(GoogleAPICallError)
 def test_generate_component_gateway_url_raises_google_api_error():
     with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
         side_effect=GoogleAPICallError('error message')):
-        google_auth_class.get_component_gateway_url('project', 'cluster', 'us-central1')
+        google_auth_class.get_component_gateway_url('project', 'region', 'cluster')
 
 @raises(ValueError)
 def test_invalid_widget_fields_raises_value_error():
     new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
-                        .format('project_id', 'cluster_name', 'us-central1')
+                    "Could not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
+                        .format('project_id', 'region', 'cluster_name',)
     )
     with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
         side_effect=GoogleAPICallError('error message')):
         google_auth = GoogleAuth()
         google_auth.project_widget.value = 'project_id'
-        google_auth.region_widget.value = 'us-central1'
+        google_auth.region_widget.value = 'region'
         google_auth.cluster_name_widget.value = 'cluster_name'
         assert_raises(google_auth.update_with_widget_values(), new_exc)
         assert_equals(google_auth.url, 'http://example.com/livy')
