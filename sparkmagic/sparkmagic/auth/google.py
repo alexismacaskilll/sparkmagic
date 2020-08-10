@@ -59,41 +59,12 @@ def list_accounts_pairs(credentialed_accounts):
     accounts = credentialed_accounts
     accounts_list = {}
     for account in accounts:
-        accounts_list[account] = account
+        accounts_list[account['account']] = account['account']
     if application_default_credentials_configured():
         accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
 
-# def set_credentialed_account(account):
-#     """Sets the user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
-#     Raises:
-#          sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set to a valid account, if the user needs  \ 
-#          to run gcloud auth login, or if gcloud is not installed. 
-#     """
-#     accounts_json = ""
-#     if os.name == "nt":
-#         command = _CLOUD_SDK_WINDOWS_COMMAND
-#     else:
-#         command = _CLOUD_SDK_POSIX_COMMAND
-#     try:
-#         set_account_command =   ("config", "set", "account", account)
-#         command = (command,) + set_account_command 
-#         active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
-#     except (OSError) as caught_exc:
-#         new_exc = BadUserConfigurationException(
-#             "Gcloud is not installed. Install the Google Cloud SDK." 
-#         )
-#         raise new_exc
-#     except (subprocess.CalledProcessError, IOError) as caught_exc:
-#         new_exc = BadUserConfigurationException(
-#             "Failed to obtain access token. Run `gcloud auth login` in your command line \
-#             to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-#             application-default login` cquire new user credentials to use for Application Default Credentials."
-#         )
-#         raise new_exc
-
-  
 def list_credentialed_accounts():
     """Load all of user's credentialed accounts with ``gcloud auth list`` command.
 
@@ -113,11 +84,12 @@ def list_credentialed_accounts():
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
         all_accounts = load_json_input(accounts_json)
+        
         credentialed_accounts = list()
         for account in all_accounts:
             try: 
                 _cloud_sdk.get_auth_access_token(account['account'])
-                credentialed_accounts.append(account['account'])
+                credentialed_accounts.append(account)
             except: 
                 pass
         return credentialed_accounts
@@ -134,12 +106,12 @@ def list_credentialed_accounts():
         )
         raise new_exc
 
-def get_credentials_for_account(account, scopes):
+def get_credentials_for_account(account, scopes_list):
     """Load all of user's credentialed accounts with ``gcloud auth describe ACCOUNT`` command.
 
     Args:
         account (str): user credentialed account to return credentials for
-        scopes (Sequence[str]): list of scopes to include in the credentials.
+        scopes_list (Sequence[str]): list of scopes to include in the credentials.
     
     Returns:
         google.oauth2.credentials.Credentials: The constructed credentials
@@ -149,24 +121,16 @@ def get_credentials_for_account(account, scopes):
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
         or if gcloud is not installed. 
     """
-    accounts_json = ""
     if os.name == "nt":
         command = _CLOUD_SDK_WINDOWS_COMMAND
     else:
         command = _CLOUD_SDK_POSIX_COMMAND
     try:
-        
-        ipython_display = IpythonDisplay()
         describe_account_command = ("auth", "describe", account, '--format', 'json')
         command = (command,) + describe_account_command
-
         account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        #ipython_display.writeln(account_json)
-        account_describe = load_json_input(account_json)
-        
-        #ipython_display.writeln(account_describe)
-
-        return Credentials.from_authorized_user_info(account_describe)
+        #account_describe = load_json_input(account_json)
+        return Credentials.from_authorized_user_info(account_json, scopes=scopes_list)
     except ValueError: 
         raise
     except (OSError) as caught_exc:
@@ -238,14 +202,14 @@ class GoogleAuth(Authenticator):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
         self.active_account = list_active_account(self.credentialed_accounts)
-        self.scopes =['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'] 
+        self.scopes = ['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'] 
         #self.credentials, self.project_id = None, None
 
         if application_default_credentials_configured():
-            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+            self.credentials, self.project = google.auth.default(scopes=self.scopes)
             self.credentials.refresh(self.callable_request)
         elif self.active_account is not None: 
-            self.credentials = get_credentials_for_account(self.active_account, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+            self.credentials = get_credentials_for_account(self.active_account, self.scopes)
             self.credentials.refresh(self.callable_request)
         else: 
             self.credentials, self.project = None, None
@@ -292,11 +256,11 @@ class GoogleAuth(Authenticator):
     def initialize_credentials_with_auth_account_selection(self, account):
         """Initializes self.credentials with the accound selected from the auth dropdown widget"""
         if (account == 'default-credentials'):
-            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+            self.credentials, self.project = google.auth.default(scopes=self.scopes)
             self.credentials.refresh(self.callable_request)
         else: 
             #set_credentialed_account(account)
-            self.credentials = get_credentials_for_account(account, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
+            self.credentials = get_credentials_for_account(account, self.scopes)
             self.credentials.refresh(self.callable_request)
 
     def update_with_widget_values(self):
