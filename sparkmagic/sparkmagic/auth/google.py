@@ -183,7 +183,7 @@ def get_credentials_for_account(account, scopes):
         raise new_exc
 
     
-def get_component_gateway_url(project_id, cluster_name, region):
+def get_component_gateway_url(project_id, region, cluster_name):
     """Gets the component gateway url for a cluster name, project id, and region
 
     Args:
@@ -222,14 +222,13 @@ def get_component_gateway_url(project_id, cluster_name, region):
 
 def application_default_credentials_configured(): 
     """Checks if google application-default credentials are configured"""
-    #callable_request = google.auth.transport.requests.Request()
+    callable_request = google.auth.transport.requests.Request()
     try:
-        credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ])
-    #try:
-    #    credentials.refresh(callable_request) 
-    except (DefaultCredentialsError) as error:
+        credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+        credentials.refresh(callable_request) 
+    except (DefaultCredentialsError, RefreshError) as error:
             return False
-    if credentials is None: 
+    if credentials is None:
         return False
     return True
 
@@ -279,7 +278,7 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        #set account dropdown to currently active credentialed user account, if there is one. 
+        #set account dropdown to currently active credentialed user account, if there is one.
         if self.active_account is not None: 
             self.google_credentials_widget.value = self.active_account
         #set account dropdown to default-credentials if application-default credentials are configured
@@ -288,10 +287,10 @@ class GoogleAuth(Authenticator):
         else: 
             self.google_credentials_widget.disabled = True
         
-        widgets = [self.project_widget, self.cluster_name_widget, self.region_widget, self.google_credentials_widget]
+        widgets = [self.project_widget, self.region_widget, self.cluster_name_widget, self.google_credentials_widget]
         return widgets
 
-    def initialize_credentials_with_auth_account_selection(self, account): 
+    def initialize_credentials_with_auth_account_selection(self, account):
         """Initializes self.credentials with the accound selected from the auth dropdown widget"""
         if (account == 'default-credentials'): 
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
@@ -303,12 +302,12 @@ class GoogleAuth(Authenticator):
 
     def update_with_widget_values(self):
         new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
-                        .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
+                    "Could not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
+                        .format(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
                 )
         if (self.credentials is not None):
             try: 
-                self.url = get_component_gateway_url(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)
+                self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
             except: 
                 raise new_exc
         else: 
