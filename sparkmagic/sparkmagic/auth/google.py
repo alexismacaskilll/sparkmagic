@@ -129,8 +129,8 @@ def get_credentials_for_account(account, scopes_list):
         describe_account_command = ("auth", "describe", account, '--format', 'json')
         command = (command,) + describe_account_command
         account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        #account_describe = load_json_input(account_json)
-        return Credentials.from_authorized_user_info(account_json, scopes=scopes_list)
+        account_describe = load_json_input(account_json)
+        return Credentials.from_authorized_user_info(account_describe, scopes=scopes_list)
     except ValueError: 
         raise
     except (OSError) as caught_exc:
