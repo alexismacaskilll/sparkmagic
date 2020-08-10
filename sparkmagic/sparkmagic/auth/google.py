@@ -147,7 +147,7 @@ def get_credentials_for_account(account, scopes_list):
         raise new_exc
 
     
-def get_component_gateway_url(project_id, region, cluster_name):
+def get_component_gateway_url(project_id, region, cluster_name, credentials):
     """Gets the component gateway url for a cluster name, project id, and region
 
     Args:
@@ -164,14 +164,13 @@ def get_component_gateway_url(project_id, region, cluster_name):
         ValueError: If the parameters are invalid.
     """
     #wait should I be passing credentials??
-    client = dataproc_v1beta2.ClusterControllerClient(
+    client = dataproc_v1beta2.ClusterControllerClient(credentials=credentials,
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
                         }
                     )
     try:
         response = client.get_cluster(project_id, region, cluster_name)
-      
         url = ((response.config.endpoint_config).http_ports).popitem()[1]
         parsed_uri = urllib3.util.parse_url(url)
         endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
@@ -189,9 +188,6 @@ def application_default_credentials_configured():
     #Hangs unless refresh error. 
     except:
         return False
-    """if credentials is None:
-        return False
-    """
     return not(credentials is None)
 
 
@@ -241,12 +237,13 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        #set account dropdown to currently active credentialed user account, if there is one.
-        if self.active_account is not None: 
-            self.google_credentials_widget.value = self.active_account
+        
         #set account dropdown to default-credentials if application-default credentials are configured
-        elif application_default_credentials_configured(): 
+        if application_default_credentials_configured(): 
             self.google_credentials_widget.value = 'default-credentials'
+        #set account dropdown to currently active credentialed user account, if there is one.
+        elif self.active_account is not None: 
+            self.google_credentials_widget.value = self.active_account
         else: 
             self.google_credentials_widget.disabled = True
         
@@ -269,13 +266,14 @@ class GoogleAuth(Authenticator):
                         .format(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
                 )
         if (self.credentials is not None):
-            #try: 
-            self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
-            #except: 
-            #raise new_exc
-            #else: 
-            #raise new_exc
-            self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
+            try: 
+                self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, \
+                    self.cluster_name_widget.value, self.credentials)
+            except: 
+                raise new_exc
+        else: 
+            raise new_exc
+        self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
 
     def __call__(self, request):
         if self.credentials.valid == False:
