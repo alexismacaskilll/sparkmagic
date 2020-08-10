@@ -187,6 +187,7 @@ def application_default_credentials_configured():
         credentials.refresh(callable_request) 
     #Hangs unless refresh error. 
     except:
+        pass
         return False
     return not(credentials is None)
 
@@ -202,11 +203,9 @@ class GoogleAuth(Authenticator):
         active_user_account = list_active_account(self.credentialed_accounts)
         if application_default_credentials_configured():
             self.credentials, self.project = google.auth.default(scopes=self.scopes)
-            #self.credentials.refresh(self.callable_request)
             self.active_credentials = 'default-credentials'
         elif active_user_account is not None:
             self.credentials = get_credentials_for_account(active_user_account, self.scopes)
-            #self.credentials.refresh(self.callable_request)
             self.active_credentials = active_user_account
         else: 
             self.credentials, self.project = None, None
@@ -238,20 +237,11 @@ class GoogleAuth(Authenticator):
             description=u"Account:"
         )
 
-        #set account dropdown to default-credentials if application-default credentials are configured
         if self.active_credentials is not None: 
             self.google_credentials_widget.value = self.active_credentials
         else: 
             self.google_credentials_widget.disabled = True
-        """
-        if application_default_credentials_configured(): 
-            self.google_credentials_widget.value = 'default-credentials'
-        #set account dropdown to currently active credentialed user account, if there is one.
-        elif self.active_account is not None: 
-            self.google_credentials_widget.value = self.active_account
-        else: 
-            self.google_credentials_widget.disabled = True
-        """
+
         widgets = [self.project_widget, self.region_widget, self.cluster_name_widget, self.google_credentials_widget]
         return widgets
 
@@ -268,17 +258,22 @@ class GoogleAuth(Authenticator):
         
     def update_with_widget_values(self):
         new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
+                    "No  not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
                         .format(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
                 )
+        no_credentials_exception = BadUserConfigurationException(
+            "Failed to obtain access token. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` acquire new user credentials to use for Application Default Credentials."
+        )
         if (self.credentials is not None):
             try: 
                 self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, \
                     self.cluster_name_widget.value, self.credentials)
             except: 
-                raise new_exc
+                raise 
         else: 
-            raise new_exc
+            raise no_credentials_exception
         
         self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
 
