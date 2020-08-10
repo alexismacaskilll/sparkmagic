@@ -1,6 +1,7 @@
 ﻿from .customauth import Authenticator
 import json
 import os
+import urllib3.util
 import subprocess
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
 from sparkmagic.utils.constants import WIDGET_WIDTH
@@ -27,29 +28,29 @@ def load_json_input(result):
         raise#pass
     return jsondata
 
-def list_active_account(credentialed_accounts): 
-    """Returns the active account from all the user's credentialed accounts that are listed 
+def list_active_account(credentialed_accounts):
+    """Returns the active account from all the user's credentialed accounts that are listed
     with the ``gcloud auth list`` command. Used to set the google_credentials_widget dropdown
-    to be the active account on load. 
+    to be the active account on load.
 
     Returns:
-        str: the active account from the user's credentialed accounts or an empty str if no accounts 
-        are active.  
+        str: the active account from the user's credentialed accounts or an empty str if no accounts
+        are active. 
 
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
         or if gcloud is not installed. 
     """
-    try: 
+    try:
         accounts = credentialed_accounts
         for account in accounts:
-            if account['status'] == "ACTIVE": 
+            if account['status'] == "ACTIVE":
                 return account['account']
         return None
-    except: 
+    except:
         pass
 
-def list_accounts_pairs(credentialed_accounts): 
+def list_accounts_pairs(credentialed_accounts):
     """Reformates all of user's credentialed accounts to populate google_credentials_widget dropdown's options. 
 
     Returns:
@@ -63,33 +64,34 @@ def list_accounts_pairs(credentialed_accounts):
         accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
-def set_credentialed_account(account):
-    """Sets the user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
-    Raises:
-         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set to a valid account, if the user needs  \ 
-         to run gcloud auth login, or if gcloud is not installed. 
-    """
-    accounts_json = ""
-    if os.name == "nt":
-        command = _CLOUD_SDK_WINDOWS_COMMAND
-    else:
-        command = _CLOUD_SDK_POSIX_COMMAND
-    try:
-        set_account_command =   ("config", "set", "account", account)
-        command = (command,) + set_account_command 
-        active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    except (OSError) as caught_exc:
-        new_exc = BadUserConfigurationException(
-            "Gcloud is not installed. Install the Google Cloud SDK." 
-        )
-        raise new_exc
-    except (subprocess.CalledProcessError, IOError) as caught_exc:
-        new_exc = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line \
-            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-            application-default login` cquire new user credentials to use for Application Default Credentials."
-        )
-        raise new_exc
+
+# def set_credentialed_account(account):
+#     """Sets the user's credentialed accounts with ``gcloud config set account `ACCOUNT` command.
+#     Raises:
+#          sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set to a valid account, if the user needs  \ 
+#          to run gcloud auth login, or if gcloud is not installed. 
+#     """
+#     accounts_json = ""
+#     if os.name == "nt":
+#         command = _CLOUD_SDK_WINDOWS_COMMAND
+#     else:
+#         command = _CLOUD_SDK_POSIX_COMMAND
+#     try:
+#         set_account_command =   ("config", "set", "account", account)
+#         command = (command,) + set_account_command 
+#         active_account = subprocess.check_output(command, stderr=subprocess.STDOUT)
+#     except (OSError) as caught_exc:
+#         new_exc = BadUserConfigurationException(
+#             "Gcloud is not installed. Install the Google Cloud SDK." 
+#         )
+#         raise new_exc
+#     except (subprocess.CalledProcessError, IOError) as caught_exc:
+#         new_exc = BadUserConfigurationException(
+#             "Failed to obtain access token. Run `gcloud auth login` in your command line \
+#             to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+#             application-default login` cquire new user credentials to use for Application Default Credentials."
+#         )
+#         raise new_exc
 
   
 def list_credentialed_accounts():
@@ -159,14 +161,13 @@ def get_credentials_for_account(account, scopes):
         command = (command,) + describe_account_command
 
         account_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        ipython_display.writeln(account_json)
+        #ipython_display.writeln(account_json)
         account_describe = load_json_input(account_json)
         
-        ipython_display.writeln(account_describe)
+        #ipython_display.writeln(account_describe)
 
         return Credentials.from_authorized_user_info(account_describe)
     except ValueError: 
-        
         raise
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
@@ -198,25 +199,30 @@ def get_component_gateway_url(project_id, cluster_name, region):
         google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
         ValueError: If the parameters are invalid.
     """
+    #wait should I be passing credentials??
     client = dataproc_v1beta2.ClusterControllerClient(
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
                         }
                     )
     try:
+        #response = client.get_cluster(project_id, region, cluster_name, timeout=10.0)
         response = client.get_cluster(project_id, region, cluster_name)
-        url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
-        index = url.find('.com/')
-        index = index + 4
-        endpoint_address = url[0: index] + '/gateway/default/livy/v1'
+        #url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
+        url = ((response.config.endpoint_config).http_ports).popitem()[1]
+        parsed_uri = urllib3.util.parse_url(url)
+        endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
+        # index = url.find('.com/')
+        # index = index + 4
+        # endpoint_address = url[0: index+4] + '/gateway/default/livy/v1'
         return endpoint_address
-    except: 
+    except:
         raise
 
 
 def application_default_credentials_configured(): 
     """Checks if google application-default credentials are configured"""
-    callable_request = google.auth.transport.requests.Request()
+    #callable_request = google.auth.transport.requests.Request()
     try:
         credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ])
     #try:
@@ -235,7 +241,6 @@ class GoogleAuth(Authenticator):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
         self.active_account = list_active_account(self.credentialed_accounts)
-        
         self.credentials, self.project_id = None, None
 
         #if application_default_credentials_configured():
@@ -292,14 +297,11 @@ class GoogleAuth(Authenticator):
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
             self.credentials.refresh(self.callable_request)
         else: 
-            ipython_display = IpythonDisplay()
-            set_credentialed_account(account)
+            #set_credentialed_account(account)
             self.credentials = get_credentials_for_account(account, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            ipython_display.writeln('returned from get_credentials_for_account')
             self.credentials.refresh(self.callable_request)
-            ipython_display.writeln('returned from refresh')
 
-    def update_with_widget_values(self): 
+    def update_with_widget_values(self):
         new_exc = ValueError(
                     "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
                         .format(self.project_widget.value, self.cluster_name_widget.value, self.region_widget.value)

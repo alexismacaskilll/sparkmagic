@@ -3,7 +3,7 @@
 import json
 import datetime
 from mock import patch, PropertyMock, MagicMock, sentinel, Mock
-from nose.tools import raises, assert_equals, with_setup, assert_is_not_none, assert_false, assert_true
+from nose.tools import raises, assert_equals, with_setup, assert_is_not_none, assert_false, assert_true, assert_raises
 import requests
 from requests_kerberos.kerberos_ import HTTPKerberosAuth, REQUIRED, OPTIONAL
 from sparkmagic.auth.basic import Basic
@@ -11,6 +11,7 @@ from sparkmagic.auth.kerberos import Kerberos
 import sparkmagic.auth.google as google_auth_class
 import google.auth
 from google.auth.exceptions import DefaultCredentialsError
+from google.api_core.exceptions import GoogleAPICallError, RetryError
 import sparkmagic
 from sparkmagic.auth.google import GoogleAuth
 from sparkmagic.auth.customauth import Authenticator
@@ -23,6 +24,7 @@ import sparkmagic.utils.configuration as conf
 import sparkmagic.utils.constants as constants
 from unittest.mock import create_autospec
 from google.oauth2 import credentials
+from google.cloud import dataproc_v1beta2
 import os
 import subprocess
 import google
@@ -300,6 +302,34 @@ def test_initialize_credentials_with_default_credentials():
         google_auth.initialize_credentials_with_auth_account_selection('default-credentials')
         assert_equals(google_auth.credentials.token, 'token')
 
+
+@raises(RetryError)
+def test_generate_component_gateway_url_raises_retry_error():
+    with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
+        side_effect=RetryError('error message', 'cause')):
+        google_auth_class.get_component_gateway_url('project', 'cluster', 'region')
+
+@raises(GoogleAPICallError)
+def test_generate_component_gateway_url_raises_google_api_error():
+    with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
+        side_effect=GoogleAPICallError('error message')):
+        google_auth_class.get_component_gateway_url('project', 'cluster', 'us-central1')
+
+@raises(ValueError)
+def test_invalid_widget_fields_raises_value_error():
+    new_exc = ValueError(
+                    "Could not generate component gateway url with project id: {}, cluster name: {}, region: {}"\
+                        .format('project_id', 'cluster_name', 'us-central1')
+    )
+    with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
+        side_effect=GoogleAPICallError('error message')):
+        google_auth = GoogleAuth()
+        google_auth.project_widget.value = 'project_id'
+        google_auth.region_widget.value = 'us-central1'
+        google_auth.cluster_name_widget.value = 'cluster_name'
+        assert_raises(google_auth.update_with_widget_values(), new_exc)
+        assert_equals(google_auth.url, 'http://example.com/livy')
+
 #how to check its actually user credentials and not default? 
 AUTH_DESCRIBE_USER = '{"client_id": "client_id", \
      "client_secret": "secret", "refresh_token": "refresh","type": "authorized_user"}'
@@ -326,4 +356,4 @@ def test_call_default_credentials():
         request = requests.Request(url="http://www.example.org")
         google_auth.__call__(request)
         assert_true('Authorization' in request.headers)
-        assert_equals(request.headers['Authorization'],'Bearer {}'.format(google_auth.credentials.token) )
+        assert_equals(request.headers['Authorization'],'Bearer {}'.format(google_auth.credentials.token))
