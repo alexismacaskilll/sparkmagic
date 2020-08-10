@@ -59,7 +59,7 @@ def list_accounts_pairs(credentialed_accounts):
     accounts = credentialed_accounts
     accounts_list = {}
     for account in accounts:
-        accounts_list[account['account']] = account['account']
+        accounts_list[account] = account
     if application_default_credentials_configured():
         accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
@@ -117,7 +117,7 @@ def list_credentialed_accounts():
         for account in all_accounts:
             try: 
                 _cloud_sdk.get_auth_access_token(account['account'])
-                credentialed_accounts.append(account)
+                credentialed_accounts.append(account['account'])
             except: 
                 pass
         return credentialed_accounts
@@ -206,15 +206,11 @@ def get_component_gateway_url(project_id, region, cluster_name):
                         }
                     )
     try:
-        #response = client.get_cluster(project_id, region, cluster_name, timeout=10.0)
         response = client.get_cluster(project_id, region, cluster_name)
-        #url = ((response.config.endpoint_config).http_ports)['HDFS NameNode']
+      
         url = ((response.config.endpoint_config).http_ports).popitem()[1]
         parsed_uri = urllib3.util.parse_url(url)
         endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
-        # index = url.find('.com/')
-        # index = index + 4
-        # endpoint_address = url[0: index+4] + '/gateway/default/livy/v1'
         return endpoint_address
     except:
         raise
@@ -226,11 +222,13 @@ def application_default_credentials_configured():
     try:
         credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
         credentials.refresh(callable_request) 
-    except (DefaultCredentialsError, RefreshError) as error:
+    #Hangs unless refresh error. 
+    except:
             return False
-    if credentials is None:
+    """if credentials is None:
         return False
-    return True
+    """
+    return not(credentials is None)
 
 
 class GoogleAuth(Authenticator):
@@ -240,16 +238,17 @@ class GoogleAuth(Authenticator):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
         self.active_account = list_active_account(self.credentialed_accounts)
-        self.credentials, self.project_id = None, None
+        self.scopes =['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'] 
+        #self.credentials, self.project_id = None, None
 
-        #if application_default_credentials_configured():
-        try: 
-            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email' ] )
-            #self.credentials.refresh(self.callable_request)
-        except DefaultCredentialsError:
+        if application_default_credentials_configured():
+            self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+            self.credentials.refresh(self.callable_request)
+        elif self.active_account is not None: 
+            self.credentials = get_credentials_for_account(self.active_account, scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
+            self.credentials.refresh(self.callable_request)
+        else: 
             self.credentials, self.project = None, None
-        #except (DefaultCredentialsError, RefreshError) as error:
-        #    self.credentials, self.project = None, None
         #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
@@ -292,7 +291,7 @@ class GoogleAuth(Authenticator):
 
     def initialize_credentials_with_auth_account_selection(self, account):
         """Initializes self.credentials with the accound selected from the auth dropdown widget"""
-        if (account == 'default-credentials'): 
+        if (account == 'default-credentials'):
             self.credentials, self.project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
             self.credentials.refresh(self.callable_request)
         else: 
