@@ -155,6 +155,8 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
         cluster_name (str): The cluster name to use for the url
         project_id (str): The project id to use for the url
         region (str): The project id to use for the url
+        credentials (google.oauth2.credentials.Credentials): The authorization credentials to 
+        attach to requests. 
        
     Returns:
         str: the component gateway url
@@ -164,7 +166,6 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
         google.api_core.exceptions.RetryError: If the request failed due to a retryable error and retry attempts failed.
         ValueError: If the parameters are invalid.
     """
-    #wait should I be passing credentials??
     client = dataproc_v1beta2.ClusterControllerClient(credentials=credentials,
                        client_options={
                             'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
@@ -256,7 +257,6 @@ class GoogleAuth(Authenticator):
                 self.credentials = get_credentials_for_account(account, self.scopes)
                 #self.credentials.refresh(self.callable_request)
         
-        
     def update_with_widget_values(self):
         new_exc = ValueError(
                     "No  not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
@@ -275,7 +275,6 @@ class GoogleAuth(Authenticator):
                 raise 
         else: 
             raise no_credentials_exception
-        
         self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
 
     def __call__(self, request):
