@@ -52,7 +52,7 @@ class RemoteSparkMagics(SparkMagicBase):
                                                                         "from the server for SQL queries")
     @argument("-r", "--samplefraction", type=float, default=None, help="Sample fraction for sampling from SQL queries")
     @argument("-u", "--url", type=str, default=None, help="URL for Livy endpoint")
-    @argument("-a", "--user", type=str, default="", help="Username for HTTP access to Livy endpoint")
+    @argument("-a", "--user", dest='user', type=str, default="", help="Username for HTTP access to Livy endpoint")
     @argument("-p", "--password", type=str, default="", help="Password for HTTP access to Livy endpoint")
     @argument("-t", "--auth", type=str, default=None, help="Auth type for HTTP access to Livy endpoint. [Kerberos, None, Basic]")
     @argument("-l", "--language", type=str, default=None,

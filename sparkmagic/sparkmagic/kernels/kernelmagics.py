@@ -403,20 +403,18 @@ class KernelMagics(SparkMagicBase):
 
     @magic_arguments()
     @line_magic
-    @argument("-u", "--username", type=str, help="Username to use.")
+    @argument("-u", "--username", dest='user', type=str, help="Username to use.")
     @argument("-p", "--password", type=str, help="Password to use.")
-    @argument("-s", "--server", type=str, help="Url of server to use.")
+    @argument("-s", "--server", dest='url', type=str, help="Url of server to use.")
     @argument("-t", "--auth", type=str, help="Auth type for authentication")
     @_event
     def _do_not_call_change_endpoint(self, line, cell="", local_ns=None):
         args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)
-        server = args.server
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-        custom_args = CustomNamespace(url=server, auth=args.auth, user=args.username, password=args.password)
-        auth = self._initialize_auth(args=custom_args)
-        self.endpoint = Endpoint(server, auth)
+        auth = self._initialize_auth(args)
+        self.endpoint = Endpoint(args.url, auth)
 
     @line_magic
     def matplot(self, line, cell="", local_ns=None):
@@ -461,7 +459,7 @@ class KernelMagics(SparkMagicBase):
             google.auth.kerberos.Kerberos
         """
         if args.auth is None:
-            auth = conf.get_auth_value(args.username, args.password)
+            auth = conf.get_auth_value(args.user, args.password)
         else:
             auth = args.auth
         full_class = conf.authenticators().get(auth)
@@ -489,7 +487,3 @@ class KernelMagics(SparkMagicBase):
 
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
-
-class CustomNamespace:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
