@@ -6,8 +6,20 @@ from sparkmagic.utils.constants import WIDGET_WIDTH
 class Authenticator(object):
     """Base Authenticator for all Sparkmagic authentication providers."""
 
-    def __init__(self):
-        self.url = 'http://example.com/livy'
+    def __init__(self, parsed_attributes=None):
+        """Initializes the Authenticator with the attributes in the attributes
+        parsed from a %spark magic command if applicable, or with default values
+        otherwise.
+
+        Args:
+            self,
+            parsed_attributes (IPython.core.magics.namespace): The namespace object that
+            is created from parsing %spark magic command.
+        """
+        if parsed_attributes is not None:
+            self.url = parsed_attributes.url
+        else:
+            self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
     def get_widgets(self, widget_width):
@@ -37,6 +49,11 @@ class Authenticator(object):
         """subclasses should override"""
         return None
 
+    def __eq__(self, other):
+        if not isinstance(other, Authenticator):
+            return False
+        return self.url == other.url
+
     def __hash__(self):
-        return id(self)
+        return hash(self.url)
        

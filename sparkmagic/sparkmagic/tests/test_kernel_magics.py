@@ -1,10 +1,12 @@
 from mock import MagicMock
-from nose.tools import with_setup, raises, assert_equals, assert_is
+from nose.tools import with_setup, raises, assert_equals, assert_is, assert_true
 from IPython.core.magic import magics_class
 
 import sparkmagic.utils.configuration as conf
+from sparkmagic.utils.utils import parse_argstring_or_throw
 import sparkmagic.utils.constants as constants
 from sparkmagic.kernels.kernelmagics import KernelMagics
+from sparkmagic.magics.remotesparkmagics import RemoteSparkMagics
 from sparkmagic.livyclientlib.exceptions import LivyClientTimeoutException, BadUserDataException,\
     LivyUnexpectedStatusException, SessionManagementException,\
     HttpClientException, DataFrameParseException, SqlContextNotFoundException, SparkStatementException
@@ -181,17 +183,19 @@ def test_change_endpoint():
     p = 'password'
     t = constants.AUTH_BASIC
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
-
     magic._do_not_call_change_endpoint(line)
-
-    auth_instance = getattr(importlib.import_module('sparkmagic.auth.basic'), t)
-    auth_instance.username = u
-    auth_instance.password = p
-    endpoint = Endpoint(s, auth_instance)
-    assert_equals(endpoint.url, magic.endpoint.url)
-    assert_equals(endpoint.auth.username, magic.endpoint.auth.username)
-    assert_equals(endpoint.auth.password, magic.endpoint.auth.password)
-
+    args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
+    #auth_instance = KernelMagics._initialize_auth(args)
+    if args is None:
+        auth = 'None'
+    auth = conf.get_auth_value(args.user, args.password)
+    full_class = conf.authenticators().get(auth)
+    module, class_name = (full_class).rsplit('.', 1)
+    events_handler_module = importlib.import_module(module)
+    auth_class = getattr(events_handler_module, class_name)
+    auth_instance = auth_class(username=args.user, password=args.password)
+    assert_equals(s, magic.endpoint.url)
+    assert_equals(Endpoint(s, auth_instance), magic.endpoint)
 
 @with_setup(_setup, _teardown)
 @raises(BadUserDataException)

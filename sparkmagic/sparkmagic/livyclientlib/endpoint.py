@@ -4,7 +4,7 @@ class Endpoint(object):
     def __init__(self, url, auth, implicitly_added=False):
         if not url:
             raise BadUserDataException(u"URL must not be empty")
-        
+
         self.url = url.rstrip(u"/")
         self.auth = auth
         # implicitly_added is set to True only if the endpoint wasn't configured manually by the user through
@@ -15,7 +15,7 @@ class Endpoint(object):
     def __eq__(self, other):
         if type(other) is not Endpoint:
             return False
-        return self.url == other.url and self.auth == other.auth 
+        return self.url == other.url and self.auth == other.auth
 
     def __hash__(self):
         return hash((self.url, self.auth))

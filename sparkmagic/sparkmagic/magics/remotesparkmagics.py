@@ -6,14 +6,13 @@ Provides the %spark magic."""
 
 from __future__ import print_function
 import json
+import importlib
 from IPython.core.magic import line_cell_magic, needs_local_scope, line_magic
 from IPython.core.magic import magics_class
 from IPython.core.magic_arguments import argument, magic_arguments
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
-import importlib
 
 import sparkmagic.utils.configuration as conf
-from sparkmagic.utils.constants import AUTH_BASIC
 from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value
 from sparkmagic.utils.constants import CONTEXT_NAME_SPARK, CONTEXT_NAME_SQL, LANG_PYTHON, LANG_R, LANG_SCALA
 from sparkmagic.controllerwidget.magicscontrollerwidget import MagicsControllerWidget
@@ -112,6 +111,7 @@ class RemoteSparkMagics(SparkMagicBase):
         args = parse_argstring_or_throw(self.spark, user_input)
 
         subcommand = args.command[0].lower()
+
         if args.auth is None:
             args.auth = conf.get_auth_value(args.user, args.password)
         else:
@@ -120,7 +120,7 @@ class RemoteSparkMagics(SparkMagicBase):
         # info
         if subcommand == "info":
             if args.url is not None:
-                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
+                endpoint = Endpoint(args.url, self._initialize_auth(args))
                 info_sessions = self.spark_controller.get_all_sessions_endpoint_info(endpoint)
                 self._print_endpoint_info(info_sessions)
             else:
@@ -136,7 +136,7 @@ class RemoteSparkMagics(SparkMagicBase):
 
             name = args.session
             language = args.language
-            endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
+            endpoint = Endpoint(args.url, self._initialize_auth(args))
             skip = args.skip
 
             properties = conf.get_session_properties(language)
@@ -150,7 +150,7 @@ class RemoteSparkMagics(SparkMagicBase):
                 if args.id is None:
                     self.ipython_display.send_error("Must provide --id or -i option to delete session at endpoint from URL")
                     return
-                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
+                endpoint = Endpoint(args.url, self._initialize_auth(args))
                 session_id = args.id
                 self.spark_controller.delete_session_by_id(endpoint, session_id)
             else:
@@ -158,7 +158,7 @@ class RemoteSparkMagics(SparkMagicBase):
         # cleanup
         elif subcommand == "cleanup":
             if args.url is not None:
-                endpoint = Endpoint(args.url, self._initialize_auth(args.auth, args.user, args.password))
+                endpoint = Endpoint(args.url, self._initialize_auth(args))
                 self.spark_controller.cleanup_endpoint(endpoint)
             else:
                 self.spark_controller.cleanup()
@@ -190,29 +190,26 @@ class RemoteSparkMagics(SparkMagicBase):
 """.format("\n".join(sessions_info), conf.session_configs()))
 
     @staticmethod
-    def _initialize_auth(auth, username=None, password=None):
+    def _initialize_auth(args):
         """Creates an authenticatior class instance for the given auth type
 
         Args:
-            auth (str): The auth type to be initialized.
-            username (Optional[str]): The username used to initialize the auth instance
-            password (Optional[str]): The password used to initialize the auth instance
+            args (IPython.core.magics.namespace): The namespace object that is created from
+            parsing %spark magic command
 
         Returns:
             An instance of one of the following authenticators:
             google.auth.customauth.Authenticator, google.auth.basic.Basic,
             google.auth.kerberos.Kerberos
         """
-        if auth is None:
-            auth = conf.get_auth_value(username, password)
-        full_class = conf.authenticators().get(auth)
+        if args is None:
+            auth = 'None'
+        auth = conf.get_auth_value(args.user, args.password)
         full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
-        auth_instance = getattr(events_handler_module, class_name)
-        if auth is AUTH_BASIC:
-            auth_instance.username = username
-            auth_instance.password = password
+        auth_class = getattr(events_handler_module, class_name)
+        auth_instance = auth_class(args)
         return auth_instance
 
 def load_ipython_extension(ip):

@@ -274,7 +274,7 @@ class KernelMagics(SparkMagicBase):
                                                              "name.")
     @argument("-q", "--quiet", type=bool, default=False, const=True, nargs="?", help="Return None instead of the dataframe.")
     @argument("-m", "--samplemethod", type=str, default=None, help="Sample method for SQL queries: either take or sample")
-    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back " 
+    @argument("-n", "--maxrows", type=int, default=None, help="Maximum number of rows that will be pulled back "
                                                                         "from the server for SQL queries")
     @argument("-r", "--samplefraction", type=float, default=None, help="Sample fraction for sampling from SQL queries")
     @argument("-c", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) " 
@@ -411,13 +411,21 @@ class KernelMagics(SparkMagicBase):
     def _do_not_call_change_endpoint(self, line, cell="", local_ns=None):
         args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)
         server = args.server
-        auth = self._initialize_auth(args.auth, args.username, args.password)
-
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-
-        self.endpoint = Endpoint(server, auth)
+        print(args)
+        print(args.username)
+        #auth = self._initialize_auth(args=args)
+        if args.auth is None:
+            auth = 'None'
+        auth = conf.get_auth_value(args.username, args.password)
+        full_class = conf.authenticators().get(auth)
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_class = getattr(events_handler_module, class_name)
+        auth_instance = auth_class(username=args.username, password=args.password)
+        self.endpoint = Endpoint(server, auth_instance)
 
     @line_magic
     def matplot(self, line, cell="", local_ns=None):
@@ -432,8 +440,7 @@ class KernelMagics(SparkMagicBase):
     def refresh_configuration(self):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
-        auth_instance = self._initialize_auth(auth, username, password)
-
+        auth_instance = self._initialize_auth(args=None, auth=auth, username=username, password=password)
         self.endpoint = Endpoint(url, auth_instance, username, password)
 
     def get_session_settings(self, line, force):
@@ -449,29 +456,60 @@ class KernelMagics(SparkMagicBase):
                 return None
 
     @staticmethod
-    def _initialize_auth(auth, username=None, password=None):
-        """Creates an authenticatior class instance for the given auth type 
-      
+    def _initialize_auth(args=None, auth=None, username=None, password=None):
+        """Creates an authenticatior class instance for the given auth type
+
         Args:
-            auth (str): The auth type to be initialized.
-            username (Optional[str]): The username used to initialize the auth instance 
-            password (Optional[str]): The password used to initialize the auth instance 
+            args (Optional[IPython.core.magics.namespace]): The namespace object that
+            is created from parsing %spark magic command.
+            auth (Optional[str]): The auth type to be initialized.
+            username (Optional[str]): The username used to initialize the auth instance
+            password (Optional[str]): The password used to initialize the auth instance
 
         Returns:
             An instance of one of the following authenticators:
             google.auth.customauth.Authenticator, google.auth.basic.Basic,
             google.auth.kerberos.Kerberos
         """
-        if auth is None:
-            auth = conf.get_auth_value(username, password)
+        if args is None:
+            auth = 'None'
+
+        username = args.username
+        password = args.password
+        auth = conf.get_auth_value(args.username, args.password)
         full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
-        auth_instance = getattr(events_handler_module, class_name)
-        if hasattr(auth_instance, 'username'):
-            auth_instance.username = username
-            auth_instance.password = password
+        auth_class = getattr(events_handler_module, class_name)
+        auth_instance = auth_class(username=username, password=password)
         return auth_instance
+
+        """
+        print(args)
+        if args is None:
+            args.auth = 'None'
+        #     username = args.username
+        #     password = args.password
+        #else:
+            # auth = args.auth
+            # username = args.user
+            # password = args.password
+        print(args.password)
+        #args.auth = conf.get_auth_value(args.user, args.password)
+        print(args.auth)
+        full_class = conf.authenticators().get(args.auth)
+        print(full_class)
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        print(class_name)
+        auth_class = getattr(events_handler_module, class_name)
+        print(args.password)
+
+        print(args.user)
+        print(args.url)
+        auth_instance = auth_class(args)
+        return auth_instance
+        """
 
     @staticmethod
     def _override_session_settings(settings):
@@ -490,3 +528,9 @@ class KernelMagics(SparkMagicBase):
 
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
+
+class CustomNamespace:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
