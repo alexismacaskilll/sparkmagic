@@ -413,7 +413,11 @@ class KernelMagics(SparkMagicBase):
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
+<<<<<<< HEAD
         auth = initialize_auth(args=args)
+=======
+        auth = self._initialize_auth(args)
+>>>>>>> fix add endpoint
         self.endpoint = Endpoint(args.url, auth)
 
     @line_magic
@@ -446,6 +450,35 @@ class KernelMagics(SparkMagicBase):
                 return None
 
     @staticmethod
+<<<<<<< HEAD
+=======
+    def _initialize_auth(args=None):
+        """Creates an authenticatior class instance for the given auth type
+
+        Args:
+            args (Optional[IPython.core.magics.namespace]): The namespace object that
+            is created from parsing %spark magic command.
+
+        Returns:
+            An instance of one of the following authenticators:
+            google.auth.customauth.Authenticator, google.auth.basic.Basic,
+            google.auth.kerberos.Kerberos
+        """
+        if args.auth is None:
+            auth = conf.get_auth_value(args.user, args.password)
+        else:
+            auth = args.auth
+        full_class = conf.authenticators().get(auth)
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_class = getattr(events_handler_module, class_name)
+        #Get 'Namespace' object has no attribute 'user'
+        # where it sets self.username = parsed_attributes.user in basic auth class
+        auth_instance = auth_class(args)
+        return auth_instance
+
+    @staticmethod
+>>>>>>> fix add endpoint
     def _override_session_settings(settings):
         conf.override(conf.session_configs.__name__, settings)
 

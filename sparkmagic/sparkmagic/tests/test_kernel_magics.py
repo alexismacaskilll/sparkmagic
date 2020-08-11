@@ -1,6 +1,7 @@
 from mock import MagicMock
 from nose.tools import with_setup, raises, assert_equals, assert_is, assert_true
 from IPython.core.magic import magics_class
+from IPython.core.magic_arguments import parse_argstring
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw, initialize_auth
@@ -20,7 +21,6 @@ spark_controller = None
 shell = None
 ipython_display = MagicMock()
 spark_events = None
-
 
 @magics_class
 class TestKernelMagics(KernelMagics):
@@ -175,7 +175,6 @@ def test_change_language_not_valid():
     assert_equals(constants.LANG_PYTHON, magic.language)
     assert_equals(Endpoint("url", None), magic.endpoint)
 
-
 @with_setup(_setup, _teardown)
 def test_change_endpoint():
     s = 'server'
@@ -184,8 +183,16 @@ def test_change_endpoint():
     t = constants.AUTH_BASIC
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
+<<<<<<< HEAD
     args = Namespace(auth='Basic', password='password', url='server', user='user')
     auth_instance = initialize_auth(args)
+=======
+    class Namespace:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+    args = Namespace(auth='Basic', password='password', url='server', user='user')
+    auth_instance = KernelMagics._initialize_auth(args)
+>>>>>>> fix add endpoint
     endpoint = Endpoint(s, auth_instance)
     assert_equals(endpoint.url, magic.endpoint.url)
     assert_equals(Endpoint(s, auth_instance), magic.endpoint)
@@ -199,7 +206,6 @@ def test_change_endpoint_session_started():
     line = "-s {} -u {} -p {}".format(s, u, p)
     magic.session_started = True
     magic._do_not_call_change_endpoint(line)
-
 
 @with_setup(_setup, _teardown)
 def test_info():
