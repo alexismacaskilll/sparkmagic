@@ -185,7 +185,9 @@ def test_change_endpoint():
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
     args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
-    #auth_instance = KernelMagics._initialize_auth(args)
+    print(args)
+    auth_instance = KernelMagics._initialize_auth(args)
+    """
     if args is None:
         auth = 'None'
     auth = conf.get_auth_value(args.user, args.password)
@@ -193,7 +195,8 @@ def test_change_endpoint():
     module, class_name = (full_class).rsplit('.', 1)
     events_handler_module = importlib.import_module(module)
     auth_class = getattr(events_handler_module, class_name)
-    auth_instance = auth_class(username=args.user, password=args.password)
+    auth_instance = auth_class(args)
+    """
     assert_equals(s, magic.endpoint.url)
     assert_equals(Endpoint(s, auth_instance), magic.endpoint)
 

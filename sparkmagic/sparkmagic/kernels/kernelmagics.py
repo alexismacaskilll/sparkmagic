@@ -414,17 +414,7 @@ class KernelMagics(SparkMagicBase):
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-        print(args)
-        print(args.username)
-        #auth = self._initialize_auth(args=args)
-        if args.auth is None:
-            auth = 'None'
-        auth = conf.get_auth_value(args.username, args.password)
-        full_class = conf.authenticators().get(auth)
-        module, class_name = (full_class).rsplit('.', 1)
-        events_handler_module = importlib.import_module(module)
-        auth_class = getattr(events_handler_module, class_name)
-        auth_instance = auth_class(username=args.username, password=args.password)
+        auth = self._initialize_auth(args=args)
         self.endpoint = Endpoint(server, auth_instance)
 
     @line_magic
@@ -440,7 +430,8 @@ class KernelMagics(SparkMagicBase):
     def refresh_configuration(self):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
-        auth_instance = self._initialize_auth(args=None, auth=auth, username=username, password=password)
+        args = CustomNamespace(auth=auth, user=username, password=password)
+        auth_instance = self._initialize_auth(args)
         self.endpoint = Endpoint(url, auth_instance, username, password)
 
     def get_session_settings(self, line, force):
@@ -456,60 +447,30 @@ class KernelMagics(SparkMagicBase):
                 return None
 
     @staticmethod
-    def _initialize_auth(args=None, auth=None, username=None, password=None):
+    def _initialize_auth(args=None):
         """Creates an authenticatior class instance for the given auth type
 
         Args:
             args (Optional[IPython.core.magics.namespace]): The namespace object that
             is created from parsing %spark magic command.
-            auth (Optional[str]): The auth type to be initialized.
-            username (Optional[str]): The username used to initialize the auth instance
-            password (Optional[str]): The password used to initialize the auth instance
 
         Returns:
             An instance of one of the following authenticators:
             google.auth.customauth.Authenticator, google.auth.basic.Basic,
             google.auth.kerberos.Kerberos
         """
-        if args is None:
-            auth = 'None'
-
-        username = args.username
-        password = args.password
-        auth = conf.get_auth_value(args.username, args.password)
+        if args.auth is None:
+            auth = conf.get_auth_value(args.user, args.password)
+        else:
+            auth = args.auth
         full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
-        auth_instance = auth_class(username=username, password=password)
-        return auth_instance
-
-        """
-        print(args)
-        if args is None:
-            args.auth = 'None'
-        #     username = args.username
-        #     password = args.password
-        #else:
-            # auth = args.auth
-            # username = args.user
-            # password = args.password
-        print(args.password)
-        #args.auth = conf.get_auth_value(args.user, args.password)
-        print(args.auth)
-        full_class = conf.authenticators().get(args.auth)
-        print(full_class)
-        module, class_name = (full_class).rsplit('.', 1)
-        events_handler_module = importlib.import_module(module)
-        print(class_name)
-        auth_class = getattr(events_handler_module, class_name)
-        print(args.password)
-
-        print(args.user)
-        print(args.url)
+        #Get 'Namespace' object has no attribute 'user'
+        # where it sets self.username = parsed_attributes.user in basic auth class
         auth_instance = auth_class(args)
         return auth_instance
-        """
 
     @staticmethod
     def _override_session_settings(settings):
@@ -525,12 +486,9 @@ class KernelMagics(SparkMagicBase):
             raise BadUserDataException(u"Cell body for %%{} magic must be empty; got '{}' instead"
                                        .format(magic_name, cell.strip()))
 
-
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
 
 class CustomNamespace:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-
