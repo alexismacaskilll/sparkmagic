@@ -6,7 +6,7 @@ from IPython.core.magic_arguments import parse_argstring
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw
 import sparkmagic.utils.constants as constants
-from sparkmagic.kernels.kernelmagics import KernelMagics
+from sparkmagic.kernels.kernelmagics import KernelMagics, Namespace
 from sparkmagic.magics.remotesparkmagics import RemoteSparkMagics
 from sparkmagic.livyclientlib.exceptions import LivyClientTimeoutException, BadUserDataException,\
     LivyUnexpectedStatusException, SessionManagementException,\
@@ -183,9 +183,6 @@ def test_change_endpoint():
     t = constants.AUTH_BASIC
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
-    class Namespace:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
     args = Namespace(auth='Basic', password='password', url='server', user='user')
     auth_instance = KernelMagics._initialize_auth(args)
     endpoint = Endpoint(s, auth_instance)
