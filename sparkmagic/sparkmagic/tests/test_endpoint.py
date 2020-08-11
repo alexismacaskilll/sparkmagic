@@ -27,4 +27,3 @@ def test_invalid_url():
         assert False
     except BadUserDataException:
         assert True
-
