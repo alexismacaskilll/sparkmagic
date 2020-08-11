@@ -414,8 +414,9 @@ class KernelMagics(SparkMagicBase):
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-        auth = self._initialize_auth(args=args)
-        self.endpoint = Endpoint(server, auth_instance)
+        custom_args = CustomNamespace(url=server, auth=args.auth, user=args.username, password=args.password)
+        auth = self._initialize_auth(args=custom_args)
+        self.endpoint = Endpoint(server, auth)
 
     @line_magic
     def matplot(self, line, cell="", local_ns=None):
@@ -432,7 +433,7 @@ class KernelMagics(SparkMagicBase):
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
         args = CustomNamespace(auth=auth, user=username, password=password)
         auth_instance = self._initialize_auth(args)
-        self.endpoint = Endpoint(url, auth_instance, username, password)
+        self.endpoint = Endpoint(url, auth_instance)
 
     def get_session_settings(self, line, force):
         line = line.strip()
@@ -460,7 +461,7 @@ class KernelMagics(SparkMagicBase):
             google.auth.kerberos.Kerberos
         """
         if args.auth is None:
-            auth = conf.get_auth_value(args.user, args.password)
+            auth = conf.get_auth_value(args.username, args.password)
         else:
             auth = args.auth
         full_class = conf.authenticators().get(auth)

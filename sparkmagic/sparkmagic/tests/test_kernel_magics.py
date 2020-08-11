@@ -187,17 +187,13 @@ def test_change_endpoint():
     args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
     print(args)
     auth_instance = KernelMagics._initialize_auth(args)
-    """
-    if args is None:
-        auth = 'None'
-    auth = conf.get_auth_value(args.user, args.password)
-    full_class = conf.authenticators().get(auth)
-    module, class_name = (full_class).rsplit('.', 1)
-    events_handler_module = importlib.import_module(module)
-    auth_class = getattr(events_handler_module, class_name)
-    auth_instance = auth_class(args)
-    """
-    assert_equals(s, magic.endpoint.url)
+    endpoint = Endpoint(s, auth_instance)
+    assert_equals(endpoint.url, magic.endpoint.url)
+    #assert_equals(endpoint.auth, magic.endpoint.auth) 
+    #AssertionError: '' != 'user'
+    assert_equals(endpoint.auth.username, magic.endpoint.auth.username)  #<-- this fails 
+    assert_equals(endpoint.auth.password, magic.endpoint.auth.password)
+    #assert_equals(s, magic.endpoint.url)
     assert_equals(Endpoint(s, auth_instance), magic.endpoint)
 
 @with_setup(_setup, _teardown)
