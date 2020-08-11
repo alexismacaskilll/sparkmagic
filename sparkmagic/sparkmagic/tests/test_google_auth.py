@@ -291,59 +291,103 @@ def not_refreshed_credentials():
 
 grant_response = {"id_token": 'id_token'}
 expiry = datetime.datetime(2007, 12, 6, 16, 29, 43, 79043)
-def test_initialize_credentials_with_default_credentials():
+def test_initialize_credentials_with_auth_selected_stay_default_credentials():
     with patch('subprocess.check_output', return_value=auth_list), \
     patch('google.auth.default', return_value=(not_refreshed_credentials(), 'project')), \
     patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'), \
     patch('google.oauth2._client.refresh_grant', return_value = ('token', 'refresh', \
     expiry, grant_response)):
         google_auth = GoogleAuth()
-        assert_equals(google_auth.credentials.token, None)
-        google_auth.initialize_credentials_with_auth_account_selection('default-credentials')
-        assert_equals(google_auth.credentials.token, 'token')
+        assert_equals(google_auth.active_credentials, 'default-credentials')
+        google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
+        #should not reinitialize credentials if active_credentials does not change. 
+        # Default should only be called twice in init and once in get_widgets. 
+        # Its getting called 6 times?? 
+        google.auth.default.assert_has_calls([google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)])
 
+def test_initialize_credentials_with_auth_selected_change_credentials():
+    with patch('subprocess.check_output', return_value=auth_list), \
+    patch('google.auth.default', side_effect=DefaultCredentialsError), \
+    patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'), \
+    patch('google.oauth2._client.refresh_grant', return_value = ('token', 'refresh', \
+    expiry, grant_response)):
+        google_auth = GoogleAuth()
+        google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
+        ngoogle.auth.default.assert_has_calls([google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)])
 
+        #(calls=[google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)])
+    
+    """
+        google_auth.initialize_credentials_with_auth_account_selection = MagicMock(spec=GoogleAuth, active_credentials = 'default-credentials', side_effect = side_effect)
+        #google_auth.initial
+        google_auth.active_credentials = 'default-credentials'
+
+        google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
+
+         #= MagicMock(side_effect=side_effect)
+
+        spark_controller. = MagicMock(return_value=(False, line, constants.MIMETYPE_TEXT_PLAIN))
+        assert_equals(google_auth.active_credentials, 'account@google.com')
+        google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
+        #should not reinitialize credentials if active_credentials does not change. 
+        # Default should only be called twice in init and once in get_widgets.  
+        #Mock.assert_has_calls(calls=[google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)], )
+        MOCK_GOOGLE.assert_has_calls([google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)])
+    """
 @raises(RetryError)
 def test_generate_component_gateway_url_raises_retry_error():
     with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
         side_effect=RetryError('error message', 'cause')):
-        google_auth_class.get_component_gateway_url('project', 'region', 'cluster')
+        google_auth_class.get_component_gateway_url('project', 'region', 'cluster', make_credentials())
 
 @raises(GoogleAPICallError)
 def test_generate_component_gateway_url_raises_google_api_error():
     with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
         side_effect=GoogleAPICallError('error message')):
-        google_auth_class.get_component_gateway_url('project', 'region', 'cluster')
+        google_auth_class.get_component_gateway_url('project', 'region', 'cluster', make_credentials())
 
-@raises(ValueError)
-def test_invalid_widget_fields_raises_value_error():
-    new_exc = ValueError(
-                    "Could not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
-                        .format('project_id', 'region', 'cluster_name',)
+@raises(BadUserConfigurationException)
+def test_no_credenntials_raises_bad_user_configuration_error():
+    no_credentials_exception = BadUserConfigurationException(
+            "Failed to obtain access token. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` acquire new user credentials to use for Application Default Credentials."
     )
-    with patch('google.cloud.dataproc_v1beta2.ClusterControllerClient.get_cluster', \
-        side_effect=GoogleAPICallError('error message')):
-        google_auth = GoogleAuth()
-        google_auth.project_widget.value = 'project_id'
-        google_auth.region_widget.value = 'region'
-        google_auth.cluster_name_widget.value = 'cluster_name'
-        assert_raises(google_auth.update_with_widget_values(), new_exc)
-        assert_equals(google_auth.url, 'http://example.com/livy')
+    google_auth = GoogleAuth()
+    google_auth.project_widget.value = 'project_id'
+    google_auth.region_widget.value = 'region'
+    google_auth.cluster_name_widget.value = 'cluster_name'
+    google_auth.credentials = None
+    assert_raises(google_auth.update_with_widget_values(), no_credentials_exception)
 
-#how to check its actually user credentials and not default? 
 AUTH_DESCRIBE_USER = '{"client_id": "client_id", \
      "client_secret": "secret", "refresh_token": "refresh","type": "authorized_user"}'
-def test_initialize_credentials_with_user_credentials():
+def test_initialize_credentials_with_default_credentials_configured():
     with patch('subprocess.check_output', return_value=AUTH_DESCRIBE_USER), \
     patch('google.auth.default', return_value=(not_refreshed_credentials(), 'project')), \
     patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'), \
     patch('google.oauth2._client.refresh_grant', return_value=('token', 'refresh', \
     expiry, grant_response)):
         google_auth = GoogleAuth()
+        assert_equals(google_auth.active_credentials, 'default-credentials')
+        assert_equals(google_auth.credentials.client_secret, 'client_secret')
         assert_equals(google_auth.credentials.token, None)
-        google_auth.initialize_credentials_with_auth_account_selection('account@google.com')
+
+#need to be able to mock 2 subprocess calls one for gcloud auth list one for gcloud auth describe
+AUTH_DESCRIBE_USER = '{"client_id": "client_id", \
+     "client_secret": "secret", "refresh_token": "refresh","type": "authorized_user"}'
+def test_initialize_credentials_with_no_default_credentials_configured():
+    with patch('subprocess.check_output', return_value=AUTH_DESCRIBE_USER), \
+    patch('google.auth.default', side_effect=DefaultCredentialsError), \
+    patch('sparkmagic.auth.google.list_credentialed_accounts', return_value=auth_list), \
+    patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'), \
+    patch('google.oauth2._client.refresh_grant', return_value=('token', 'refresh', \
+    expiry, grant_response)):
+        google_auth = GoogleAuth()
+        print(google_auth.credentialed_accounts)
+        assert_equals(google_auth.active_credentials, 'account@google.com')
+        assert_equals(google_auth.credentials.client_secret, 'secret')
         assert_equals(google_auth.credentials.token, 'token')
-        #assert_equals(google_auth.credentials.quota_project_id, None)
 
 def test_call_default_credentials(): 
     with patch('subprocess.check_output', return_value=auth_list), \

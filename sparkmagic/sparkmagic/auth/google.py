@@ -186,8 +186,8 @@ def application_default_credentials_configured():
     callable_request = google.auth.transport.requests.Request()
     try:
         credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
-        credentials.refresh(callable_request) 
-    #Hangs unless refresh error. 
+        #credentials.refresh(callable_request) 
+        #Hangs unless refresh error. Check!! 
     except:
         pass
         return False
@@ -258,10 +258,6 @@ class GoogleAuth(Authenticator):
                 #self.credentials.refresh(self.callable_request)
         
     def update_with_widget_values(self):
-        new_exc = ValueError(
-                    "No  not generate component gateway url with project id: {}, region: {}, cluster name: {}"\
-                        .format(self.project_widget.value, self.region_widget.value, self.cluster_name_widget.value)
-                )
         no_credentials_exception = BadUserConfigurationException(
             "Failed to obtain access token. Run `gcloud auth login` in your command line \
             to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
