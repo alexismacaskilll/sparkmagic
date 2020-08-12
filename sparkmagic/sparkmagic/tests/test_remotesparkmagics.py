@@ -116,6 +116,29 @@ def test_add_sessions_command_parses_google():
                                               False, {"kind": "pyspark"})
     assert_equals(auth_instance.url, "http://url.com")
 
+
+@with_setup(_setup, _teardown)
+def test_add_sessions_command_parses_kerberos():
+    # Do not skip and python
+    add_sessions_mock = MagicMock()
+    spark_controller.add_session = add_sessions_mock
+    command = "add"
+    name = "-s name"
+    language = "-l python"
+    connection_string = "-u http://url.com -t {}".format('Kerberos')
+    line = " ".join([command, name, language, connection_string])
+    print(line)
+    magic.spark(line)
+    args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
+    print(args)
+    auth_instance = initialize_auth(args)
+    print(auth_instance.url)
+    
+    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", initialize_auth(args)),
+                                              False, {"kind": "pyspark"})
+    assert_equals(auth_instance.url, "http://url.com")
+
+
 @with_setup(_setup, _teardown)
 def test_add_sessions_command_exception():
     # Do not skip and python

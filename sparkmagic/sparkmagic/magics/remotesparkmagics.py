@@ -62,7 +62,7 @@ class RemoteSparkMagics(SparkMagicBase):
     @argument("-i", "--id", type=int, default=None, help="Session ID")
     @argument("-e", "--coerce", type=str, default=None, help="Whether to automatically coerce the types (default, pass True if being explicit) "
                                                                         "of the dataframe or not (pass False)")
-    @argument("-g", "--credentials", dest='account', type=str, default='default-credentials', help="Credentials for Google authentication. [account@google.com, "
+    @argument("-g", "--credentials", dest='account', type=str, default=None, help="Credentials for Google authentication. [account@google.com, "
                                                                         "default-credentials]")
 
     @needs_local_scope
@@ -140,6 +140,7 @@ class RemoteSparkMagics(SparkMagicBase):
 
             name = args.session
             language = args.language
+            
             endpoint = Endpoint(args.url, initialize_auth(args))
             skip = args.skip
 
