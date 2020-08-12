@@ -299,4 +299,4 @@ class GoogleAuth(Authenticator):
         return request
 
     def __hash__(self):
-        return hash((self.scopes, self.active_credentials, self.url, 'Google'))
+        return hash((self.active_credentials, self.url, 'Google'))
