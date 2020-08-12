@@ -207,7 +207,10 @@ class RemoteSparkMagics(SparkMagicBase):
         """
         if args is None:
             auth = 'None'
-        auth = conf.get_auth_value(args.user, args.password)
+        elif (hasattr(args, 'user') and hasattr(args, 'password')):
+            auth = conf.get_auth_value(args.user, args.password)
+        else: 
+            auth = args.auth
         full_class = conf.authenticators().get(auth)
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
