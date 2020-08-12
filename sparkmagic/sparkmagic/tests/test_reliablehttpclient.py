@@ -1,7 +1,7 @@
 # Copyright (c) 2015  aggftw@gmail.com
 # Distributed under the terms of the Modified BSD License.
 
-from mock import patch, PropertyMock, MagicMock, sentinel
+from mock import patch, PropertyMock, MagicMock
 from nose.tools import raises, assert_equals, with_setup, assert_is_not_none, assert_false, assert_true
 import requests
 from requests_kerberos.kerberos_ import HTTPKerberosAuth, REQUIRED, OPTIONAL
@@ -21,20 +21,8 @@ import sparkmagic.utils.constants as constants
 from unittest.mock import create_autospec
 from google.oauth2 import credentials
 import os
-"""
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
-AUTH_USER_JSON_FILE = os.path.join(DATA_DIR, "authorized_user.json")
-with open(AUTH_USER_JSON_FILE, "r") as fh:
-    AUTH_USER_INFO = json.load(fh)
 
-import json
-import os
-"""
-TOKEN_URI = "https://example.com/oauth2/token"
-REFRESH_TOKEN = "refresh_token"
-CLIENT_ID = "client_id"
-CLIENT_SECRET = "client_secret"
 
 retry_policy = None
 sequential_values = []
@@ -257,8 +245,6 @@ def test_basic_auth_check_auth():
     assert_equals(client._auth.password, endpoint.auth.password)
 
 
-
-
 @with_setup(_setup, _teardown)
 def test_no_auth_check_auth():
     endpoint = Endpoint("http://url.com", None)
@@ -294,15 +280,6 @@ def test_kerberos_auth_custom_configuration():
     assert hasattr(client._auth, 'force_preemptive')
     assert_equals(client._auth.force_preemptive, True)
 
-@with_setup(_setup, _teardown)
-def test_google_auth_check_auth():
-    endpoint = Endpoint("http://url.com", google_auth)
-    client = ReliableHttpClient(endpoint, {}, retry_policy)
-    assert_is_not_none(client._auth)
-    assert isinstance(client._auth, GoogleAuth)
-    assert hasattr(client._auth, 'url')
-    assert hasattr(client._auth, 'widgets')
-    
 
 @with_setup(_setup, _teardown)
 def test_google_auth_check_auth():
@@ -313,90 +290,12 @@ def test_google_auth_check_auth():
     assert hasattr(client._auth, 'url')
     assert hasattr(client._auth, 'widgets')
 
-"""
-@classmethod
-def make_credentials(cls):
-    return credentials.Credentials(
-        token=None,
-        refresh_token=cls.REFRESH_TOKEN,
-        token_uri=cls.TOKEN_URI,
-        client_id=cls.CLIENT_ID,
-        client_secret=cls.CLIENT_SECRET,
-    )
-
-
- 
-def test_default_state():
-    
-    creds = credentials.Credentials(
-                token="token",
-                refresh_token=self.REFRESH_TOKEN,
-                token_uri=self.TOKEN_URI,
-                client_id=self.CLIENT_ID,
-                client_secret=self.CLIENT_SECRET,
-            )
-    assert not credentials.valid
-    # Expiration hasn't been set yet
-    assert not credentials.expired
-    # Scopes aren't required for these credentials
-
-
-
-def test_from_authorized_user_info():
-        info = AUTH_USER_INFO.copy()
-        google.get_credentials_for_account
-
-        creds = credentials.Credentials.from_authorized_user_info(info)
-        assert creds.client_secret == info["client_secret"]
-        assert creds.client_id == info["client_id"]
-        assert creds.refresh_token == info["refresh_token"]
-        assert creds.token_uri == credentials._GOOGLE_OAUTH2_TOKEN_ENDPOINT
-        assert creds.scopes is None
-
-        scopes = ["email", "profile"]
-        creds = credentials.Credentials.from_authorized_user_info(info, scopes)
-        assert creds.client_secret == info["client_secret"]
-        assert creds.client_id == info["client_id"]
-        assert creds.refresh_token == info["refresh_token"]
-        assert creds.token_uri == credentials._GOOGLE_OAUTH2_TOKEN_ENDPOINT
-        assert creds.scopes == scopes
-
-
-def test_default_state_no_gcloud():
-    if (sparkmagic.)
-    credentials = google_auth.credentials
-    assert not credentials.valid
-    # Expiration hasn't been set yet
-    assert not credentials.expired
-    # Scopes aren't required for these credentials
-    assert credentials.requires_scopes
-    # Test properties
-
-    assert credentials.refresh_token == self.REFRESH_TOKEN
-    assert credentials.token_uri == self.TOKEN_URI
-    assert credentials.client_id == self.CLIENT_ID
-    assert credentials.client_secret == self.CLIENT_SECRET
-    """
-
-
-def test_default_credentials():
-    with patch("google.auth.default", autospec=True) as default:
-        default.return_value = (sentinel.credentials)
-
-        credentials = google.auth.default()
-
-        assert_equals(credentials, sentinel.credentials)
-"""
-
-def test_default_credentials_oauth2():
-        default_patch = patch(
-            "oauth2client.client.GoogleCredentials.get_application_default"
-        )
-
-        with default_patch as default:
-            default.return_value = sentinel.credentials
-
-            credentials = google.auth.default()
-
-            assert_equals(credentials, sentinel.credentials)
-"""
+  
+@with_setup(_setup, _teardown)
+def test_google_auth_check_auth():
+    endpoint = Endpoint("http://url.com", google_auth)
+    client = ReliableHttpClient(endpoint, {}, retry_policy)
+    assert_is_not_none(client._auth)
+    assert isinstance(client._auth, GoogleAuth)
+    assert hasattr(client._auth, 'url')
+    assert hasattr(client._auth, 'widgets')

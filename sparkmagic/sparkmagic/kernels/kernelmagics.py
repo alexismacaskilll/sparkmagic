@@ -403,19 +403,18 @@ class KernelMagics(SparkMagicBase):
 
     @magic_arguments()
     @line_magic
-    @argument("-u", "--username", type=str, help="Username to use.")
+    @argument("-u", "--username", dest='user', type=str, help="Username to use.")
     @argument("-p", "--password", type=str, help="Password to use.")
-    @argument("-s", "--server", type=str, help="Url of server to use.")
+    @argument("-s", "--server", dest='url', type=str, help="Url of server to use.")
     @argument("-t", "--auth", type=str, help="Auth type for authentication")
     @_event
     def _do_not_call_change_endpoint(self, line, cell="", local_ns=None):
         args = parse_argstring_or_throw(self._do_not_call_change_endpoint, line)
-        server = args.server
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
         auth = self._initialize_auth(args=args)
-        self.endpoint = Endpoint(server, auth_instance)
+        self.endpoint = Endpoint(args.url, auth)
 
     @line_magic
     def matplot(self, line, cell="", local_ns=None):
@@ -430,9 +429,9 @@ class KernelMagics(SparkMagicBase):
     def refresh_configuration(self):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
-        args = CustomNamespace(auth=auth, user=username, password=password)
+        args = Namespace(auth=auth, user=username, password=password)
         auth_instance = self._initialize_auth(args)
-        self.endpoint = Endpoint(url, auth_instance, username, password)
+        self.endpoint = Endpoint(url, auth_instance)
 
     def get_session_settings(self, line, force):
         line = line.strip()
@@ -467,8 +466,6 @@ class KernelMagics(SparkMagicBase):
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
-        #Get 'Namespace' object has no attribute 'user'
-        # where it sets self.username = parsed_attributes.user in basic auth class
         auth_instance = auth_class(args)
         return auth_instance
 
@@ -489,6 +486,7 @@ class KernelMagics(SparkMagicBase):
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
 
-class CustomNamespace:
+class Namespace:
+    """Namespace to initialize authenticator class with"""
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)

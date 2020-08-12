@@ -5,7 +5,7 @@ from IPython.core.magic import magics_class
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw
 import sparkmagic.utils.constants as constants
-from sparkmagic.kernels.kernelmagics import KernelMagics
+from sparkmagic.kernels.kernelmagics import KernelMagics, Namespace
 from sparkmagic.magics.remotesparkmagics import RemoteSparkMagics
 from sparkmagic.livyclientlib.exceptions import LivyClientTimeoutException, BadUserDataException,\
     LivyUnexpectedStatusException, SessionManagementException,\
@@ -184,20 +184,10 @@ def test_change_endpoint():
     t = constants.AUTH_BASIC
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
-    args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
-    print(args)
+    args = Namespace(auth='Basic', password='password', url='server', user='user')
     auth_instance = KernelMagics._initialize_auth(args)
-    """
-    if args is None:
-        auth = 'None'
-    auth = conf.get_auth_value(args.user, args.password)
-    full_class = conf.authenticators().get(auth)
-    module, class_name = (full_class).rsplit('.', 1)
-    events_handler_module = importlib.import_module(module)
-    auth_class = getattr(events_handler_module, class_name)
-    auth_instance = auth_class(args)
-    """
-    assert_equals(s, magic.endpoint.url)
+    endpoint = Endpoint(s, auth_instance)
+    assert_equals(endpoint.url, magic.endpoint.url)
     assert_equals(Endpoint(s, auth_instance), magic.endpoint)
 
 @with_setup(_setup, _teardown)
