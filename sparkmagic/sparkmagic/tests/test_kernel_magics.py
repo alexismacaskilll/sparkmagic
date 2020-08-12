@@ -1,7 +1,6 @@
 from mock import MagicMock
 from nose.tools import with_setup, raises, assert_equals, assert_is, assert_true
 from IPython.core.magic import magics_class
-from IPython.core.magic_arguments import parse_argstring
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw
