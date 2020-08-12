@@ -217,7 +217,7 @@ class GoogleAuth(Authenticator):
             self.active_credentials = active_user_account
         else:
             self.credentials, self.project = None, None
-        Authenticator.__init__(self)
+        #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
