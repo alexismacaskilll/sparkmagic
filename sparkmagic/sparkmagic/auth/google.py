@@ -213,6 +213,7 @@ class GoogleAuth(Authenticator):
         account_dict = list_accounts_pairs(self.credentialed_accounts, self.default_credentials_configured)
         if parsed_attributes is not None:
             self.active_credentials = parsed_attributes.account
+            
             if self.active_credentials == 'default-credentials' and self.default_credentials_configured:
                 self.credentials, self.project = google.auth.default(scopes=self.scopes)
             #fix account_dict
@@ -230,11 +231,10 @@ class GoogleAuth(Authenticator):
                 self.active_credentials = active_user_account
             else:
                 self.credentials, self.project = None, None
-        Authenticator.__init__(self)
-        self.url = 'http://example.com/livy'
+        Authenticator.__init__(self, parsed_attributes)
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
-    def get_widgets(self, widget_width): 
+    def get_widgets(self, widget_width):
         ipywidget_factory = IpyWidgetFactory()
 
         self.project_widget = ipywidget_factory.get_text(

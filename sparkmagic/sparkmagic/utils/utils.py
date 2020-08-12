@@ -4,6 +4,7 @@ from IPython.core.magic_arguments import parse_argstring
 import numpy as np
 import pandas as pd
 import json
+import importlib
 from collections import OrderedDict
 
 import sparkmagic.utils.configuration as conf
@@ -91,3 +92,35 @@ def get_sessions_info_html(info_sessions, current_session_id):
     u"</table>"
 
     return html
+
+def initialize_auth(args):
+    """Creates an authenticatior class instance for the given auth type
+
+    Args:
+        args (IPython.core.magics.namespace): The namespace object that is created from
+        parsing %spark magic command
+
+    Returns:
+        An instance of one of the following authenticators:
+        google.auth.customauth.Authenticator, google.auth.basic.Basic,
+        google.auth.kerberos.Kerberos
+    """
+
+    if args.auth is None:
+        auth = conf.get_auth_value(args.user, args.password)
+    else: 
+        auth = args.auth
+    full_class = conf.authenticators().get(auth)
+    module, class_name = (full_class).rsplit('.', 1)
+    events_handler_module = importlib.import_module(module)
+    auth_class = getattr(events_handler_module, class_name)
+    print(auth_class)
+    auth_instance = auth_class(args)
+    return auth_instance
+
+class Namespace:
+    """Namespace to initialize authenticator class with"""
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+

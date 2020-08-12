@@ -8,6 +8,7 @@ from sparkmagic.controllerwidget.createsessionwidget import CreateSessionWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.utils.constants import LANGS_SUPPORTED
 import sparkmagic.utils.configuration as conf
+from sparkmagic.utils.utils import Namespace, initialize_auth
 
 
 class MagicsControllerWidget(AbstractMenuWidget):
@@ -32,13 +33,11 @@ class MagicsControllerWidget(AbstractMenuWidget):
             if all([p in endpoint_config for p in ["url", "password", "username"]]) and endpoint_config["url"] != "":
                 user = endpoint_config["username"]
                 passwd = endpoint_config["password"]
-
-                authentication = endpoint_config.get("auth", None)
-                if authentication is None:
-                    authentication = conf.get_auth_value(user, passwd)
+                args = Namespace(user=user, password=passwd, auth=endpoint_config.get("auth", None))
+                auth_instance = initialize_auth(args)
 
                 default_endpoints.add(Endpoint(
-                    auth=authentication,
+                    auth=auth_instance,
                     url=endpoint_config["url"],
                     implicitly_added=True))
 

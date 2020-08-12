@@ -256,20 +256,13 @@ def test_active_account_returns_valid_active_account():
         patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'):
         credentialed_acccounts = sparkmagic.auth.google.list_credentialed_accounts()
         assert_equals(sparkmagic.auth.google.list_active_account(credentialed_acccounts), 'account@google.com')
-"""
-def test_dropdown_options_with_default_credentials_not_configured():
-    with patch('subprocess.check_output', return_value=auth_list), \
-        patch('google.auth.default', side_effect=DefaultCredentialsError), \
-        patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'):
-        assert_equals(GoogleAuth().google_credentials_widget.options, {'account@google.com':'account@google.com'})
-"""
+
 def test_dropdown_options_with_default_credentials_configured():
     with patch('subprocess.check_output', return_value=auth_list), \
         patch('google.auth.default', return_value=(MOCK_CREDENTIALS, 'project')), \
         patch('google.auth._cloud_sdk.get_auth_access_token', return_value='token'):
         assert_equals(GoogleAuth().google_credentials_widget.options, {'account@google.com':'account@google.com', \
             'default-credentials':'default-credentials'})
-
 
 
 def refreshed_credentials():
@@ -289,7 +282,6 @@ def not_refreshed_credentials():
             client_id='client_id',
             client_secret='client_secret',
         )
-
 
 grant_response = {"id_token": 'id_token'}
 expiry = datetime.datetime(2007, 12, 6, 16, 29, 43, 79043)
@@ -320,10 +312,7 @@ def test_initialize_credentials_with_auth_dropdown_user_credentials_to_user_cred
         google_auth = GoogleAuth()
         assert_equals(google_auth.active_credentials, 'account@google.com')
         google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
-    
         google.auth.default.assert_called_once_with(scopes=google_auth.scopes)
-  
-        #(calls=[google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes), google.auth.default(google_auth.scopes)])
     
 
 @raises(RetryError)

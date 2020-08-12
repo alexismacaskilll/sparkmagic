@@ -15,7 +15,7 @@ import importlib
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.configuration import get_livy_kind
 from sparkmagic.utils import constants
-from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value
+from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value, initialize_auth, Namespace
 from sparkmagic.utils.sparkevents import SparkEvents
 from sparkmagic.utils.constants import LANGS_SUPPORTED
 from sparkmagic.livyclientlib.command import Command
@@ -413,7 +413,7 @@ class KernelMagics(SparkMagicBase):
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-        auth = self._initialize_auth(args=args)
+        auth = initialize_auth(args=args)
         self.endpoint = Endpoint(args.url, auth)
 
     @line_magic
@@ -430,7 +430,7 @@ class KernelMagics(SparkMagicBase):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
         args = Namespace(auth=auth, user=username, password=password)
-        auth_instance = self._initialize_auth(args)
+        auth_instance = initialize_auth(args)
         self.endpoint = Endpoint(url, auth_instance)
 
     def get_session_settings(self, line, force):
@@ -486,7 +486,4 @@ class KernelMagics(SparkMagicBase):
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
 
-class Namespace:
-    """Namespace to initialize authenticator class with"""
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+

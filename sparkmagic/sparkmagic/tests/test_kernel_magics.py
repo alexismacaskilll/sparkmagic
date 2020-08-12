@@ -3,7 +3,7 @@ from nose.tools import with_setup, raises, assert_equals, assert_is, assert_true
 from IPython.core.magic import magics_class
 
 import sparkmagic.utils.configuration as conf
-from sparkmagic.utils.utils import parse_argstring_or_throw
+from sparkmagic.utils.utils import parse_argstring_or_throw, initialize_auth
 import sparkmagic.utils.constants as constants
 from sparkmagic.kernels.kernelmagics import KernelMagics, Namespace
 from sparkmagic.magics.remotesparkmagics import RemoteSparkMagics
@@ -185,7 +185,7 @@ def test_change_endpoint():
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
     args = Namespace(auth='Basic', password='password', url='server', user='user')
-    auth_instance = KernelMagics._initialize_auth(args)
+    auth_instance = initialize_auth(args)
     endpoint = Endpoint(s, auth_instance)
     assert_equals(endpoint.url, magic.endpoint.url)
     assert_equals(Endpoint(s, auth_instance), magic.endpoint)
