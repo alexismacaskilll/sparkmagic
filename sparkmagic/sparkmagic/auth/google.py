@@ -50,8 +50,13 @@ def list_active_account(credentialed_accounts):
     except:
         pass
 
-def list_accounts_pairs(credentialed_accounts):
+def list_accounts_pairs(credentialed_accounts, default_credentials_configured):
     """Reformates all of user's credentialed accounts to populate google_credentials_widget dropdown's options. 
+
+    Args:
+        credentialed_accounts (str): user credentialed account to return credentials for
+        default_credentials_configured (boolean): This is True if google application-default
+        credentials are configured.
 
     Returns:
         dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account
@@ -60,7 +65,7 @@ def list_accounts_pairs(credentialed_accounts):
     accounts_list = {}
     for account in accounts:
         accounts_list[account['account']] = account['account']
-    if application_default_credentials_configured():
+    if default_credentials_configured:
         accounts_list['default-credentials'] = 'default-credentials'
     return accounts_list
 
@@ -69,7 +74,7 @@ def list_credentialed_accounts():
     """Load all of user's credentialed accounts with ``gcloud auth list`` command.
 
     Returns:
-        list: each key is a str of one of the users credentialed accounts
+        Sequence[str]: each key is a str of one of the users credentialed accounts
 
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
@@ -200,16 +205,17 @@ class GoogleAuth(Authenticator):
     def __init__(self):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
-        self.scopes = ['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'] 
+        self.scopes = ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/userinfo.email']
         self.active_credentials = None
         active_user_account = list_active_account(self.credentialed_accounts)
-        if application_default_credentials_configured():
+        self.default_credentials_configured = application_default_credentials_configured()
+        if self.default_credentials_configured:
             self.credentials, self.project = google.auth.default(scopes=self.scopes)
             self.active_credentials = 'default-credentials'
         elif active_user_account is not None:
             self.credentials = get_credentials_for_account(active_user_account, self.scopes)
             self.active_credentials = active_user_account
-        else: 
+        else:
             self.credentials, self.project = None, None
         #Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
@@ -234,8 +240,8 @@ class GoogleAuth(Authenticator):
         )
 
         self.google_credentials_widget = ipywidget_factory.get_dropdown(
-            options=list_accounts_pairs(self.credentialed_accounts),
-            value = None,
+            options=list_accounts_pairs(self.credentialed_accounts, self.default_credentials_configured),
+            value=None,
             description=u"Account:"
         )
 
@@ -253,7 +259,7 @@ class GoogleAuth(Authenticator):
             if (account == 'default-credentials'):
                 self.credentials, self.project = google.auth.default(scopes=self.scopes)
                 #self.credentials.refresh(self.callable_request)
-            else: 
+            else:
                 self.credentials = get_credentials_for_account(account, self.scopes)
                 #self.credentials.refresh(self.callable_request)
         
