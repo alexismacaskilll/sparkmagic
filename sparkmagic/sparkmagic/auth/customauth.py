@@ -55,4 +55,4 @@ class Authenticator(object):
         return self.url == other.url
 
     def __hash__(self):
-        return hash((self.url, self.__class__))
+        return hash((self.url, self.__class__.__name__))
