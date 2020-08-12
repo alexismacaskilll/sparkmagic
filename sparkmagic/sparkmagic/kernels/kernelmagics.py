@@ -434,7 +434,11 @@ class KernelMagics(SparkMagicBase):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
         args = Namespace(auth=auth, user=username, password=password)
+<<<<<<< HEAD
         auth_instance = initialize_auth(args)
+=======
+        auth_instance = self._initialize_auth(args)
+>>>>>>> fix endpoint test
         self.endpoint = Endpoint(url, auth_instance)
 
     def get_session_settings(self, line, force):
@@ -472,8 +476,6 @@ class KernelMagics(SparkMagicBase):
         module, class_name = (full_class).rsplit('.', 1)
         events_handler_module = importlib.import_module(module)
         auth_class = getattr(events_handler_module, class_name)
-        #Get 'Namespace' object has no attribute 'user'
-        # where it sets self.username = parsed_attributes.user in basic auth class
         auth_instance = auth_class(args)
         return auth_instance
 
@@ -494,3 +496,8 @@ class KernelMagics(SparkMagicBase):
 
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
+
+class Namespace:
+    """Namespace to initialize authenticator class with"""
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)

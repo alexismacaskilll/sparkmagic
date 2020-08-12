@@ -184,12 +184,15 @@ def test_change_endpoint():
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
 <<<<<<< HEAD
+<<<<<<< HEAD
     args = Namespace(auth='Basic', password='password', url='server', user='user')
     auth_instance = initialize_auth(args)
 =======
     class Namespace:
         def __init__(self, **kwargs):
             self.__dict__.update(kwargs)
+=======
+>>>>>>> fix endpoint test
     args = Namespace(auth='Basic', password='password', url='server', user='user')
     auth_instance = KernelMagics._initialize_auth(args)
 >>>>>>> fix add endpoint
