@@ -202,7 +202,7 @@ def application_default_credentials_configured():
 class GoogleAuth(Authenticator):
     """Custom Authenticator to use Google OAuth with SparkMagic."""
 
-    def __init__(self):
+    def __init__(self, parsed_attributes=None):
         self.callable_request = google.auth.transport.requests.Request()
         self.credentialed_accounts = list_credentialed_accounts()
         self.scopes = ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/userinfo.email']
@@ -217,7 +217,7 @@ class GoogleAuth(Authenticator):
             self.active_credentials = active_user_account
         else:
             self.credentials, self.project = None, None
-        #Authenticator.__init__(self)
+        Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
