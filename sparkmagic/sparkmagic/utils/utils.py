@@ -9,7 +9,8 @@ from collections import OrderedDict
 
 import sparkmagic.utils.configuration as conf
 import sparkmagic.utils.constants as constants
-from sparkmagic.livyclientlib.exceptions import BadUserDataException, DataFrameParseException
+from sparkmagic.livyclientlib.exceptions import BadUserDataException, DataFrameParseException, \
+    BadUserConfigurationException
 
 
 def get_coerce_value(coerce):
@@ -104,6 +105,10 @@ def initialize_auth(args):
         An instance of one of the following authenticators:
         google.auth.customauth.Authenticator, google.auth.basic.Basic,
         google.auth.kerberos.Kerberos
+    
+    Raises:
+        sparkmagic.livyclientlib.BadUserConfigurationException: if args.auth is not a valid
+        authenticator class. 
     """
 
     if args.auth is None:
@@ -111,6 +116,8 @@ def initialize_auth(args):
     else: 
         auth = args.auth
     full_class = conf.authenticators().get(auth)
+    if full_class is None:
+        raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
     module, class_name = (full_class).rsplit('.', 1)
     events_handler_module = importlib.import_module(module)
     auth_class = getattr(events_handler_module, class_name)

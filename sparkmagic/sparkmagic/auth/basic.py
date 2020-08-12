@@ -1,9 +1,9 @@
 ﻿"""Class for implementing a basic access authenticator for SparkMagic"""
 
+from sparkmagic.livyclientlib.exceptions import BadUserDataException
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 from requests.auth import HTTPBasicAuth
 from .customauth import Authenticator
-
 
 class Basic(HTTPBasicAuth, Authenticator):
     """Basic access authenticator for SparkMagic"""
@@ -18,6 +18,12 @@ class Basic(HTTPBasicAuth, Authenticator):
             is created from parsing %spark magic command.
         """
         if parsed_attributes is not None:
+            if parsed_attributes.user is None or parsed_attributes.password is None:
+                new_exc = BadUserDataException(
+                "Need to supply username and password arguments for Basic Access Authentication. (e.g. -a username \
+                    -p password)."
+                )
+                raise new_exc
             self.username = parsed_attributes.user
             self.password = parsed_attributes.password
         else:

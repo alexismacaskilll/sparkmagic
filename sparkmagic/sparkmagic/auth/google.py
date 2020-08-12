@@ -25,7 +25,7 @@ def load_json_input(result):
     try:
         jsondata = json.loads(result)
     except:
-        raise#pass
+        raise
     return jsondata
 
 def list_active_account(credentialed_accounts):
@@ -212,7 +212,16 @@ class GoogleAuth(Authenticator):
         
         account_dict = list_accounts_pairs(self.credentialed_accounts, self.default_credentials_configured)
         if parsed_attributes is not None:
-            self.active_credentials = parsed_attributes.account
+            if parsed_attributes.account in account_dict:
+                self.active_credentials = parsed_attributes.account
+            else: 
+                new_exc = BadUserConfigurationException(
+                "{} is not a credentialed account. Run `gcloud auth login` in your command line \
+            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
+            application-default login` acquire new user credentials to use for Application Default Credentials. Run `gcloud \
+            auth list` to see your credentialed accounts.".format(parsed_attributes.account)
+            )
+                raise new_exc
             
             if self.active_credentials == 'default-credentials' and self.default_credentials_configured:
                 self.credentials, self.project = google.auth.default(scopes=self.scopes)
