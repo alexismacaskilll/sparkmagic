@@ -209,15 +209,27 @@ class GoogleAuth(Authenticator):
         self.active_credentials = None
         active_user_account = list_active_account(self.credentialed_accounts)
         self.default_credentials_configured = application_default_credentials_configured()
-        if self.default_credentials_configured:
-            self.credentials, self.project = google.auth.default(scopes=self.scopes)
-            self.active_credentials = 'default-credentials'
-        elif active_user_account is not None:
-            self.credentials = get_credentials_for_account(active_user_account, self.scopes)
-            self.active_credentials = active_user_account
+        if parsed_attributes is not None:
+            self.active_credentials = parsed_attributes.account
+            if self.active_credentials == 'default-credentials' and self.default_credentials_configured:
+                self.credentials, self.project = google.auth.default(scopes=self.scopes)
+            #fix this to be active_credentials is in credentialed accounts 
+            elif self.active_credentials is not None and active_user_account is not None:
+                self.credentials = get_credentials_for_account(active_user_account, self.scopes)
+                self.active_credentials = active_user_account
+            else:
+                self.credentials, self.project = None, None
         else:
-            self.credentials, self.project = None, None
-        #Authenticator.__init__(self)
+            if self.default_credentials_configured:
+                self.credentials, self.project = google.auth.default(scopes=self.scopes)
+                self.active_credentials = 'default-credentials'
+            #fix this to be active_credentials is in credentialed accounts 
+            elif active_user_account is not None:
+                self.credentials = get_credentials_for_account(active_user_account, self.scopes)
+                self.active_credentials = active_user_account
+            else:
+                self.credentials, self.project = None, None
+        Authenticator.__init__(self)
         self.url = 'http://example.com/livy'
         self.widgets = self.get_widgets(WIDGET_WIDTH)
 
