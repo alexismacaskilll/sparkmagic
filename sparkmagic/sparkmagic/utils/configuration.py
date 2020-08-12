@@ -59,7 +59,7 @@ def authenticators():
         u"Kerberos": u"sparkmagic.auth.kerberos.Kerberos",
         u"None": u"sparkmagic.auth.customauth.Authenticator",
         u"Basic": u"sparkmagic.auth.basic.Basic", 
-        u"Basic": u"sparkmagic.auth.google.GoogleAuth"
+        u"Google": u"sparkmagic.auth.google.GoogleAuth"
     }
        
     
