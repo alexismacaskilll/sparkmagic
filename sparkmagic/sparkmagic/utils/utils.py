@@ -113,17 +113,16 @@ def initialize_auth(args):
         auth = conf.get_auth_value(args.user, args.password)
     else: 
         auth = args.auth
-    full_class = conf.authenticators().get(auth)
-    if full_class is None:
-        raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
-    module, class_name = (full_class).rsplit('.', 1)
-    events_handler_module = importlib.import_module(module)
-    auth_class = getattr(events_handler_module, class_name)
-    if class_name == "None":
+    if auth == 'None':
         return None
     else: 
+        full_class = conf.authenticators().get(auth)
+        if full_class is None:
+            raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_class = getattr(events_handler_module, class_name)
         return auth_class(args)
-
 
 class Namespace:
     """Namespace to initialize authenticator class with"""
