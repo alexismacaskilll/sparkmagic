@@ -19,7 +19,7 @@ class Basic(HTTPBasicAuth, Authenticator):
         """
         if parsed_attributes is not None:
             if parsed_attributes.user is '' or parsed_attributes.password is '':
-                new_exc = BadUserDataException("Need to supply username and password arguments for"\
+                new_exc = BadUserDataException("Need to supply username and password arguments for "\
                     "Basic Access Authentication. (e.g. -a username -p password).")
                 raise new_exc
             self.username = parsed_attributes.user
