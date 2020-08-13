@@ -47,16 +47,10 @@ class ReliableHttpClient(object):
     def _send_request_helper(self, url, accepted_status_codes, function, data, retry_count):
         while True:
             try:
-                if self._endpoint.auth is None:
-                    if data is None:
-                        r = function(url, headers=self._headers, verify=self.verify_ssl)
-                    else:
-                        r = function(url, headers=self._headers, data=json.dumps(data), verify=self.verify_ssl)
+                if data is None:
+                    r = function(url, headers=self._headers, auth=self._auth, verify=self.verify_ssl)
                 else:
-                    if data is None:
-                        r = function(url, headers=self._headers, auth=self._auth, verify=self.verify_ssl)
-                    else:
-                        r = function(url, headers=self._headers, auth=self._auth,
+                    r = function(url, headers=self._headers, auth=self._auth,
                                      data=json.dumps(data), verify=self.verify_ssl)
             except requests.exceptions.RequestException as e:
                 error = True
