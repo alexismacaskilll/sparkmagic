@@ -1,5 +1,5 @@
 from mock import MagicMock
-from nose.tools import with_setup, assert_equals, assert_not_equal
+from nose.tools import with_setup, assert_equals
 
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw, initialize_auth
@@ -99,25 +99,6 @@ def test_add_sessions_command_parses():
 
 
 @with_setup(_setup, _teardown)
-def test_add_sessions_command_parses_google():
-    # Do not skip and python
-    add_sessions_mock = MagicMock()
-    spark_controller.add_session = add_sessions_mock
-    command = "add"
-    name = "-s name"
-    language = "-l python"
-    connection_string = "-u http://url.com -t {}".format('Google')
-    line = " ".join([command, name, language, connection_string])
-
-    magic.spark(line)
-    args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
-    auth_instance = initialize_auth(args)
-    add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", initialize_auth(args)),
-                                              False, {"kind": "pyspark"})
-    assert_equals(auth_instance.url, "http://url.com")
-
-
-@with_setup(_setup, _teardown)
 def test_add_sessions_command_parses_kerberos():
     # Do not skip and python
     add_sessions_mock = MagicMock()
@@ -127,12 +108,9 @@ def test_add_sessions_command_parses_kerberos():
     language = "-l python"
     connection_string = "-u http://url.com -t {}".format('Kerberos')
     line = " ".join([command, name, language, connection_string])
-    print(line)
     magic.spark(line)
     args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
-    print(args)
     auth_instance = initialize_auth(args)
-    print(auth_instance.url)
     
     add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", initialize_auth(args)),
                                               False, {"kind": "pyspark"})

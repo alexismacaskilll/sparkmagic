@@ -102,9 +102,7 @@ def initialize_auth(args):
         parsing %spark magic command
 
     Returns:
-        An instance of one of the following authenticators:
-        google.auth.customauth.Authenticator, google.auth.basic.Basic,
-        google.auth.kerberos.Kerberos
+        An instance of one of a valid Authenticator
     
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if args.auth is not a valid

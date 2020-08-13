@@ -7,9 +7,6 @@ import requests
 from requests_kerberos.kerberos_ import HTTPKerberosAuth, REQUIRED, OPTIONAL
 from sparkmagic.auth.basic import Basic
 from sparkmagic.auth.kerberos import Kerberos
-import sparkmagic.auth.google as google_auth_class
-import google.auth
-from sparkmagic.auth.google import GoogleAuth
 from sparkmagic.auth.customauth import Authenticator
 from sparkmagic.livyclientlib.endpoint import Endpoint
 from sparkmagic.livyclientlib.exceptions import HttpClientException
@@ -18,17 +15,11 @@ from sparkmagic.livyclientlib.linearretrypolicy import LinearRetryPolicy
 from sparkmagic.livyclientlib.reliablehttpclient import ReliableHttpClient
 import sparkmagic.utils.configuration as conf
 import sparkmagic.utils.constants as constants
-from unittest.mock import create_autospec
-from google.oauth2 import credentials
-import os
-
-
 
 retry_policy = None
 sequential_values = []
 basic_auth = Basic()
 kerberos_auth = Kerberos()
-google_auth = GoogleAuth()
 endpoint = Endpoint("http://url.com", basic_auth)
 
 
@@ -72,17 +63,6 @@ def test_get():
     with patch('requests.Session.get') as patched_get:
         type(patched_get.return_value).status_code = 200
 
-        client = ReliableHttpClient(endpoint, {}, retry_policy)
-
-        result = client.get("r", [200])
-
-        assert_equals(200, result.status_code)
-
-@with_setup(_setup, _teardown)
-def test_get_google():
-    with patch('requests.Session.get') as patched_get:
-        type(patched_get.return_value).status_code = 200
-        endpoint = Endpoint("http://url.com", google_auth)
         client = ReliableHttpClient(endpoint, {}, retry_policy)
 
         result = client.get("r", [200])
@@ -279,23 +259,3 @@ def test_kerberos_auth_custom_configuration():
     assert_equals(client._auth.mutual_authentication, OPTIONAL)
     assert hasattr(client._auth, 'force_preemptive')
     assert_equals(client._auth.force_preemptive, True)
-
-
-@with_setup(_setup, _teardown)
-def test_google_auth_check_auth():
-    endpoint = Endpoint("http://url.com", google_auth)
-    client = ReliableHttpClient(endpoint, {}, retry_policy)
-    assert_is_not_none(client._auth)
-    assert isinstance(client._auth, GoogleAuth)
-    assert hasattr(client._auth, 'url')
-    assert hasattr(client._auth, 'widgets')
-
-  
-@with_setup(_setup, _teardown)
-def test_google_auth_check_auth():
-    endpoint = Endpoint("http://url.com", google_auth)
-    client = ReliableHttpClient(endpoint, {}, retry_policy)
-    assert_is_not_none(client._auth)
-    assert isinstance(client._auth, GoogleAuth)
-    assert hasattr(client._auth, 'url')
-    assert hasattr(client._auth, 'widgets')

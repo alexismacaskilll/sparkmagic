@@ -413,11 +413,7 @@ class KernelMagics(SparkMagicBase):
         if self.session_started:
             error = u"Cannot change the endpoint if a session has been started."
             raise BadUserDataException(error)
-<<<<<<< HEAD
         auth = initialize_auth(args=args)
-=======
-        auth = self._initialize_auth(args)
->>>>>>> fix add endpoint
         self.endpoint = Endpoint(args.url, auth)
 
     @line_magic
@@ -434,11 +430,7 @@ class KernelMagics(SparkMagicBase):
         credentials = getattr(conf, 'base64_kernel_' + self.language + '_credentials')()
         (username, password, auth, url) = (credentials['username'], credentials['password'], credentials['auth'], credentials['url'])
         args = Namespace(auth=auth, user=username, password=password)
-<<<<<<< HEAD
         auth_instance = initialize_auth(args)
-=======
-        auth_instance = self._initialize_auth(args)
->>>>>>> fix endpoint test
         self.endpoint = Endpoint(url, auth_instance)
 
     def get_session_settings(self, line, force):
@@ -454,33 +446,6 @@ class KernelMagics(SparkMagicBase):
                 return None
 
     @staticmethod
-<<<<<<< HEAD
-=======
-    def _initialize_auth(args=None):
-        """Creates an authenticatior class instance for the given auth type
-
-        Args:
-            args (Optional[IPython.core.magics.namespace]): The namespace object that
-            is created from parsing %spark magic command.
-
-        Returns:
-            An instance of one of the following authenticators:
-            google.auth.customauth.Authenticator, google.auth.basic.Basic,
-            google.auth.kerberos.Kerberos
-        """
-        if args.auth is None:
-            auth = conf.get_auth_value(args.user, args.password)
-        else:
-            auth = args.auth
-        full_class = conf.authenticators().get(auth)
-        module, class_name = (full_class).rsplit('.', 1)
-        events_handler_module = importlib.import_module(module)
-        auth_class = getattr(events_handler_module, class_name)
-        auth_instance = auth_class(args)
-        return auth_instance
-
-    @staticmethod
->>>>>>> fix add endpoint
     def _override_session_settings(settings):
         conf.override(conf.session_configs.__name__, settings)
 

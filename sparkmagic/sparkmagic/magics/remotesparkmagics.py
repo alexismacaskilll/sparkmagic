@@ -111,13 +111,11 @@ class RemoteSparkMagics(SparkMagicBase):
         args = parse_argstring_or_throw(self.spark, user_input)
 
         subcommand = args.command[0].lower()
-        """
+    
         if args.auth is None:
             args.auth = conf.get_auth_value(args.user, args.password)
         else:
             args.auth = args.auth
-        """
-
 
         # info
         if subcommand == "info":
