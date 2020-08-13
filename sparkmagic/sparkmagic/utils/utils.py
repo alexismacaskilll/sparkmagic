@@ -108,20 +108,19 @@ def initialize_auth(args):
         sparkmagic.livyclientlib.BadUserConfigurationException: if args.auth is not a valid
         authenticator class. 
     """
-
     if args.auth is None:
         auth = conf.get_auth_value(args.user, args.password)
     else:
         auth = args.auth
-    full_class = conf.authenticators().get(auth)
-    if full_class is None:
-        raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
-    module, class_name = (full_class).rsplit('.', 1)
-    events_handler_module = importlib.import_module(module)
-    auth_class = getattr(events_handler_module, class_name)
-    if auth_class is constants.NO_AUTH:
+    if auth == constants.NO_AUTH:
         return None
     else: 
+        full_class = conf.authenticators().get(auth)
+        if full_class is None:
+            raise BadUserConfigurationException(u"Auth '{}' not supported".format(auth))
+        module, class_name = (full_class).rsplit('.', 1)
+        events_handler_module = importlib.import_module(module)
+        auth_class = getattr(events_handler_module, class_name)
         return auth_class(args)
 
 class Namespace:
