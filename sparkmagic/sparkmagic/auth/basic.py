@@ -72,4 +72,4 @@ class Basic(HTTPBasicAuth, Authenticator):
         return HTTPBasicAuth.__call__(self, request)
 
     def __hash__(self):
-        return hash((self.username, self.password, self.url, 'Basic'))
+        return hash((self.username, self.password, self.url, self.__class__.__name__))

@@ -25,4 +25,4 @@ class Kerberos(HTTPKerberosAuth, Authenticator):
         return HTTPKerberosAuth.__call__(self, request)
 
     def __hash__(self):
-        return hash((self.url, 'Kerberos'))
+        return hash((self.url, self.__class__.__name__))
