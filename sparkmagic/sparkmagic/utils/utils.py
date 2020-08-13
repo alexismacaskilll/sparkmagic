@@ -119,7 +119,6 @@ def initialize_auth(args):
     module, class_name = (full_class).rsplit('.', 1)
     events_handler_module = importlib.import_module(module)
     auth_class = getattr(events_handler_module, class_name)
-    print(auth_class)
     auth_instance = auth_class(args)
     return auth_instance
 
