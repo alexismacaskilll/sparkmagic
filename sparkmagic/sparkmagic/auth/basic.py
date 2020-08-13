@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 from .customauth import Authenticator
 
 class Basic(HTTPBasicAuth, Authenticator):
-    """Basic access authenticator for SparkMagic"""
+    """Basic Access authenticator for SparkMagic"""
     def __init__(self, parsed_attributes=None):
         """Initializes the Authenticator with the attributes in the attributes
         parsed from a %spark magic command if applicable, or with default values
@@ -20,8 +20,8 @@ class Basic(HTTPBasicAuth, Authenticator):
         if parsed_attributes is not None:
             if parsed_attributes.user is '' or parsed_attributes.password is '':
                 new_exc = BadUserDataException(
-                "Need to supply username and password arguments for Basic Access Authentication. (e.g. -a username \
-                    -p password)."
+                "Need to supply username and password arguments for Basic Access Authentication. (e.g. -a username" \
+                    "-p password)."
                 )
                 raise new_exc
             self.username = parsed_attributes.user

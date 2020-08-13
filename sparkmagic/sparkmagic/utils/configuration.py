@@ -58,7 +58,7 @@ def authenticators():
     return  {
         u"Kerberos": u"sparkmagic.auth.kerberos.Kerberos",
         u"None": u"sparkmagic.auth.customauth.Authenticator",
-        u"Basic": u"sparkmagic.auth.basic.Basic",
+        u"Basic_Access": u"sparkmagic.auth.basic.Basic",
         u"Google": u"sparkmagic.auth.google.GoogleAuth"
     }
        
