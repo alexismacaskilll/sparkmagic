@@ -298,6 +298,7 @@ def test_initialize_credentials_with_auth_dropdown_default_credentials_to_defaul
         google_auth = GoogleAuth()
         assert_equals(google_auth.active_credentials, 'default-credentials')
         google_auth.initialize_credentials_with_auth_account_selection(google_auth.active_credentials)
+        assert_equals(google_auth.active_credentials, 'default-credentials')
         d.assert_has_calls([call(scopes=google_auth.scopes), call(scopes=google_auth.scopes)])
 
 def test_initialize_credentials_with_auth_dropdown_user_credentials_to_user_credentials():

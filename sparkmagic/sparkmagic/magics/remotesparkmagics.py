@@ -6,14 +6,13 @@ Provides the %spark magic."""
 
 from __future__ import print_function
 import json
-import importlib
 from IPython.core.magic import line_cell_magic, needs_local_scope, line_magic
 from IPython.core.magic import magics_class
 from IPython.core.magic_arguments import argument, magic_arguments
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 
 import sparkmagic.utils.configuration as conf
-from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value, initialize_auth, Namespace
+from sparkmagic.utils.utils import parse_argstring_or_throw, get_coerce_value, initialize_auth
 from sparkmagic.utils.constants import CONTEXT_NAME_SPARK, CONTEXT_NAME_SQL, LANG_PYTHON, LANG_R, LANG_SCALA
 from sparkmagic.controllerwidget.magicscontrollerwidget import MagicsControllerWidget
 from sparkmagic.livyclientlib.endpoint import Endpoint
@@ -114,12 +113,11 @@ class RemoteSparkMagics(SparkMagicBase):
         args = parse_argstring_or_throw(self.spark, user_input)
 
         subcommand = args.command[0].lower()
-        """
+       
         if args.auth is None:
             args.auth = conf.get_auth_value(args.user, args.password)
         else:
             args.auth = args.auth
-        """
 
         # info
         if subcommand == "info":

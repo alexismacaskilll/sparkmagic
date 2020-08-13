@@ -106,9 +106,9 @@ def list_credentialed_accounts():
         raise new_exc
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
-            "to authorize gcloud to access the Cloud Platform with Google user credentials to"\
-            "authenticate. Run `gcloud auth application-default login` acquire new user"\
+            "Failed to obtain access token. Run `gcloud auth login` in your command line "\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials to "\
+            "authenticate. Run `gcloud auth application-default login` acquire new user "\
             "credentials to use for Application Default Credentials."
         )
         raise new_exc
@@ -147,9 +147,9 @@ def get_credentials_for_account(account, scopes_list):
         raise new_exc
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
-            "to authorize gcloud to access the Cloud Platform with Google user credentials"\
-            "to authenticate. Run `gcloud auth application-default login` to acquire new"\
+            "Failed to obtain access token. Run `gcloud auth login` in your command line "\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials "\
+            "to authenticate. Run `gcloud auth application-default login` to acquire new "\
             "user credentials to use for Application Default Credentials.")
         raise new_exc
 
@@ -214,10 +214,10 @@ class GoogleAuth(Authenticator):
                 self.active_credentials = parsed_attributes.account
             else: 
                 new_exc = BadUserConfigurationException(
-                "{} is not a credentialed account. Run `gcloud auth login` in your command line"\
-                "to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate."\
-                "Run `gcloud auth application-default login` acquire new user credentials"\
-                "to use for Application Default Credentials. Run `gcloud auth list` to see"\
+                "{} is not a credentialed account. Run `gcloud auth login` in your command line "\
+                "to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. "\
+                "Run `gcloud auth application-default login` acquire new user credentials "\
+                "to use for Application Default Credentials. Run `gcloud auth list` to see "\
                 "your credentialed accounts.".format(parsed_attributes.account))
                 raise new_exc
             if self.active_credentials == 'default-credentials' and self.default_credentials_configured:
@@ -284,9 +284,9 @@ class GoogleAuth(Authenticator):
         
     def update_with_widget_values(self):
         no_credentials_exception = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
-            "to authorize gcloud to access the Cloud Platform with Google user credentials to"\
-            "authenticate. Run `gcloud auth application-default login` acquire new user"\
+            "Failed to obtain access token. Run `gcloud auth login` in your command line "\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials to "\
+            "authenticate. Run `gcloud auth application-default login` acquire new user "\
             "credentials to use for Application Default Credentials.")
         if (self.credentials is not None):
             try: 

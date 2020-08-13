@@ -1,6 +1,5 @@
 from mock import MagicMock
-from nose.tools import with_setup, assert_equals, assert_not_equal
-
+from nose.tools import with_setup, assert_equals
 import sparkmagic.utils.configuration as conf
 from sparkmagic.utils.utils import parse_argstring_or_throw, initialize_auth
 from sparkmagic.utils.constants import EXPECTED_ERROR_MSG, MIMETYPE_TEXT_PLAIN, NO_AUTH, AUTH_BASIC
@@ -97,7 +96,6 @@ def test_add_sessions_command_parses():
     add_sessions_mock.assert_called_once_with("name", Endpoint("http://location:port", initialize_auth(args)),
                                               True, {"kind": "spark"})
 
-
 @with_setup(_setup, _teardown)
 def test_add_sessions_command_parses_google():
     # Do not skip and python
@@ -106,14 +104,15 @@ def test_add_sessions_command_parses_google():
     command = "add"
     name = "-s name"
     language = "-l python"
-    connection_string = "-u http://url.com -t {}".format('Google')
-    line = " ".join([command, name, language, connection_string])
+    account = "-g default-credentials"
+    connection_string = "-u http://url.com -t {} ".format('Google')
+    line = " ".join([command, name, language, connection_string, account])
 
     magic.spark(line)
     args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
     auth_instance = initialize_auth(args)
     add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", initialize_auth(args)),
-                                              False, {"kind": "pyspark"})
+                                            False, {"kind": "pyspark"})
     assert_equals(auth_instance.url, "http://url.com")
 
 
