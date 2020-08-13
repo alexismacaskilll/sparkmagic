@@ -102,7 +102,7 @@ def initialize_auth(args):
         parsing %spark magic command
 
     Returns:
-        An instance of a valid Authenticator 
+        An instance of a valid Authenticator or None if args.auth is 'None'
     
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if args.auth is not a valid
@@ -119,8 +119,10 @@ def initialize_auth(args):
     module, class_name = (full_class).rsplit('.', 1)
     events_handler_module = importlib.import_module(module)
     auth_class = getattr(events_handler_module, class_name)
-    auth_instance = auth_class(args)
-    return auth_instance
+    if auth_class is constants.NO_AUTH:
+        return None
+    else: 
+        return auth_class(args)
 
 class Namespace:
     """Namespace to initialize authenticator class with"""
