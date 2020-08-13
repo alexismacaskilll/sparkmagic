@@ -119,8 +119,10 @@ def initialize_auth(args):
     module, class_name = (full_class).rsplit('.', 1)
     events_handler_module = importlib.import_module(module)
     auth_class = getattr(events_handler_module, class_name)
-    auth_instance = auth_class(args)
-    return auth_instance
+    if auth_class is None: 
+        return None
+    else: 
+        return auth_class(args)
 
 class Namespace:
     """Namespace to initialize authenticator class with"""
