@@ -28,28 +28,6 @@ def load_json_input(result):
         raise
     return jsondata
 
-def list_active_account(credentialed_accounts):
-    """Returns the active account from all the user's credentialed accounts that are listed
-    with the ``gcloud auth list`` command. Used to set the google_credentials_widget dropdown
-    to be the active account on load.
-
-    Returns:
-        str: the active account from the user's credentialed accounts or an empty str if no accounts
-        are active. 
-
-    Raises:
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set
-        or user needs to run gcloud auth login or if gcloud is not installed.
-    """
-    try:
-        accounts = credentialed_accounts
-        for account in accounts:
-            if account['status'] == "ACTIVE":
-                return account['account']
-        return None
-    except:
-        pass
-
 def list_accounts_pairs(credentialed_accounts, default_credentials_configured):
     """Reformats all of user's credentialed accounts to populate google_credentials_widget
     dropdown's options. 
@@ -64,12 +42,13 @@ def list_accounts_pairs(credentialed_accounts, default_credentials_configured):
         same str credentialed account
     """
     accounts = credentialed_accounts
-    accounts_list = {}
+    
+    accounts_dict = {}
     for account in accounts:
-        accounts_list[account['account']] = account['account']
+        accounts_dict[account] = account
     if default_credentials_configured:
-        accounts_list['default-credentials'] = 'default-credentials'
-    return accounts_list
+        accounts_dict['default-credentials'] = 'default-credentials'
+    return accounts_dict
 
 
 def list_credentialed_accounts():
@@ -79,8 +58,8 @@ def list_credentialed_accounts():
         Sequence[str]: each key is a str of one of the users credentialed accounts
 
     Raises:
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user 
-        needs to run gcloud auth login or if gcloud is not installed. 
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user
+        needs to run gcloud auth login or if gcloud is not installed.
     """
     accounts_json = ""
     if os.name == "nt":
@@ -91,15 +70,17 @@ def list_credentialed_accounts():
         command = (command,) + _CLOUD_SDK_USER_CREDENTIALED_ACCOUNTS_COMMAND
         accounts_json = subprocess.check_output(command, stderr=subprocess.STDOUT)
         all_accounts = load_json_input(accounts_json)
-        
-        credentialed_accounts = list()
+        credentialed_accounts = set()
+        active_account = None
         for account in all_accounts:
             try:
                 _cloud_sdk.get_auth_access_token(account['account'])
-                credentialed_accounts.append(account)
+                if account['status'] == 'ACTIVE':
+                    active_account = account['account']
+                credentialed_accounts.add(account['account'])
             except:
                 pass
-        return credentialed_accounts
+        return credentialed_accounts, active_account
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
             "Gcloud is not installed. Install the Google Cloud SDK.")
@@ -202,10 +183,9 @@ class GoogleAuth(Authenticator):
 
     def __init__(self, parsed_attributes=None):
         self.callable_request = google.auth.transport.requests.Request()
-        self.credentialed_accounts = list_credentialed_accounts()
+        self.credentialed_accounts, active_user_account = list_credentialed_accounts()
         self.scopes = ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/userinfo.email']
         self.active_credentials = None
-        active_user_account = list_active_account(self.credentialed_accounts)
         self.default_credentials_configured = application_default_credentials_configured()
         
         account_dict = list_accounts_pairs(self.credentialed_accounts, self.default_credentials_configured)
@@ -293,7 +273,7 @@ class GoogleAuth(Authenticator):
                 self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, \
                     self.cluster_name_widget.value, self.credentials)
             except: 
-                raise 
+                raise
         else: 
             raise no_credentials_exception
         self.initialize_credentials_with_auth_account_selection(self.google_credentials_widget.value)
@@ -305,4 +285,4 @@ class GoogleAuth(Authenticator):
         return request
 
     def __hash__(self):
-        return hash((self.active_credentials, self.url, 'Google'))
+        return hash((self.active_credentials, self.url, self.__class__.__name__))
