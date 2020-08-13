@@ -461,8 +461,3 @@ class KernelMagics(SparkMagicBase):
 
 def load_ipython_extension(ip):
     ip.register_magics(KernelMagics)
-
-class Namespace:
-    """Namespace to initialize authenticator class with"""
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)

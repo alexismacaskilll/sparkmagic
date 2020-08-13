@@ -111,7 +111,7 @@ def initialize_auth(args):
 
     if args.auth is None:
         auth = conf.get_auth_value(args.user, args.password)
-    else: 
+    else:
         auth = args.auth
     full_class = conf.authenticators().get(auth)
     if full_class is None:
@@ -126,5 +126,3 @@ class Namespace:
     """Namespace to initialize authenticator class with"""
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-
