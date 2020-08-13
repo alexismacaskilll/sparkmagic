@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 from .customauth import Authenticator
 
 class Basic(HTTPBasicAuth, Authenticator):
-    """Basic access authenticator for SparkMagic"""
+    """Basic Access authenticator for SparkMagic"""
     def __init__(self, parsed_attributes=None):
         """Initializes the Authenticator with the attributes in the attributes
         parsed from a %spark magic command if applicable, or with default values

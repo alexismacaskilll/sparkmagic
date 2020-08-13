@@ -182,7 +182,7 @@ def test_change_endpoint():
     t = constants.AUTH_BASIC
     line = "-s {} -u {} -p {} -t {}".format(s, u, p, t)
     magic._do_not_call_change_endpoint(line)
-    args = Namespace(auth='Basic', password='password', url='server', user='user')
+    args = Namespace(auth='Basic_Access', password='password', url='server', user='user')
     auth_instance = initialize_auth(args)
     endpoint = Endpoint(s, auth_instance)
     assert_equals(endpoint.url, magic.endpoint.url)
