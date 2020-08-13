@@ -38,8 +38,8 @@ def list_active_account(credentialed_accounts):
         are active. 
 
     Raises:
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
-        or if gcloud is not installed. 
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set
+        or user needs to run gcloud auth login or if gcloud is not installed.
     """
     try:
         accounts = credentialed_accounts
@@ -51,7 +51,8 @@ def list_active_account(credentialed_accounts):
         pass
 
 def list_accounts_pairs(credentialed_accounts, default_credentials_configured):
-    """Reformates all of user's credentialed accounts to populate google_credentials_widget dropdown's options. 
+    """Reformats all of user's credentialed accounts to populate google_credentials_widget
+    dropdown's options. 
 
     Args:
         credentialed_accounts (str): user credentialed account to return credentials for
@@ -59,7 +60,8 @@ def list_accounts_pairs(credentialed_accounts, default_credentials_configured):
         credentials are configured.
 
     Returns:
-        dict: each key is a str of the users credentialed accounts and it maps to the same str credentialed account
+        dict: each key is a str of the users credentialed accounts and it maps to the 
+        same str credentialed account
     """
     accounts = credentialed_accounts
     accounts_list = {}
@@ -77,8 +79,8 @@ def list_credentialed_accounts():
         Sequence[str]: each key is a str of one of the users credentialed accounts
 
     Raises:
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
-        or if gcloud is not installed. 
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user 
+        needs to run gcloud auth login or if gcloud is not installed. 
     """
     accounts_json = ""
     if os.name == "nt":
@@ -92,16 +94,15 @@ def list_credentialed_accounts():
         
         credentialed_accounts = list()
         for account in all_accounts:
-            try: 
+            try:
                 _cloud_sdk.get_auth_access_token(account['account'])
                 credentialed_accounts.append(account)
-            except: 
+            except:
                 pass
         return credentialed_accounts
     except (OSError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Gcloud is not installed. Install the Google Cloud SDK." 
-        )
+            "Gcloud is not installed. Install the Google Cloud SDK.")
         raise new_exc
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
@@ -124,8 +125,8 @@ def get_credentials_for_account(account, scopes_list):
 
     Raises:
         ValueError: If `gcloud auth describe ACCOUNT --format json` returns json not in the expected format.
-        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run gcloud auth login
-        or if gcloud is not installed. 
+        sparkmagic.livyclientlib.BadUserConfigurationException: if account is not set or user needs to run 
+        gcloud auth login or if gcloud is not installed. 
     """
     if os.name == "nt":
         command = _CLOUD_SDK_WINDOWS_COMMAND
@@ -146,13 +147,12 @@ def get_credentials_for_account(account, scopes_list):
         raise new_exc
     except (subprocess.CalledProcessError, IOError) as caught_exc:
         new_exc = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line \
-            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-            application-default login` cquire new user credentials to use for Application Default Credentials."
-        )
+            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials"\
+            "to authenticate. Run `gcloud auth application-default login` to acquire new"\
+            "user credentials to use for Application Default Credentials.")
         raise new_exc
 
-    
 def get_component_gateway_url(project_id, region, cluster_name, credentials):
     """Gets the component gateway url for a cluster name, project id, and region
 
@@ -160,9 +160,9 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
         cluster_name (str): The cluster name to use for the url
         project_id (str): The project id to use for the url
         region (str): The project id to use for the url
-        credentials (google.oauth2.credentials.Credentials): The authorization credentials to 
-        attach to requests. 
-       
+        credentials (google.oauth2.credentials.Credentials): The authorization credentials to
+        attach to requests.
+
     Returns:
         str: the component gateway url
 
@@ -191,8 +191,6 @@ def application_default_credentials_configured():
     callable_request = google.auth.transport.requests.Request()
     try:
         credentials, project = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/userinfo.email'])
-        #credentials.refresh(callable_request) 
-        #Hangs unless refresh error. Check!! 
     except:
         pass
         return False
@@ -216,13 +214,12 @@ class GoogleAuth(Authenticator):
                 self.active_credentials = parsed_attributes.account
             else: 
                 new_exc = BadUserConfigurationException(
-                "{} is not a credentialed account. Run `gcloud auth login` in your command line \
-            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-            application-default login` acquire new user credentials to use for Application Default Credentials. Run `gcloud \
-            auth list` to see your credentialed accounts.".format(parsed_attributes.account)
-            )
+                "{} is not a credentialed account. Run `gcloud auth login` in your command line"\
+                "to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate."\
+                "Run `gcloud auth application-default login` acquire new user credentials"\
+                "to use for Application Default Credentials. Run `gcloud auth list` to see"\
+                "your credentialed accounts.".format(parsed_attributes.account))
                 raise new_exc
-            
             if self.active_credentials == 'default-credentials' and self.default_credentials_configured:
                 self.credentials, self.project = google.auth.default(scopes=self.scopes)
             #fix account_dict
@@ -287,10 +284,10 @@ class GoogleAuth(Authenticator):
         
     def update_with_widget_values(self):
         no_credentials_exception = BadUserConfigurationException(
-            "Failed to obtain access token. Run `gcloud auth login` in your command line \
-            to authorize gcloud to access the Cloud Platform with Google user credentials to authenticate. Run `gcloud auth \
-            application-default login` acquire new user credentials to use for Application Default Credentials."
-        )
+            "Failed to obtain access token. Run `gcloud auth login` in your command line"\
+            "to authorize gcloud to access the Cloud Platform with Google user credentials to"\
+            "authenticate. Run `gcloud auth application-default login` acquire new user"\
+            "credentials to use for Application Default Credentials.")
         if (self.credentials is not None):
             try: 
                 self.url = get_component_gateway_url(self.project_widget.value, self.region_widget.value, \

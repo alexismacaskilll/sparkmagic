@@ -127,12 +127,9 @@ def test_add_sessions_command_parses_kerberos():
     language = "-l python"
     connection_string = "-u http://url.com -t {}".format('Kerberos')
     line = " ".join([command, name, language, connection_string])
-    print(line)
     magic.spark(line)
     args = parse_argstring_or_throw(RemoteSparkMagics.spark, line)
-    print(args)
     auth_instance = initialize_auth(args)
-    print(auth_instance.url)
     
     add_sessions_mock.assert_called_once_with("name", Endpoint("http://url.com", initialize_auth(args)),
                                               False, {"kind": "pyspark"})
