@@ -102,7 +102,7 @@ def initialize_auth(args):
         parsing %spark magic command
 
     Returns:
-        An instance of one of a valid Authenticator
+        An instance of a valid Authenticator 
     
     Raises:
         sparkmagic.livyclientlib.BadUserConfigurationException: if args.auth is not a valid
