@@ -159,12 +159,31 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
                     )
     try:
         response = client.get_cluster(project_id, region, cluster_name)
+        response.config.endpoint_config.http_ports.values()
         url = ((response.config.endpoint_config).http_ports).popitem()[1]
         parsed_uri = urllib3.util.parse_url(url)
         endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
         return endpoint_address
     except:
         raise
+
+    def get_cluster_pool(project_id, region, filter_, credentials):
+        client = dataproc_v1beta2.ClusterControllerClient(credentials=credentials,
+                        client_options={
+                                'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
+                            }
+                        )
+        try:
+            #status.state = ACTIVE AND clusterName = mycluster AND labels.env = staging AND labels.starred = \*
+            #check if filter contains = 
+
+            labels = {"status.state":"ACTIVE"}
+            for cluster in client.list_clusters(project_id, region, filter_):
+                if (len(response.config.endpoint_config.http_ports.values() != 0): # and if livy is enabled:  
+                    print("add this to dictionary of clusters available") #we pass this to dropdown. 
+            #return dictionary of clusters
+        except:
+            raise
 
 
 def application_default_credentials_configured(): 
