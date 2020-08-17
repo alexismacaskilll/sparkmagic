@@ -181,7 +181,7 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
         if cluster_name is '':
             #pop random cluster from cluster pool 
             cluster_pool = get_cluster_pool(project_id, region, client)
-            cluster_name = cluster_pool.pop()
+            cluster_name = cluster_pool.copy().pop()
         response = client.get_cluster(project_id, region, cluster_name)
         """
         regex stuff
