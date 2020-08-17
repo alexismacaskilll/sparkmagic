@@ -177,9 +177,11 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
     try:
         print(get_cluster_pool(project_id, region, client))
         # if they didn't enter cluster name then we get a cluster from cluster pool 
+        cluster_pool = None
         if cluster_name is '':
             #pop random cluster from cluster pool 
-            cluster_name = get_cluster_pool(project_id, region, client).pop()
+            cluster_pool = get_cluster_pool(project_id, region, client).pop()
+            cluster_name = cluster_pool.pop()
         response = client.get_cluster(project_id, region, cluster_name)
         """
         regex stuff
@@ -192,7 +194,11 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
         parsed_uri = urllib3.util.parse_url(url)
         endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
         ipython_display = IpythonDisplay()
-        ipython_display.writeln("Used {} cluster".format(cluster_name))
+        
+        if cluster_pool is not None:
+            ipython_display.writeln("Used {} cluster from cluster_pool: {}".format(cluster_name, cluster_pool))
+        else:
+            ipython_display.writeln("Used {} cluster".format(cluster_name))
         return endpoint_address
     except:
         raise
