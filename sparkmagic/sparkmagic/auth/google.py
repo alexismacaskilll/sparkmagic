@@ -177,7 +177,7 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
     try:
         print(get_cluster_pool(project_id, region, client))
         # if they didn't enter cluster name then we get a cluster from cluster pool 
-        if cluster_name is None:
+        if cluster_name is '':
             #pop random cluster from cluster pool 
             cluster_name = get_cluster_pool(project_id, region, client).pop()
         response = client.get_cluster(project_id, region, cluster_name)
