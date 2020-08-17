@@ -1,6 +1,7 @@
 ﻿from .customauth import Authenticator
 import json
 import os
+import re
 import urllib3.util
 import subprocess
 from sparkmagic.livyclientlib.exceptions import BadUserConfigurationException
@@ -12,6 +13,7 @@ from google.auth.exceptions import DefaultCredentialsError, RefreshError
 from hdijupyterutils.ipywidgetfactory import IpyWidgetFactory
 from hdijupyterutils.ipythondisplay import IpythonDisplay
 from google.oauth2.credentials import Credentials
+
 
 # The name of the Cloud SDK shell script
 _CLOUD_SDK_POSIX_COMMAND = "gcloud"
@@ -134,6 +136,21 @@ def get_credentials_for_account(account, scopes_list):
             "user credentials to use for Application Default Credentials.")
         raise new_exc
 
+
+def get_cluster_pool(project_id, region, client):
+    #filter format: status.state = ACTIVE AND clusterName = mycluster AND labels.env = staging AND labels.starred = \*
+    cluster_pool = set()
+    for cluster in client.list_clusters(project_id, region, 'status.state = ACTIVE'):
+        #check component gateway is enabled
+        if (len(cluster.config.endpoint_config.http_ports.values()) != 0):
+            action_list = list()
+            for action in cluster.config.initialization_actions:
+                if "livy" in action.executable_file:
+                    action_list.append(action.executable_file)
+                    cluster_pool.add(cluster.cluster_name)
+    return cluster_pool
+
+
 def get_component_gateway_url(project_id, region, cluster_name, credentials):
     """Gets the component gateway url for a cluster name, project id, and region
 
@@ -158,33 +175,27 @@ def get_component_gateway_url(project_id, region, cluster_name, credentials):
                         }
                     )
     try:
+        print(get_cluster_pool(project_id, region, client))
+        # if they didn't enter cluster name then we get a cluster from cluster pool 
+        if cluster_name is None:
+            #pop random cluster from cluster pool 
+            cluster_name = get_cluster_pool(project_id, region, client).pop()
         response = client.get_cluster(project_id, region, cluster_name)
-        response.config.endpoint_config.http_ports.values()
+        """
+        regex stuff
+        init_action = response.config.initialization_actions
+        value = init_action.pop()
+        ans2 = re.search('(?<=actions-)[a-z0-9-]+', value.executable_file)
+        print(get_cluster_pool(project_id, ans2.group(), 'status.state = ACTIVE', credentials))
+        """
         url = ((response.config.endpoint_config).http_ports).popitem()[1]
         parsed_uri = urllib3.util.parse_url(url)
         endpoint_address = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri) + 'gateway/default/livy/v1'
+        ipython_display = IpythonDisplay()
+        ipython_display.writeln("Used {} cluster".format(cluster_name))
         return endpoint_address
     except:
         raise
-
-    def get_cluster_pool(project_id, region, filter_, credentials):
-        client = dataproc_v1beta2.ClusterControllerClient(credentials=credentials,
-                        client_options={
-                                'api_endpoint': '{}-dataproc.googleapis.com:443'.format(region)
-                            }
-                        )
-        try:
-            #status.state = ACTIVE AND clusterName = mycluster AND labels.env = staging AND labels.starred = \*
-            #check if filter contains = 
-
-            labels = {"status.state":"ACTIVE"}
-            for cluster in client.list_clusters(project_id, region, filter_):
-                if (len(response.config.endpoint_config.http_ports.values() != 0): # and if livy is enabled:  
-                    print("add this to dictionary of clusters available") #we pass this to dropdown. 
-            #return dictionary of clusters
-        except:
-            raise
-
 
 def application_default_credentials_configured(): 
     """Checks if google application-default credentials are configured"""
