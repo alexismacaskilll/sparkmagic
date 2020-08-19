@@ -68,16 +68,19 @@ See the [Sending Local Data to Spark notebook](examples/Send%20local%20data%20to
         jupyter serverextension enable --py sparkmagic
 
 ## Authentication Methods
-
-Sparkmagic supports:
-
-* No auth
+Sparkmagic supports: 
+* No auth 
 * Basic authentication
 * Kerberos
 
+The [Authenticator](sparkmagic/sparkmagic/auth/customauth.py) is the mechanism for authenticating to Livy. The base
+Authenticator used by itself supports no auth, but it can be subclassed to enable authentication via other methods. 
+Two such examples are the [Basic](sparkmagic/sparkmagic/auth/basic.py) and [Kerberos](sparkmagic/sparkmagic/auth/kerberos.py) Authenticators. 
+
+### Kerberos Authenticator
 Kerberos support is implemented via the [requests-kerberos](https://github.com/requests/requests-kerberos) package. Sparkmagic expects a kerberos ticket to be available in the system. Requests-kerberos will pick up the kerberos ticket from a cache file. For the ticket to be available, the user needs to have run [kinit](https://web.mit.edu/kerberos/krb5-1.12/doc/user/user_commands/kinit.html) to create the kerberos ticket.
 
-### Kerberos Configuration
+#### Kerberos Configuration
 
 By default the `HTTPKerberosAuth` constructor provided by the `requests-kerberos` package will use the following configuration
 ```python
@@ -98,6 +101,13 @@ but this will not be right configuration for every context, so it is able to pas
     }
 }
 ```
+
+#### Custom Authenticators
+
+You can write custom Authenticator subclasses to enable authentication via other mechanisms. All Authenticator subclasses 
+should override the `Authenticator.__call__(request)` method that attaches HTTP Authentication to the given Request object. 
+
+Authenticator subclasses that add additional class attributes to be used for the authentication, such as the ['Basic Authenticator'](sparkmagic/sparkmagic/auth/basic.py) which adds `username` and `password` attributes, should override the `__hash__`, `__eq__`, `update_with_widget_values`, and `get_widgets` methods to work with these new attributes. This is necessary in order for the Authenticator to use these attributes in the authentication process.  
 
 ## Papermill
 
