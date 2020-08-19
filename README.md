@@ -108,7 +108,7 @@ but this will not be right configuration for every context, so it is able to pas
 You can write custom Authenticator subclasses to enable authentication via other mechanisms. All Authenticator subclasses 
 should override the `Authenticator.__call__(request)` method that attaches HTTP Authentication to the given Request object. 
 
-Authenticator subclasses that add additional class attributes to be used for the authentication, such as the [Basic Authenticator](sparkmagic/sparkmagic/auth/basic.py) which adds `username` and `password` attributes, should override the `__hash__`, `__eq__`, `update_with_widget_values`, and `get_widgets` methods to work with these new attributes. This is necessary in order for the Authenticator to use these attributes in the authentication process.
+Authenticator subclasses that add additional class attributes to be used for the authentication, such as the [Basic] (sparkmagic/sparkmagic/auth/basic.py) authenticator which adds `username` and `password` attributes, should override the `__hash__`, `__eq__`, `update_with_widget_values`, and `get_widgets` methods to work with these new attributes. This is necessary in order for the Authenticator to use these attributes in the authentication process.
 
 #### Using a Custom Authenticator with Sparkmagic
 
